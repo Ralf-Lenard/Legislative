@@ -18,6 +18,15 @@ Route::get('/sb', function () {
     return Inertia::render('SB');
 });
 
+Route::get('/ordinances', function () {
+    return Inertia::render('Ordinances');
+});
+
+Route::get('/resolutions', function () {
+    return Inertia::render('Resolutions');
+});
+
+
 Route::get('dashboard', function () {
     return Inertia::render('Dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
