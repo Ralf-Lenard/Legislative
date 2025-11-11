@@ -224,48 +224,60 @@ export default {
     min-height: 100vh;
     text-align: center;
 }
-
-/* --- Header --- */
+/* --- Header (Elegant Photo Overlay Design like Ordinances) --- */
 .resolution-header {
-    background: linear-gradient(135deg, var(--main-green), #1f6d23); 
-    color: white;
-    padding: 100px 20px 80px;
-    border-radius: 0 0 50px 50px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
     position: relative;
-    overflow: hidden; 
+    color: white;
+    padding: 120px 20px 100px;
+    border-radius: 0 0 60px 60px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+    text-align: center;
+    background: 
+        linear-gradient(rgba(0, 60, 0, 0.65), rgba(0, 0, 0, 0.6)),
+        url('images/lg.jpg') center/cover no-repeat;
+    background-attachment: fixed;
+    overflow: hidden;
 }
-.resolution-header::before {
-    content: '';
+
+/* Decorative curved fade at the bottom */
+.resolution-header::after {
+    content: "";
     position: absolute;
-    bottom: -150px;
+    bottom: -1px;
     left: 0;
     width: 100%;
-    height: 300px;
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 50% / 100px 100px 0 0;
-    transform: scaleX(1.5);
+    height: 100px;
+    background: radial-gradient(circle at 50% 0, transparent 60%, var(--bg-page) 100%);
+    z-index: 1;
 }
+
+/* Title & Subtitle Styling (consistent with Ordinances) */
 .header-title {
-    font-size: 3rem;
-    margin-bottom: 10px;
+    font-size: 3.2rem;
+    margin-bottom: 15px;
     font-weight: 900;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.4);
-    position: relative; 
-}
-.header-subtitle {
-    font-size: 1.15rem;
-    opacity: 0.95;
-    font-weight: 400;
-    max-width: 600px;
-    margin: 0 auto;
+    text-shadow: 0 4px 15px rgba(0, 0, 0, 0.8);
     position: relative;
+    z-index: 2;
 }
+
+.header-subtitle {
+    font-size: 1.2rem;
+    max-width: 700px;
+    margin: 0 auto;
+    font-weight: 400;
+    line-height: 1.6;
+    color: #f1f1f1;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.6);
+    position: relative;
+    z-index: 2;
+}
+
 .header-subtitle strong {
-    font-weight: 700;
     color: var(--accent-gold);
-    text-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+    font-weight: 700;
 }
+
 
 /* --- Search (IMPROVED) --- */
 .search-bar {

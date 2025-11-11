@@ -3,24 +3,33 @@
         <Navbar />
 
         <section class="ordinance-header">
+            <div class="header-overlay"></div>
             <h1 class="header-title">Municipal Ordinances 🏛️</h1>
             <p class="header-subtitle">Explore the approved ordinances of the Municipality of Concepcion, Tarlac. We commit to **Transparency**, **Integrity**, and **Public Service**.</p>
         </section>
 
-        <div class="search-bar">
-            <input
-                type="text"
-                v-model="searchQuery"
-                placeholder="Search ordinance by title or number..."
-                @input="debouncedSearch"
-                aria-label="Search ordinances"
-            />
-            <svg class="search-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M11 19C15.4183 19 19 15.4183 19 11C19 6.58172 15.4183 3 11 3C6.58172 3 3 6.58172 3 11C3 15.4183 6.58172 19 11 19Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                <path d="M21 21L16.65 16.65" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-        </div>
+        <div class="controls-bar">
+            <div class="search-bar">
+                <input
+                    type="text"
+                    v-model="searchQuery"
+                    placeholder="Search ordinance by title or number..."
+                    @input="debouncedSearch"
+                    aria-label="Search ordinances"
+                />
+                <svg class="search-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M11 19C15.4183 19 19 15.4183 19 11C19 6.58172 15.4183 3 11 3C6.58172 3 3 6.58172 3 11C3 15.4183 6.58172 19 11 19Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M21 21L16.65 16.65" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </div>
 
+            <div class="filter-dropdown">
+                <select v-model="selectedYear" aria-label="Filter by year">
+                    <option value="">All Years</option>
+                    <option v-for="year in availableYears" :key="year" :value="year">{{ year }}</option>
+                </select>
+            </div>
+        </div>
         <section class="ordinance-list">
             <div v-if="isLoading" class="loading-state">
                 <div class="spinner"></div>
@@ -38,7 +47,7 @@
             >
                 <div class="ordinance-header-info">
                     <h3 class="ordinance-number">{{ ordinance.number }}</h3>
-                    <span class="date"><i class="fas fa-calendar-alt"></i> Approved: {{ ordinance.date }}</span>
+                    <span class="date"><i class="fas fa-calendar-alt"></i> Approved: **{{ ordinance.date }}**</span>
                 </div>
                 <h2 class="ordinance-title">{{ ordinance.title }}</h2>
                 <p class="ordinance-description">{{ ordinance.description }}</p>
@@ -46,7 +55,7 @@
             </div>
 
             <p v-if="!isLoading && filteredOrdinances.length === 0" class="no-results">
-                No ordinances found matching "**{{ searchQuery }}**". Please try a different term.
+                No ordinances found matching "**{{ searchQuery }}**" for the year **{{ selectedYear || 'All Years' }}**. Please try a different term or filter.
             </p>
         </section>
 
@@ -99,6 +108,7 @@ export default {
     data() {
         return {
             searchQuery: "",
+            selectedYear: "", // New state for year filter
             selectedOrdinance: null,
             isLoading: false,
             ordinances: [
@@ -138,27 +148,51 @@ export default {
                     details:
                         "Households are required to separate biodegradable, recyclable, and residual wastes. Failure to comply will result in warnings or fines as prescribed by the municipal environment office.",
                 },
+                {
+                    number: "Ordinance No. 2024-007",
+                    title: "Mandatory Tree Planting for New Constructions",
+                    date: "June 5, 2024",
+                    description:
+                        "Requires all new residential and commercial construction projects to plant a minimum number of trees.",
+                    details:
+                        "A minimum of five (5) native tree seedlings must be planted on the property or in a designated municipal area for every new construction permit issued. The municipality will provide the seedlings.",
+                },
             ],
         };
     },
     computed: {
+        availableYears() {
+            // Extract unique years from the ordinance dates
+            const years = new Set(this.ordinances.map(ord => new Date(ord.date).getFullYear().toString()));
+            // Convert to array and sort descending
+            return Array.from(years).sort((a, b) => b - a);
+        },
         filteredOrdinances() {
             if (this.isLoading) return [];
 
             const query = this.searchQuery.toLowerCase().trim();
+            const year = this.selectedYear;
 
-            if (!query) {
-                // If query is empty, return all ordinances sorted by date (newest first)
-                return [...this.ordinances].sort((a, b) => new Date(b.date) - new Date(a.date));
-            }
+            // 1. Filter by search query
+            let filtered = this.ordinances.filter((ord) => {
+                const matchesQuery = !query || ord.title.toLowerCase().includes(query) || ord.number.toLowerCase().includes(query);
+                
+                // 2. Filter by selected year
+                const ordinanceYear = new Date(ord.date).getFullYear().toString();
+                const matchesYear = !year || ordinanceYear === year;
 
-            return this.ordinances.filter((ord) => {
-                return (
-                    ord.title.toLowerCase().includes(query) ||
-                    ord.number.toLowerCase().includes(query)
-                );
-            }).sort((a, b) => new Date(b.date) - new Date(a.date)); // Keep the sorting
+                return matchesQuery && matchesYear;
+            });
+
+            // 3. Sort by date (newest first)
+            return filtered.sort((a, b) => new Date(b.date) - new Date(a.date));
         },
+    },
+    watch: {
+        // Trigger a fake loading/filter state when the year changes too
+        selectedYear() {
+            this.debouncedSearch();
+        }
     },
     methods: {
         showOrdinance(ordinance) {
@@ -224,86 +258,129 @@ export default {
     min-height: 100vh;
     text-align: center;
 }
-
-/* --- Header --- */
+/* --- Header (Elegant Photo Overlay Design) --- */
 .ordinance-header {
-    /* Uses the primary color with a slightly darker shade for depth */
-    background: linear-gradient(135deg, var(--main-green), #1f6d23); 
-    color: white;
-    padding: 100px 20px 80px;
-    border-radius: 0 0 50px 50px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
     position: relative;
-    overflow: hidden; 
+    color: white;
+    padding: 120px 20px 100px;
+    border-radius: 0 0 60px 60px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+    text-align: center;
+    background: 
+        linear-gradient(rgba(0, 50, 0, 0.65), rgba(0, 0, 0, 0.6)),
+        url('images/lg.jpg') center/cover no-repeat;
+    /* The gradient darkens the photo for better text visibility */
+    background-attachment: fixed;
 }
-.ordinance-header::before {
-    content: '';
+
+/* Decorative curved overlay at the bottom */
+.ordinance-header::after {
+    content: "";
     position: absolute;
-    bottom: -150px;
+    bottom: -1px;
     left: 0;
     width: 100%;
-    height: 300px;
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 50% / 100px 100px 0 0;
-    transform: scaleX(1.5);
-}
-.header-title {
-    font-size: 3rem;
-    margin-bottom: 10px;
-    font-weight: 900;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.4);
-    position: relative; 
-}
-.header-subtitle {
-    font-size: 1.15rem;
-    opacity: 0.95;
-    font-weight: 400;
-    max-width: 600px;
-    margin: 0 auto;
-    position: relative;
-}
-.header-subtitle strong {
-    font-weight: 700;
-    color: var(--accent-gold);
-    text-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+    height: 100px;
+    background: radial-gradient(circle at 50% 0, transparent 60%, var(--bg-page) 100%);
+    z-index: 1;
 }
 
-/* --- Search (IMPROVED STYLES) --- */
-.search-bar {
+.header-title {
+    font-size: 3.2rem;
+    margin-bottom: 15px;
+    font-weight: 900;
+    text-shadow: 0 4px 15px rgba(0, 0, 0, 0.8);
+    position: relative;
+    z-index: 2;
+}
+
+.header-subtitle {
+    font-size: 1.2rem;
+    max-width: 700px;
+    margin: 0 auto;
+    font-weight: 400;
+    line-height: 1.6;
+    color: #f1f1f1;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.6);
+    position: relative;
+    z-index: 2;
+}
+
+
+/* --- Controls Bar (New Container for Search and Filter) --- */
+.controls-bar {
     margin: -40px auto 50px;
-    max-width: 800px;
+    max-width: 1000px; /* Wider container for both elements */
     padding: 0 20px;
     position: relative;
     z-index: 10;
+    display: flex; /* Arrange search and filter side-by-side */
+    gap: 20px;
+}
+
+/* --- Search --- */
+.search-bar {
+    flex-grow: 1; /* Allows search bar to take up most space */
+    position: relative;
 }
 .search-bar input {
     width: 100%;
-    padding: 18px 30px 18px 60px; /* Adjust padding for icon placement */
+    padding: 18px 30px 18px 60px;
     border: 2px solid #e0e0e0; 
     border-radius: 40px;
     font-size: 1.05rem;
     outline: none;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05) inset; /* Lighter inset shadow */
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05) inset;
     background-color: white;
     transition: all 0.3s;
 }
 .search-bar input:focus {
     border-color: var(--main-green);
-    box-shadow: 0 0 0 3px rgba(46, 125, 50, 0.2); /* Clean focus ring */
+    box-shadow: 0 0 0 3px rgba(46, 125, 50, 0.2);
 }
 .search-icon {
     position: absolute;
-    left: 45px; /* Position icon inside */
-    right: auto;
+    left: 20px; /* Adjusted to 20px from the left inside the padding */
     top: 50%;
     transform: translateY(-50%);
-    color: #9e9e9e; /* Muted gray icon */
+    color: #9e9e9e;
     transition: color 0.3s;
     pointer-events: none;
 }
 .search-bar input:focus + .search-icon {
-    color: var(--main-green); /* Change icon color on focus */
+    color: var(--main-green);
 }
+
+/* --- Filter Dropdown (New Style) --- */
+.filter-dropdown {
+    flex-shrink: 0; /* Prevents it from shrinking too much */
+    min-width: 180px; /* Minimum width for readability */
+    position: relative;
+}
+.filter-dropdown select {
+    appearance: none; /* Remove default styling */
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    width: 100%;
+    padding: 18px 20px;
+    border: 2px solid #e0e0e0;
+    border-radius: 40px;
+    font-size: 1.05rem;
+    outline: none;
+    background-color: white;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05) inset;
+    cursor: pointer;
+    color: var(--text-base);
+    transition: all 0.3s;
+}
+.filter-dropdown select:hover {
+    border-color: #c0c0c0;
+}
+.filter-dropdown select:focus {
+    border-color: var(--accent-gold);
+    box-shadow: 0 0 0 3px rgba(255, 179, 0, 0.2);
+}
+/* You could add a custom chevron/down arrow for the select, but for brevity, I'll rely on the default or system one. */
 
 
 /* --- Ordinance Cards --- */
@@ -326,6 +403,7 @@ export default {
     border-left: 8px solid var(--main-green); 
     display: flex;
     flex-direction: column;
+    min-height: 250px; /* Added min-height for uniformity */
 }
 .ordinance-card:hover, .ordinance-card:focus {
     transform: translateY(-10px) scale(1.015);
@@ -389,8 +467,8 @@ export default {
 }
 
 
-/* --- Loading State & Spinner --- */
-.loading-state {
+/* --- Loading State & No Results --- */
+.loading-state, .no-results {
     grid-column: 1 / -1;
     display: flex;
     flex-direction: column;
@@ -399,6 +477,12 @@ export default {
     padding: 80px 0;
     color: var(--main-green);
     font-size: 1.1rem;
+}
+.no-results {
+    color: var(--text-base);
+}
+.no-results strong {
+    color: var(--accent-gold);
 }
 .spinner {
     border: 5px solid rgba(46, 125, 50, 0.2);
@@ -415,7 +499,7 @@ export default {
 }
 
 
-/* --- Modal --- */
+/* --- Modal (Existing Styles remain largely the same) --- */
 .modal-overlay {
     position: fixed;
     inset: 0;
@@ -555,14 +639,22 @@ footer {
     .header-title {
         font-size: 2.2rem;
     }
-    .search-bar {
+    .controls-bar {
+        flex-direction: column; /* Stack controls vertically */
+        gap: 15px;
         margin: -30px auto 40px;
     }
     .search-bar input {
-        padding: 15px 20px 15px 50px; /* Adjusted padding for mobile */
+        padding: 15px 20px 15px 50px; 
     }
     .search-icon {
-        left: 35px; /* Adjusted position for mobile */
+        left: 35px;
+    }
+    .filter-dropdown {
+        min-width: 100%; /* Full width for the dropdown */
+    }
+    .filter-dropdown select {
+        padding: 15px 20px;
     }
     .ordinance-list {
         grid-template-columns: 1fr;
