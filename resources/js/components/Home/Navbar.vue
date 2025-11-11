@@ -42,14 +42,7 @@
             >Resolutions</a
           >
         </li>
-        <li>
-          <a
-            href="#"
-            :class="{ active: activeLink === '/about' }"
-            @click="setActive('/about')"
-            >About</a
-          >
-        </li>
+     
       </ul>
     </nav>
 
