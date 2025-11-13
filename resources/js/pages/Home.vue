@@ -38,6 +38,36 @@
             </div>
         </section>
 
+        <section class="about-sb">
+            <div class="about-container">
+                <div class="about-text">
+                    <h3>About the Sangguniang Bayan</h3>
+                    <p>
+                        The
+                        <strong>Sangguniang Bayan of Concepcion</strong> serves
+                        as the legislative body of the municipality, responsible
+                        for crafting ordinances, resolutions, and policies that
+                        promote transparency, good governance, and sustainable
+                        development. Guided by the values of
+                        <em>Integrity, Accountability, and Public Service</em>,
+                        we strive to uphold the trust of every Concepcionian.
+                    </p>
+                    <ul class="core-values">
+                        <li>✅ Transparency in governance</li>
+                        <li>✅ Inclusive community participation</li>
+                        <li>✅ Sustainable growth and innovation</li>
+                    </ul>
+                    <button class="btn-primary">Learn More About Us</button>
+                </div>
+                <div class="about-image">
+                    <img
+                        src="https://images.pexels.com/photos/3184644/pexels-photo-3184644.jpeg"
+                        alt="Sangguniang Bayan Building"
+                    />
+                </div>
+            </div>
+        </section>
+
         <section class="featured">
             <h3>Explore</h3>
             <div class="cards">
@@ -48,6 +78,36 @@
                         <p>{{ item.desc }}</p>
                         <button class="btn-secondary">View</button>
                     </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="programs">
+            <h3>Programs and Initiatives</h3>
+            <div class="program-list">
+                <div class="program-card">
+                    <div class="icon">🌳</div>
+                    <h4>Green Concepcion</h4>
+                    <p>
+                        Environmental projects focused on tree planting, waste
+                        management, and clean-up drives.
+                    </p>
+                </div>
+                <div class="program-card">
+                    <div class="icon">💡</div>
+                    <h4>Transparency Portal</h4>
+                    <p>
+                        Access public records, ordinances, and budget reports to
+                        ensure open governance.
+                    </p>
+                </div>
+                <div class="program-card">
+                    <div class="icon">🤝</div>
+                    <h4>Community Engagement</h4>
+                    <p>
+                        Encouraging residents to participate in local governance
+                        and public consultations.
+                    </p>
                 </div>
             </div>
         </section>
@@ -87,21 +147,19 @@
             ></iframe>
         </section>
 
-        <footer>
-            <p>
-                © 2025 Municipality of Concepcion, Tarlac | All Rights Reserved
-            </p>
-        </footer>
+       <FooterSection />
     </div>
 </template>
 
 <script>
 import Navbar from '@/components/Home/Navbar.vue';
+import FooterSection from '@/components/Home/Footer.vue';
 
 export default {
     name: 'HomePage',
     components: {
         Navbar,
+        FooterSection,
     },
     data() {
         return {
@@ -341,6 +399,69 @@ h3::after {
     color: #444;
 }
 
+/* --- ABOUT SANGGUNIANG BAYAN --- */
+.about-sb {
+    background: linear-gradient(180deg, #ffffff, #f1f8e9);
+    padding: 80px 20px;
+}
+
+.about-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 60px;
+    max-width: 1100px;
+    margin: 0 auto;
+}
+
+.about-text {
+    flex: 1;
+}
+
+.about-text p {
+    font-size: 1.1rem;
+    line-height: 1.8;
+    color: #444;
+    margin-bottom: 20px;
+}
+
+.core-values {
+    list-style: none;
+    padding: 0;
+    margin-bottom: 25px;
+}
+
+.core-values li {
+    background: #e8f5e9;
+    border-left: 5px solid var(--primary-green);
+    padding: 12px 20px;
+    margin-bottom: 10px;
+    font-weight: 500;
+    color: var(--text-dark);
+    border-radius: 8px;
+}
+
+.about-image {
+    flex: 1;
+}
+
+.about-image img {
+    width: 100%;
+    border-radius: 15px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    border: 4px solid var(--accent-gold);
+}
+
+@media (max-width: 768px) {
+    .about-container {
+        flex-direction: column;
+        text-align: center;
+    }
+    .about-image img {
+        max-width: 90%;
+    }
+}
+
 /* --- FEATURED SECTIONS (Cards) --- */
 .featured {
     background: linear-gradient(180deg, var(--bg-light), #e8f5e9);
@@ -393,6 +514,61 @@ h3::after {
     overflow: hidden;
 }
 
+/* --- PROGRAMS & INITIATIVES --- */
+.programs {
+    text-align: center;
+    background: #f9fbe7;
+    padding: 80px 20px;
+}
+
+.program-list {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    flex-wrap: wrap;
+    margin-top: 40px;
+}
+
+.program-card {
+    background: white;
+    border-radius: 15px;
+    padding: 40px 30px;
+    width: 320px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    transition: all 0.4s ease;
+    border-top: 6px solid var(--primary-green);
+}
+
+.program-card:hover {
+    transform: translateY(-10px);
+    border-top-color: var(--accent-gold);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+}
+
+.program-card .icon {
+    font-size: 3rem;
+    margin-bottom: 20px;
+}
+
+.program-card h4 {
+    color: var(--primary-green);
+    font-size: 1.4rem;
+    margin-bottom: 10px;
+}
+
+.program-card p {
+    color: #555;
+    line-height: 1.6;
+    font-size: 1rem;
+}
+
+@media (max-width: 768px) {
+    .program-list {
+        flex-direction: column;
+        align-items: center;
+    }
+}
+
 /* --- GALLERY --- */
 .gallery {
     text-align: center;
@@ -440,6 +616,7 @@ h3::after {
     border-radius: 20px;
     padding: 0;
     min-height: 450px;
+    margin-bottom: 100px;
 }
 
 .contact .info {
@@ -463,17 +640,6 @@ h3::after {
     width: 100%;
     border-radius: 0 20px 20px 0;
     filter: grayscale(0.2) invert(0.05);
-}
-
-/* --- FOOTER --- */
-footer {
-    text-align: center;
-    background-color: #104012;
-    color: white;
-    padding: 30px;
-    margin-top: 50px;
-    font-size: 1rem;
-    letter-spacing: 0.5px;
 }
 
 /* --- RESPONSIVE ADJUSTMENTS --- */
@@ -595,6 +761,7 @@ footer {
         margin: 10px auto 0;
     }
 }
+
 
 @keyframes zoomHero {
     from {

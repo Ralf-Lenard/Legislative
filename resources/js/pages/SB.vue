@@ -69,18 +69,18 @@
         </div>
       </div>
   
-      <footer>
-        <p>© 2025 Sangguniang Bayan of Concepcion, Tarlac | All Rights Reserved</p>
-      </footer>
+      <FooterSection />
+       
     </div>
   </template>
   
   <script>
   import Navbar from "@/components/Home/Navbar.vue";
+  import FooterSection from '@/components/Home/Footer.vue';
   
   export default {
     name: "SangguniangBayan",
-    components: { Navbar },
+    components: { Navbar, FooterSection },
     data() {
       // Helper function to provide default committee/bio if missing
       const defaultMemberDetails = {
@@ -195,14 +195,21 @@
     --text-dark: #2c3e50; /* Darker text for better contrast */
     --shadow-light: rgba(0, 0, 0, 0.1);
     --shadow-medium: rgba(0, 0, 0, 0.2);
-  }
-  
+    
+    /* Variables used in the component design: */
+    --main-green: var(--primary-color);
+    --accent-gold: var(--secondary-color);
+    --bg-page: var(--background-light);
+    --text-base: var(--text-dark);
+    --card-shadow-style: 0 4px 10px rgba(0, 0, 0, 0.05); /* Lighter shadow for cards */
+}
+
   .sangguniang-bayan {
     font-family: 'Poppins', sans-serif, 'Arial', sans-serif; /* Added better font stack */
     background-color: var(--background-light);
     color: var(--text-dark);
     text-align: center;
-    padding: 0 0 60px 0; /* Adjusted padding */
+    padding: 0 0 0 0; /* Adjusted padding */
   }
   
   /* --- Headings --- */
@@ -320,17 +327,6 @@
     margin: 0 auto; 
   }
   
-  /* --- Footer --- */
-  footer {
-    background-color: var(--primary-color);
-    color: white;
-    padding: 25px;
-    border-radius: 30px 30px 0 0;
-    margin-top: 80px; 
-    font-size: 0.9rem;
-    font-weight: 300;
-  }
-  
   /* --- MODAL --- */
   .modal-overlay {
     position: fixed;
@@ -432,8 +428,6 @@
     .council-grid {
       grid-template-columns: 1fr 1fr;
     }
-    footer {
-      font-size: 0.75rem;
-    }
+    
   }
   </style>

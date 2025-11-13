@@ -3,7 +3,7 @@
         <Navbar />
 
         <section class="resolution-header">
-            <h1 class="header-title">Municipal Resolutions 🏛️</h1>
+            <h1 class="header-title">Municipal Resolutions</h1>
             <p class="header-subtitle">
                 Discover the approved resolutions of the Municipality of Concepcion, Tarlac.
                 Promoting <strong>good governance</strong> and <strong>transparency</strong>.
@@ -81,14 +81,13 @@
             </div>
         </transition>
 
-        <footer>
-            <p>© 2025 Municipality of Concepcion, Tarlac | All Rights Reserved</p>
-        </footer>
+        <FooterSection />
     </div>
 </template>
 
 <script>
 import Navbar from "@/components/Home/Navbar.vue";
+import FooterSection from '@/components/Home/Footer.vue';
 
 const debounce = (fn, delay) => {
     let timeout;
@@ -100,7 +99,7 @@ const debounce = (fn, delay) => {
 
 export default {
     name: "ResolutionsPage",
-    components: { Navbar },
+    components: { Navbar, FooterSection },
     data() {
         return {
             searchQuery: "",
@@ -528,15 +527,6 @@ export default {
 }
 .download-link:hover {
     background-color: #1b5e20; /* Slightly darker green on hover */
-}
-
-/* --- Footer --- */
-footer {
-    background-color: var(--primary-color);
-    color: #f0f0f0;
-    padding: 30px;
-    margin-top: 60px;
-    font-size: 0.9rem;
 }
 
 /* --- Vue Transitions (Modal) --- */

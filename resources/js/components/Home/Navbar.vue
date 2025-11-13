@@ -83,7 +83,7 @@ onMounted(() => {
   justify-content: space-between;
   align-items: center;
   padding: 20px 60px;
-  border-radius: 0 0 20px 20px;
+  /* border-radius: 0 0 20px 20px; */
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
   font-family: "Poppins", sans-serif;
 
