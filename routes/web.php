@@ -26,6 +26,15 @@ Route::get('/resolutions', function () {
     return Inertia::render('Resolutions');
 });
 
+Route::get('/sessions', function () {
+    return Inertia::render('Sessions');
+});
+
+Route::get('/sessions-history', function () {
+    return Inertia::render('SessionsHistory');
+});
+
+
 
 Route::get('dashboard', function () {
     return Inertia::render('Dashboard');

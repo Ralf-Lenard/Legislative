@@ -216,19 +216,11 @@ export default {
     --card-shadow-style: 0 4px 10px rgba(0, 0, 0, 0.05);
 }
 
-.resolutions-page {
-    font-family: "Inter", "Poppins", sans-serif;
-    background: var(--bg-page);
-    color: var(--text-base);
-    min-height: 100vh;
-    text-align: center;
-}
 /* --- Header (Elegant Photo Overlay Design like Ordinances) --- */
 .resolution-header {
     position: relative;
     color: white;
     padding: 120px 20px 100px;
-    border-radius: 0 0 60px 60px;
     box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
     text-align: center;
     background: 

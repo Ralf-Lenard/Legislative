@@ -42,7 +42,15 @@
             >Resolutions</a
           >
         </li>
-     
+
+        <li>
+          <a
+            href="/sessions"
+            :class="{ active: activeLink === '/sessions' }"
+            @click="setActive('/sessions')"
+            >Sessions</a
+          >
+        </li>
       </ul>
     </nav>
 
@@ -71,7 +79,7 @@ onMounted(() => {
 });
 </script>
 
-<style scoped>
+<style>
 /* Navbar Colors */
 .navbar {
   --primary-green: #1b5e20;
@@ -82,32 +90,30 @@ onMounted(() => {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 20px 60px;
-  /* border-radius: 0 0 20px 20px; */
+  padding: 1.25rem 3.75rem;
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
   font-family: "Poppins", sans-serif;
 
-  /* ✅ FIXED STICKY NAVBAR */
+  /* Fixed sticky navbar */
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
-  z-index: 9999;
+  z-index: 100;
 }
 
-/* Add padding-top to body to prevent overlap */
 :global(body) {
-  padding-top: 100px; /* Adjust to your navbar height */
+  padding-top: 6.25rem;
 }
 
 .logo {
   display: flex;
   align-items: center;
-  gap: 20px;
+  gap: 1.25rem;
 }
 
 .logo img {
-  width: 60px;
+  width: 3.75rem;
   border-radius: 50%;
   border: 3px solid var(--accent-gold);
   box-shadow: 0 0 10px rgba(255, 193, 7, 0.5);
@@ -125,7 +131,7 @@ onMounted(() => {
   font-weight: 300;
   opacity: 0.9;
   border-left: 2px solid rgba(255, 255, 255, 0.4);
-  padding-left: 20px;
+  padding-left: 1.25rem;
   line-height: 1.2;
 }
 
@@ -136,7 +142,7 @@ nav {
 .nav-links {
   list-style: none;
   display: flex;
-  gap: 40px;
+  gap: 2.5rem;
   margin: 0;
   padding: 0;
 }
@@ -147,7 +153,8 @@ nav {
   font-weight: 500;
   position: relative;
   transition: all 0.3s ease;
-  padding: 5px 0;
+  padding: 0.3125rem 0;
+  font-size: 0.95rem;
 }
 
 /* Underline effect */
@@ -172,7 +179,7 @@ nav {
   color: var(--accent-gold);
 }
 
-/* ✅ Active Link Highlight */
+/* Active Link Highlight */
 .navbar a.active {
   color: var(--accent-gold);
   font-weight: 700;
@@ -191,8 +198,8 @@ nav {
   font-size: 1.5rem;
   cursor: pointer;
   align-self: center;
-  width: 40px;
-  height: 40px;
+  width: 2.5rem;
+  height: 2.5rem;
   border-radius: 5px;
   font-weight: 700;
   transition: transform 0.3s ease, background-color 0.3s;
@@ -202,33 +209,66 @@ nav {
   background-color: #e6b000;
 }
 
-/* Responsive Styles */
+/* Enhanced responsive breakpoints for tablet and below */
+@media (max-width: 1280px) {
+  .navbar {
+    padding: 1rem 2.5rem;
+  }
+  
+  .logo h1 {
+    font-size: 1.4rem;
+  }
+  
+  .nav-links {
+    gap: 2rem;
+  }
+}
+
 @media (max-width: 1024px) {
   .logo .municipality {
     display: none;
+  }
+  
+  .logo {
+    gap: 0.75rem;
+  }
+  
+  .logo h1 {
+    font-size: 1.2rem;
+  }
+  
+  .nav-links {
+    gap: 1.5rem;
+  }
+  
+  .navbar a {
+    font-size: 0.9rem;
   }
 }
 
 @media (max-width: 768px) {
   .navbar {
     flex-wrap: wrap;
-    padding: 15px 20px;
-    border-radius: 0 0 10px 10px;
+    padding: 0.9375rem 1.25rem;
   }
 
   .logo {
     width: 70%;
-    gap: 10px;
+    gap: 0.625rem;
   }
+  
   .logo img {
-    width: 45px;
+    width: 2.8125rem;
   }
+  
   .logo h1 {
-    font-size: 1.3rem;
+    font-size: 1rem;
   }
 
   .menu-toggle {
     display: block;
+    width: 2.25rem;
+    height: 2.25rem;
   }
 
   nav {
@@ -244,17 +284,18 @@ nav {
     flex-direction: column;
     width: 100%;
     gap: 0;
-    padding: 10px 0;
+    padding: 0.625rem 0;
     border-top: 1px solid rgba(255, 255, 255, 0.2);
   }
 
   .nav-links li {
     text-align: center;
-    padding: 10px 0;
+    padding: 0.625rem 0;
   }
 
   .navbar a {
     display: block;
+    font-size: 0.9rem;
   }
 
   .navbar a:hover::after {
@@ -264,6 +305,34 @@ nav {
   /* Show menu when open */
   .navbar.open nav {
     max-height: 400px;
+  }
+}
+
+@media (max-width: 480px) {
+  .navbar {
+    padding: 0.75rem 1rem;
+  }
+  
+  .logo {
+    width: 65%;
+  }
+  
+  .logo h1 {
+    font-size: 0.9rem;
+  }
+  
+  .logo img {
+    width: 2.5rem;
+  }
+  
+  .menu-toggle {
+    width: 2rem;
+    height: 2rem;
+    font-size: 1.25rem;
+  }
+  
+  :global(body) {
+    padding-top: 5rem;
   }
 }
 </style>

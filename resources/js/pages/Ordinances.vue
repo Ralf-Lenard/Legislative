@@ -233,30 +233,34 @@ export default {
 </script>
 
 <style>
-/* --- Global Variables (Based on User's Request) --- */
+/* --- Global Variables (Synced with user's requested roots) --- */
 :root {
-    --primary-color: #2e7d32; /* A slightly brighter, more vibrant green */
-    --secondary-color: #ffb300; /* Gold/Yellow for accents and highlights */
-    --background-light: #f4f8f4; /* Light background */
-    --text-dark: #2c3e50; /* Darker text for better contrast */
-    --shadow-light: rgba(0, 0, 0, 0.1);
-    --shadow-medium: rgba(0, 0, 0, 0.2);
+    --primary-green: #1b5e20; /* Darker, formal green */
+    --secondary-green: #388e3c; /* Medium green */
+    --accent-gold: #ffc107; /* Bright gold for accent */
+    --bg-light: #f9f9f9; /* Off-white for background */
+    --text-dark: #212121;
+    --shadow-color: rgba(27, 94, 32, 0.15);
     
-    /* Variables used in the component design: */
-    --main-green: var(--primary-color);
-    --accent-gold: var(--secondary-color);
-    --bg-page: var(--background-light);
+    /* Added all missing shadow variables for consistency */
+    --shadow-light: rgba(27, 94, 32, 0.1);
+    --shadow-medium: rgba(27, 94, 32, 0.4);
+    
+    /* Mapped variables used throughout the component: */
+    --main-green: var(--primary-green);
+    --bg-page: var(--bg-light);
     --text-base: var(--text-dark);
-    --card-shadow-style: 0 4px 10px rgba(0, 0, 0, 0.05); /* Lighter shadow for cards */
+    --card-shadow-style: 0 4px 10px var(--shadow-color);
 }
 
 .ordinances-page {
-    font-family: "Inter", "Poppins", sans-serif;
+    font-family: "Poppins", sans-serif;
     background: var(--bg-page);
     color: var(--text-base);
     min-height: 100vh;
     text-align: center;
 }
+
 /* --- Header (Elegant Photo Overlay Design) --- */
 .ordinance-header {
     position: relative;
@@ -266,13 +270,11 @@ export default {
     box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
     text-align: center;
     background: 
-        linear-gradient(rgba(0, 50, 0, 0.65), rgba(0, 0, 0, 0.6)),
+        linear-gradient(rgba(27, 94, 32, 0.8), rgba(0, 0, 0, 0.6)),
         url('images/lg.jpg') center/cover no-repeat;
-    /* The gradient darkens the photo for better text visibility */
     background-attachment: fixed;
 }
 
-/* Decorative curved overlay at the bottom */
 .ordinance-header::after {
     content: "";
     position: absolute;
@@ -305,23 +307,23 @@ export default {
     z-index: 2;
 }
 
-
-/* --- Controls Bar (New Container for Search and Filter) --- */
+/* --- Controls Bar (Search and Filter) --- */
 .controls-bar {
     margin: -40px auto 50px;
-    max-width: 1000px; /* Wider container for both elements */
+    max-width: 1000px;
     padding: 0 20px;
     position: relative;
     z-index: 10;
-    display: flex; /* Arrange search and filter side-by-side */
+    display: flex;
     gap: 20px;
 }
 
 /* --- Search --- */
 .search-bar {
-    flex-grow: 1; /* Allows search bar to take up most space */
+    flex-grow: 1;
     position: relative;
 }
+
 .search-bar input {
     width: 100%;
     padding: 18px 30px 18px 60px;
@@ -333,31 +335,35 @@ export default {
     background-color: white;
     transition: all 0.3s;
 }
+
 .search-bar input:focus {
     border-color: var(--main-green);
-    box-shadow: 0 0 0 3px rgba(46, 125, 50, 0.2);
+    box-shadow: 0 0 0 3px var(--shadow-color);
 }
+
 .search-icon {
     position: absolute;
-    left: 20px; /* Adjusted to 20px from the left inside the padding */
+    left: 20px;
     top: 50%;
     transform: translateY(-50%);
     color: #9e9e9e;
     transition: color 0.3s;
     pointer-events: none;
 }
+
 .search-bar input:focus + .search-icon {
     color: var(--main-green);
 }
 
-/* --- Filter Dropdown (New Style) --- */
+/* --- Filter Dropdown --- */
 .filter-dropdown {
-    flex-shrink: 0; /* Prevents it from shrinking too much */
-    min-width: 180px; /* Minimum width for readability */
+    flex-shrink: 0;
+    min-width: 180px;
     position: relative;
 }
+
 .filter-dropdown select {
-    appearance: none; /* Remove default styling */
+    appearance: none;
     -webkit-appearance: none;
     -moz-appearance: none;
     width: 100%;
@@ -372,15 +378,15 @@ export default {
     color: var(--text-base);
     transition: all 0.3s;
 }
+
 .filter-dropdown select:hover {
     border-color: #c0c0c0;
 }
+
 .filter-dropdown select:focus {
     border-color: var(--accent-gold);
-    box-shadow: 0 0 0 3px rgba(255, 179, 0, 0.2);
+    box-shadow: 0 0 0 3px rgba(255, 193, 7, 0.2);
 }
-/* You could add a custom chevron/down arrow for the select, but for brevity, I'll rely on the default or system one. */
-
 
 /* --- Ordinance Cards --- */
 .ordinance-list {
@@ -391,6 +397,7 @@ export default {
     gap: 30px;
     padding: 40px 20px;
 }
+
 .ordinance-card {
     background: white;
     border-radius: 18px;
@@ -402,14 +409,16 @@ export default {
     border-left: 8px solid var(--main-green); 
     display: flex;
     flex-direction: column;
-    min-height: 250px; /* Added min-height for uniformity */
+    min-height: 250px;
 }
+
 .ordinance-card:hover, .ordinance-card:focus {
     transform: translateY(-10px) scale(1.015);
-    box-shadow: 0 20px 40px var(--shadow-medium);
-    border-left-color: var(--accent-gold);
+    box-shadow: 0 20px 40px var(--shadow-medium); 
+    border-left-color: var(--accent-gold); 
     outline: none;
 }
+
 .ordinance-header-info {
     padding-bottom: 10px;
     margin-bottom: 15px;
@@ -419,12 +428,14 @@ export default {
     gap: 10px;
     flex-wrap: wrap;
 }
+
 .ordinance-number {
     font-size: 1.1rem;
     color: var(--main-green);
     font-weight: 800;
     margin: 0;
 }
+
 .ordinance-card .date {
     font-size: 0.85rem;
     color: #666;
@@ -433,6 +444,7 @@ export default {
     align-items: center;
     gap: 5px;
 }
+
 .ordinance-title {
     font-size: 1.5rem;
     color: var(--text-base);
@@ -441,6 +453,7 @@ export default {
     line-height: 1.3;
     flex-grow: 1; 
 }
+
 .ordinance-description {
     color: #555;
     font-size: 0.95rem;
@@ -453,6 +466,7 @@ export default {
     -webkit-line-clamp: 3; 
     -webkit-box-orient: vertical;
 }
+
 .read-more {
     margin-top: 20px;
     color: var(--main-green); 
@@ -461,10 +475,10 @@ export default {
     text-align: right;
     transition: color 0.2s;
 }
+
 .ordinance-card:hover .read-more {
     color: var(--accent-gold);
 }
-
 
 /* --- Loading State & No Results --- */
 .loading-state, .no-results {
@@ -477,14 +491,17 @@ export default {
     color: var(--main-green);
     font-size: 1.1rem;
 }
+
 .no-results {
     color: var(--text-base);
 }
+
 .no-results strong {
     color: var(--accent-gold);
 }
+
 .spinner {
-    border: 5px solid rgba(46, 125, 50, 0.2);
+    border: 5px solid rgba(27, 94, 32, 0.2);
     border-top: 5px solid var(--accent-gold);
     border-radius: 50%;
     width: 50px;
@@ -492,13 +509,13 @@ export default {
     animation: spin 1s linear infinite;
     margin-bottom: 20px;
 }
+
 @keyframes spin {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
 }
 
-
-/* --- Modal (Existing Styles remain largely the same) --- */
+/* --- Modal --- */
 .modal-overlay {
     position: fixed;
     inset: 0;
@@ -508,7 +525,9 @@ export default {
     justify-content: center;
     align-items: center;
     z-index: 1000;
+    padding: 20px;
 }
+
 .modal-content {
     background: white;
     padding: 40px;
@@ -520,19 +539,24 @@ export default {
     outline: none;
     position: relative;
     border-top: 5px solid var(--main-green);
+    max-height: 90vh;
+    overflow-y: auto;
 }
+
 .modal-number {
     color: var(--main-green);
     font-size: 2rem;
     margin-bottom: 5px;
     font-weight: 800;
 }
+
 .modal-title-text {
     color: var(--text-base);
     font-size: 1.5rem;
     margin-bottom: 15px;
     font-weight: 600;
 }
+
 .modal-content .date {
     color: #666;
     font-size: 0.95rem;
@@ -541,14 +565,16 @@ export default {
     margin-bottom: 20px;
     border-bottom: 2px solid var(--bg-page);
 }
+
 .detail-content-box {
-    background: #e8f5e9; 
+    background: #e8f5e9;
     border: 1px solid #c8e6c9;
     border-left: 5px solid var(--accent-gold);
     padding: 25px;
     border-radius: 12px;
     margin-bottom: 20px;
 }
+
 .detail-content-box h4 {
     color: var(--main-green);
     font-size: 1.2rem;
@@ -557,12 +583,14 @@ export default {
     border-bottom: 1px dashed #a5d6a7;
     padding-bottom: 10px;
 }
+
 .modal-content .details {
     font-size: 1rem;
     line-height: 1.8;
     color: #333;
     white-space: pre-wrap;
 }
+
 .close-btn {
     position: absolute;
     top: 20px;
@@ -579,10 +607,12 @@ export default {
     transition: all 0.3s;
     box-shadow: 0 2px 5px var(--shadow-light);
 }
+
 .close-btn:hover {
     background: var(--accent-gold);
     transform: rotate(90deg);
 }
+
 .close-btn svg path {
     stroke: var(--main-green);
 }
@@ -598,83 +628,374 @@ export default {
     font-weight: 600;
     transition: background-color 0.3s;
 }
-.download-link:hover {
-    background-color: #1b5e20; 
-}
 
+.download-link:hover {
+    background-color: var(--secondary-green);
+}
 
 /* --- Vue Transitions (Modal) --- */
 .modal-enter-active, .modal-leave-active {
     transition: opacity 0.4s ease;
 }
+
 .modal-enter-from, .modal-leave-to {
     opacity: 0;
 }
+
 .modal-enter-active .modal-content, .modal-leave-active .modal-content {
     transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
 }
+
 .modal-enter-from .modal-content {
     transform: scale(0.8) translateY(100px);
 }
+
 .modal-leave-to .modal-content {
     transform: scale(0.8) translateY(-100px);
 }
 
+/* --- Responsive: Large Desktop (1200px and up) --- */
+@media (max-width: 1200px) {
+    .ordinance-list {
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    }
+}
 
-/* --- Responsive --- */
+/* --- Responsive: Medium Devices (992px and below) --- */
+@media (max-width: 992px) {
+    .header-title {
+        font-size: 2.8rem;
+    }
+
+    .header-subtitle {
+        font-size: 1.1rem;
+    }
+
+    .ordinance-list {
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 25px;
+        padding: 30px 20px;
+    }
+
+    .ordinance-card {
+        padding: 25px;
+        min-height: 240px;
+    }
+}
+
+/* --- Responsive: Tablet (768px and below) --- */
 @media (max-width: 768px) {
     .ordinance-header {
         padding: 70px 20px 50px;
         border-radius: 0 0 30px 30px;
+        background-attachment: scroll;
     }
+
+    .ordinance-header::after {
+        height: 60px;
+    }
+
     .header-title {
         font-size: 2.2rem;
+        margin-bottom: 12px;
     }
+
+    .header-subtitle {
+        font-size: 1rem;
+        line-height: 1.5;
+    }
+
+    /* stack controls vertically for better mobile touch targets */
     .controls-bar {
-        flex-direction: column; /* Stack controls vertically */
+        flex-direction: column;
         gap: 15px;
         margin: -30px auto 40px;
+        max-width: 100%;
     }
+
     .search-bar input {
-        padding: 15px 20px 15px 50px; 
+        padding: 15px 20px 15px 50px;
+        font-size: 1rem;
     }
+
     .search-icon {
-        left: 35px;
+        left: 18px;
     }
+
     .filter-dropdown {
-        min-width: 100%; /* Full width for the dropdown */
+        min-width: 100%;
     }
+
     .filter-dropdown select {
         padding: 15px 20px;
+        font-size: 1rem;
     }
+
     .ordinance-list {
-        grid-template-columns: 1fr;
-        padding: 20px;
-        gap: 25px;
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        padding: 20px 15px;
+        gap: 20px;
     }
+
     .ordinance-card {
         padding: 20px;
+        min-height: 220px;
+        border-left-width: 6px;
     }
+
+    .ordinance-number {
+        font-size: 1rem;
+    }
+
     .ordinance-title {
         font-size: 1.3rem;
     }
+
+    .ordinance-description {
+        font-size: 0.9rem;
+    }
+
     .modal-content {
         padding: 30px 20px;
+        width: 95%;
+        border-radius: 20px;
     }
+
     .modal-number {
         font-size: 1.5rem;
     }
+
     .modal-title-text {
         font-size: 1.2rem;
     }
+
     .detail-content-box {
         padding: 15px;
+        border-left-width: 4px;
     }
+
+    .detail-content-box h4 {
+        font-size: 1.1rem;
+    }
+
     .close-btn {
-        top: 10px;
-        right: 10px;
+        top: 15px;
+        right: 15px;
+        width: 35px;
+        height: 35px;
+    }
+
+    .loading-state, .no-results {
+        padding: 60px 0;
+        font-size: 1rem;
+    }
+
+    .spinner {
+        width: 40px;
+        height: 40px;
+        border: 4px solid rgba(27, 94, 32, 0.2);
+        border-top: 4px solid var(--accent-gold);
+    }
+}
+
+/* --- Responsive: Small Mobile (480px and below) --- */
+@media (max-width: 480px) {
+    .ordinance-header {
+        padding: 50px 15px 40px;
+        border-radius: 0 0 20px 20px;
+        margin-top: 40px;
+    }
+
+    .ordinance-header::after {
+        height: 50px;
+    }
+
+    .header-title {
+        font-size: 1.8rem;
+        margin-bottom: 10px;
+    }
+
+    .header-subtitle {
+        font-size: 0.95rem;
+        line-height: 1.4;
+        max-width: 90%;
+    }
+
+    .controls-bar {
+        margin: -25px auto 30px;
+        padding: 0 15px;
+        gap: 12px;
+    }
+
+    .search-bar input,
+    .filter-dropdown select {
+        padding: 12px 15px;
+        font-size: 16px;
+        border-radius: 30px;
+    }
+
+    .filter-dropdown select {
+        text-align: center;
+    }
+
+    .search-bar input{
+        padding-left: 50px;
+    }
+
+    .search-icon {
+        left: 15px;
+    }
+
+    .ordinance-list {
+        grid-template-columns: 1fr;
+        padding: 15px;
+        gap: 15px;
+    }
+
+    .ordinance-card {
+        padding: 15px;
+        min-height: auto;
+        border-left-width: 5px;
+    }
+
+    .ordinance-header-info {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+
+    .ordinance-number {
+        font-size: 0.95rem;
+    }
+
+    .ordinance-card .date {
+        font-size: 0.8rem;
+        width: 100%;
+    }
+
+    .ordinance-title {
+        font-size: 1.15rem;
+        line-height: 1.2;
+    }
+
+    .ordinance-description {
+        font-size: 0.85rem;
+        margin-top: 10px;
+        min-height: 30px;
+        max-height: 50px;
+        -webkit-line-clamp: 2;
+    }
+
+    .read-more {
+        font-size: 0.85rem;
+        margin-top: 12px;
+    }
+
+    .modal-overlay {
+        padding: 15px;
+    }
+
+    .modal-content {
+        width: 100%;
+        max-width: none;
+        padding: 20px;
+        border-radius: 15px;
+    }
+
+    .modal-number {
+        font-size: 1.3rem;
+        margin-bottom: 8px;
+    }
+
+    .modal-title-text {
+        font-size: 1.1rem;
+        margin-bottom: 12px;
+    }
+
+    .modal-content .date {
+        font-size: 0.9rem;
+        padding-bottom: 12px;
+        margin-bottom: 15px;
+    }
+
+    .detail-content-box {
+        padding: 12px;
+        margin-bottom: 15px;
+        border-left-width: 3px;
+    }
+
+    .detail-content-box h4 {
+        font-size: 1rem;
+        margin-bottom: 10px;
+        padding-bottom: 8px;
+    }
+
+    .modal-content .details {
+        font-size: 0.95rem;
+        line-height: 1.6;
+    }
+
+    .close-btn {
+        top: 12px;
+        right: 12px;
         width: 30px;
         height: 30px;
+    }
+
+    .download-link {
+        padding: 8px 16px;
+        font-size: 0.9rem;
+        margin-top: 15px;
+    }
+
+    .loading-state, .no-results {
+        padding: 40px 15px;
+        font-size: 0.95rem;
+    }
+
+    .spinner {
+        width: 35px;
+        height: 35px;
+        border: 3px solid rgba(27, 94, 32, 0.2);
+        border-top: 3px solid var(--accent-gold);
+        margin-bottom: 15px;
+    }
+}
+
+/* --- Responsive: Extra Small Mobile (320px and below) --- */
+@media (max-width: 320px) {
+    .ordinance-header {
+        padding: 40px 10px 30px;
+    }
+
+    .header-title {
+        font-size: 1.5rem;
+    }
+
+    .header-subtitle {
+        font-size: 0.9rem;
+    }
+
+    .controls-bar {
+        margin: -20px auto 25px;
+        padding: 0 10px;
+        gap: 10px;
+    }
+
+    .ordinance-list {
+        padding: 10px;
+    }
+
+    .ordinance-card {
+        padding: 12px;
+    }
+
+    .ordinance-title {
+        font-size: 1rem;
+    }
+
+    .modal-content {
+        padding: 15px;
     }
 }
 </style>
