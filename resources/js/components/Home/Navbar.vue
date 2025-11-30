@@ -1,5 +1,9 @@
 <template>
-  <header class="navbar" id="main-navbar" :class="{ open: isOpen }">
+  <header
+    class="navbar"
+    id="main-navbar"
+    :class="{ open: isOpen, 'navbar--hidden': isHidden }"
+  >
     <div class="logo">
       <img src="images/logo.jpg" alt="Concepcion Tarlac Seal" />
       <div>
@@ -61,10 +65,16 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, onMounted, onBeforeUnmount } from "vue";
 
 const isOpen = ref(false);
 const activeLink = ref(window.location.pathname);
+
+// --- New Scroll Logic State ---
+const isHidden = ref(false);
+const lastScrollPosition = ref(0);
+const scrollOffset = 60; // Pixels threshold to prevent flickering on small scrolls
+// -----------------------------
 
 function toggleMenu() {
   isOpen.value = !isOpen.value;
@@ -74,12 +84,43 @@ function setActive(path) {
   activeLink.value = path;
 }
 
+// --- New Scroll Logic Method ---
+function onScroll() {
+  const currentScrollPosition = window.pageYOffset || document.documentElement.scrollTop;
+
+  // Stop if scrolling up when already at the top
+  if (currentScrollPosition < 0) {
+    return;
+  }
+
+  // Stop executing if the difference between current and last position is less than the offset
+  if (Math.abs(currentScrollPosition - lastScrollPosition.value) < scrollOffset) {
+    return;
+  }
+
+  // Scroll Down: current > last -> isHidden = true
+  // Scroll Up: current < last -> isHidden = false
+  isHidden.value = currentScrollPosition > lastScrollPosition.value;
+
+  // Update the last scroll position for the next check
+  lastScrollPosition.value = currentScrollPosition;
+}
+// -----------------------------
+
 onMounted(() => {
   activeLink.value = window.location.pathname;
+  // Initialize lastScrollPosition and add the event listener
+  lastScrollPosition.value = window.pageYOffset;
+  window.addEventListener("scroll", onScroll);
+});
+
+// Cleanup the event listener when the component is unmounted
+onBeforeUnmount(() => {
+  window.removeEventListener("scroll", onScroll);
 });
 </script>
 
-<style>
+<style scoped>
 /* Navbar Colors */
 .navbar {
   --primary-green: #1b5e20;
@@ -100,6 +141,16 @@ onMounted(() => {
   left: 0;
   width: 100%;
   z-index: 100;
+  
+  /* ADD: Smooth transition for the hide/show effect */
+  transition: all 0.3s ease, transform 0.3s ease-out;
+}
+
+/* NEW: Class to hide the navbar on scroll down */
+.navbar--hidden {
+  /* Move the entire navbar up by its full height */
+  transform: translateY(-100%);
+  box-shadow: none;
 }
 
 :global(body) {

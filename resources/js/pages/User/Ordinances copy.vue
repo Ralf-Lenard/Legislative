@@ -1,237 +1,219 @@
 <template>
     <div class="ordinances-page">
-        <Navbar />
-
-        <section class="ordinance-header">
-            <div class="header-overlay"></div>
-            <h1 class="header-title">Municipal Ordinances</h1>
-            <p class="header-subtitle">Explore the approved ordinances of the Municipality of Concepcion, Tarlac. We commit to **Transparency**, **Integrity**, and **Public Service**.</p>
-        </section>
-
-        <div class="controls-bar">
-            <div class="search-bar">
-                <input
-                    type="text"
-                    v-model="searchQuery"
-                    placeholder="Search ordinance by title or number..."
-                    @input="debouncedSearch"
-                    aria-label="Search ordinances"
-                />
-                <svg class="search-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M11 19C15.4183 19 19 15.4183 19 11C19 6.58172 15.4183 3 11 3C6.58172 3 3 6.58172 3 11C3 15.4183 6.58172 19 11 19Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    <path d="M21 21L16.65 16.65" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-            </div>
-
-            <div class="filter-dropdown">
-                <select v-model="selectedYear" aria-label="Filter by year">
-                    <option value="">All Years</option>
-                    <option v-for="year in availableYears" :key="year" :value="year">{{ year }}</option>
-                </select>
-            </div>
+      <Navbar />
+  
+      <!-- Header -->
+      <section class="ordinance-header">
+        <div class="header-overlay"></div>
+        <h1 class="header-title">Municipal Ordinances</h1>
+        <p class="header-subtitle">
+          Explore the approved ordinances of the Municipality of Concepcion, Tarlac.
+          We commit to <strong>Transparency</strong>, <strong>Integrity</strong>, and <strong>Public Service</strong>.
+        </p>
+      </section>
+  
+      <!-- Search & Filter -->
+      <div class="controls-bar">
+        <div class="search-bar">
+          <input
+            type="text"
+            v-model="filters.search"
+            placeholder="Search ordinance by title or number..."
+            @input="debouncedSearch"
+            aria-label="Search ordinances"
+          />
+          <svg class="search-icon" width="24" height="24" viewBox="0 0 24 24" fill="none">
+            <path d="M11 19C15.4183 19 19 15.4183 19 11C19 6.58172 15.4183 3 11 3C6.58172 3 3 6.58172 3 11C3 15.4183 6.58172 19 11 19Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M21 21L16.65 16.65" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
         </div>
-        <section class="ordinance-list">
-            <div v-if="isLoading" class="loading-state">
-                <div class="spinner"></div>
-                <p>Filtering ordinances...</p>
+  
+        <div class="filter-dropdown">
+          <select v-model="filters.year" @change="applyFilter" aria-label="Filter by year">
+            <option value="">All Years</option>
+            <option v-for="year in years" :key="year" :value="year">{{ year }}</option>
+          </select>
+        </div>
+      </div>
+  
+      <!-- Ordinances List -->
+      <section class="ordinance-list">
+        <div v-if="isLoading" class="loading-state">
+          <div class="spinner"></div>
+          <p>Filtering ordinances...</p>
+        </div>
+  
+        <div
+          v-for="ordinance in ordinances.data"
+          :key="ordinance.id"
+          class="ordinance-card"
+          @click="showOrdinance(ordinance)"
+          role="button"
+          tabindex="0"
+          @keyup.enter="showOrdinance(ordinance)"
+        >
+          <div class="ordinance-header-info">
+            <h3 class="ordinance-number">{{ ordinance.ordinance_number }}</h3>
+            <span class="date"><i class="fas fa-calendar-alt"></i> Approved: <strong>{{ formatDate(ordinance.date_approved_ordinances) }}</strong></span>
+          </div>
+          <h2 class="ordinance-title">{{ ordinance.title_ordinances }}</h2>
+          <p class="ordinance-description">{{ ordinance.description_ordinances }}</p>
+          <div class="read-more">View Details <i class="fas fa-arrow-right"></i></div>
+        </div>
+  
+        <p v-if="!isLoading && ordinances.data.length === 0" class="no-results">
+          No ordinances found matching "<strong>{{ filters.search }}</strong>" for the year <strong>{{ filters.year || 'All Years' }}</strong>.
+        </p>
+  
+        <!-- Pagination -->
+        <div v-if="ordinances?.links && ordinances.links.length > 3" class="flex items-center justify-between border-t border-slate-200 bg-slate-50 px-4 py-4 sm:px-6">
+  <!-- Results info -->
+  <div class="text-sm text-slate-600">
+    Showing <span class="font-semibold">{{ ordinances?.meta?.from }}</span> to
+    <span class="font-semibold">{{ ordinances?.meta?.to }}</span> of
+    <span class="font-semibold">{{ ordinances?.meta?.total }}</span> results
+  </div>
+
+  <!-- Pagination links -->
+  <nav class="isolate inline-flex -space-x-px rounded-md shadow-sm" aria-label="Pagination">
+    <component
+      v-for="(link, index) in ordinances?.links"
+      :key="index"
+      :is="link.url ? 'button' : 'span'"
+      @click="link.url ? paginate(link.url) : null"
+      :disabled="!link.url"
+      :class="[
+        'relative inline-flex items-center px-4 py-2 text-sm font-semibold ring-1 ring-slate-300 ring-inset focus:z-20 transition-all',
+        index === 0 ? 'rounded-l-md' : '',
+        index === ordinances.links.length - 1 ? 'rounded-r-md' : '',
+        link.active
+          ? 'bg-emerald-600 text-white ring-emerald-600'
+          : link.url
+          ? 'text-slate-900 hover:bg-slate-50'
+          : 'cursor-not-allowed text-slate-400 bg-slate-100'
+      ]"
+      v-html="link.label"
+    />
+  </nav>
+</div>
+
+      </section>
+  
+      <!-- Modal -->
+      <transition name="modal">
+        <div v-if="selectedOrdinance" class="modal-overlay" @click.self="closeModal" aria-modal="true" role="dialog" aria-labelledby="modal-title">
+          <div class="modal-content" role="document" tabindex="-1">
+            <button class="close-btn" @click="closeModal" aria-label="Close Ordinance Details">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                <path d="M18 6L6 18" stroke="#888" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M6 6L18 18" stroke="#888" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </button>
+            <h2 class="modal-number" id="modal-title">{{ selectedOrdinance.ordinance_number }}</h2>
+            <h3 class="modal-title-text">{{ selectedOrdinance.title_ordinances }}</h3>
+            <p class="date">Date Approved: <strong>{{ formatDate(selectedOrdinance.date_approved_ordinances) }}</strong></p>
+            <div class="detail-content-box">
+              <h4>Full Details:</h4>
+              <p class="details">{{ selectedOrdinance.description_ordinances }}</p>
             </div>
-
-            <div
-                v-for="(ordinance, index) in filteredOrdinances"
-                :key="index"
-                class="ordinance-card"
-                @click="showOrdinance(ordinance)"
-                role="button"
-                tabindex="0"
-                @keyup.enter="showOrdinance(ordinance)"
-            >
-                <div class="ordinance-header-info">
-                    <h3 class="ordinance-number">{{ ordinance.number }}</h3>
-                    <span class="date"><i class="fas fa-calendar-alt"></i> Approved: **{{ ordinance.date }}**</span>
-                </div>
-                <h2 class="ordinance-title">{{ ordinance.title }}</h2>
-                <p class="ordinance-description">{{ ordinance.description }}</p>
-                <div class="read-more">View Details <i class="fas fa-arrow-right"></i></div>
-            </div>
-
-            <p v-if="!isLoading && filteredOrdinances.length === 0" class="no-results">
-                No ordinances found matching "**{{ searchQuery }}**" for the year **{{ selectedYear || 'All Years' }}**. Please try a different term or filter.
-            </p>
-        </section>
-
-        <transition name="modal">
-            <div v-if="selectedOrdinance" class="modal-overlay" @click.self="closeModal" aria-modal="true" role="dialog" aria-labelledby="modal-title">
-                <div class="modal-content" role="document" tabindex="-1">
-                    <button class="close-btn" @click="closeModal" aria-label="Close Ordinance Details">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M18 6L6 18" stroke="#888" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                            <path d="M6 6L18 18" stroke="#888" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
-                    </button>
-                    <h2 class="modal-number" id="modal-title">{{ selectedOrdinance.number }}</h2>
-                    <h3 class="modal-title-text">{{ selectedOrdinance.title }}</h3>
-                    <p class="date">Date Approved: **{{ selectedOrdinance.date }}**</p>
-                    <div class="detail-content-box">
-                        <h4>Full Details:</h4>
-                        <p class="details">{{ selectedOrdinance.details }}</p>
-                    </div>
-                    <a href="#" class="download-link" @click.prevent="">Download Full Text (PDF)</a>
-                </div>
-            </div>
-        </transition>
-
-        <FooterSection />
+            <a :href="selectedOrdinance.file_path_ordinances" target="_blank" class="download-link" v-if="selectedOrdinance.file_path_ordinances">
+              Download Full Text (PDF)
+            </a>
+          </div>
+        </div>
+      </transition>
+  
+      <FooterSection />
     </div>
-</template>
+  </template>
+  
+  <script setup lang="ts">
+  import Navbar from "@/components/Home/Navbar.vue";
+  import FooterSection from '@/components/Home/Footer.vue';
+  import { usePage } from '@inertiajs/vue3';
+  import { ref } from 'vue';
+  import { Inertia } from '@inertiajs/inertia';
+  import _ from 'lodash';
+  
+  interface Ordinance {
+    id: number;
+    ordinance_number: string;
+    title_ordinances: string;
+    description_ordinances: string;
+    date_approved_ordinances: string;
+    author_ordinances: string;
+    file_path_ordinances: string | null;
+    image_ordinances: string | null;
+    details_ordinances?: string | null;
+  }
+  
+  interface PaginatedOrdinances {
+    data: Ordinance[];
+    links: { url: string | null; label: string; active: boolean }[];
+    meta: { current_page: number; from: number; last_page: number; per_page: number; to: number; total: number };
+  }
+  
+  const { props } = usePage<{
+    ordinances: PaginatedOrdinances;
+    filters: { search?: string; year?: string };
+    years: number[];
+    flash?: { success?: string };
+  }>();
+  
+  const ordinances = ref(props.ordinances);
+  const filters = ref({ ...props.filters });
+  const years = props.years;
+  
+  const selectedOrdinance = ref<Ordinance | null>(null);
+  const isLoading = ref(false);
+  
+  const debouncedSearch = _.debounce(() => {
+    applyFilter();
+  }, 500);
 
-<script>
-import Navbar from "@/components/Home/Navbar.vue";
-import FooterSection from '@/components/Home/Footer.vue';
+  const paginate = (url: string) => {
+  if (!url) return;
+  isLoading.value = true;
 
-// Simple debounce function for search
-const debounce = (fn, delay) => {
-    let timeoutID;
-    return function (...args) {
-        if (timeoutID) {
-            clearTimeout(timeoutID);
-        }
-        timeoutID = setTimeout(() => {
-            fn.apply(this, args);
-        }, delay);
-    };
+  // Parse the page number from the URL
+  const pageParam = new URL(url, window.location.origin).searchParams.get('page') || 1;
+
+  Inertia.get('/ordinances', { ...filters.value, page: pageParam }, {
+    preserveState: true,
+    onFinish: () => { isLoading.value = false; }
+  });
 };
 
-export default {
-    name: "OrdinancesPage",
-    components: { Navbar, FooterSection },
-    data() {
-        return {
-            searchQuery: "",
-            selectedYear: "", // New state for year filter
-            selectedOrdinance: null,
-            isLoading: false,
-            ordinances: [
-                {
-                    number: "Ordinance No. 2025-001",
-                    title: "An Ordinance Regulating the Use of Plastic Bags",
-                    date: "January 15, 2025",
-                    description:
-                        "This ordinance promotes environmental protection by limiting the use of plastic bags within the municipality.",
-                    details:
-                        "This ordinance prohibits all commercial establishments from providing single-use plastic bags. Alternative eco-bags and paper bags are encouraged. Violators shall be fined ₱500 for the first offense, ₱1,000 for the second offense, and ₱2,500 or business permit revocation for subsequent offenses.",
-                },
-                {
-                    number: "Ordinance No. 2024-015",
-                    title: "An Ordinance Establishing Curfew Hours for Minors",
-                    date: "October 10, 2024",
-                    description:
-                        "Imposes curfew hours for minors to ensure public safety and discipline.",
-                    details:
-                        "Curfew hours for minors (below 18 years old) are from 10:00 PM to 4:00 AM. Minors caught violating will be brought to the barangay hall, and their parents will be notified. Repeat violations may result in community service.",
-                },
-                {
-                    number: "Ordinance No. 2023-009",
-                    title: "An Ordinance Creating the Animal Welfare Council",
-                    date: "July 20, 2023",
-                    description:
-                        "Establishes a local Animal Welfare Council to oversee protection and adoption of stray animals.",
-                    details:
-                        "The council will coordinate with local shelters such as Noah’s Ark to manage stray animals, promote adoption, and implement responsible pet ownership programs.",
-                },
-                {
-                    number: "Ordinance No. 2022-004",
-                    title: "An Ordinance on Proper Waste Segregation",
-                    date: "March 12, 2022",
-                    description:
-                        "Mandates all households to segregate waste according to type for collection efficiency.",
-                    details:
-                        "Households are required to separate biodegradable, recyclable, and residual wastes. Failure to comply will result in warnings or fines as prescribed by the municipal environment office.",
-                },
-                {
-                    number: "Ordinance No. 2024-007",
-                    title: "Mandatory Tree Planting for New Constructions",
-                    date: "June 5, 2024",
-                    description:
-                        "Requires all new residential and commercial construction projects to plant a minimum number of trees.",
-                    details:
-                        "A minimum of five (5) native tree seedlings must be planted on the property or in a designated municipal area for every new construction permit issued. The municipality will provide the seedlings.",
-                },
-            ],
-        };
-    },
-    computed: {
-        availableYears() {
-            // Extract unique years from the ordinance dates
-            const years = new Set(this.ordinances.map(ord => new Date(ord.date).getFullYear().toString()));
-            // Convert to array and sort descending
-            return Array.from(years).sort((a, b) => b - a);
-        },
-        filteredOrdinances() {
-            if (this.isLoading) return [];
-
-            const query = this.searchQuery.toLowerCase().trim();
-            const year = this.selectedYear;
-
-            // 1. Filter by search query
-            let filtered = this.ordinances.filter((ord) => {
-                const matchesQuery = !query || ord.title.toLowerCase().includes(query) || ord.number.toLowerCase().includes(query);
-                
-                // 2. Filter by selected year
-                const ordinanceYear = new Date(ord.date).getFullYear().toString();
-                const matchesYear = !year || ordinanceYear === year;
-
-                return matchesQuery && matchesYear;
-            });
-
-            // 3. Sort by date (newest first)
-            return filtered.sort((a, b) => new Date(b.date) - new Date(a.date));
-        },
-    },
-    watch: {
-        // Trigger a fake loading/filter state when the year changes too
-        selectedYear() {
-            this.debouncedSearch();
-        }
-    },
-    methods: {
-        showOrdinance(ordinance) {
-            this.selectedOrdinance = ordinance;
-            // Focus on the modal for accessibility
-            this.$nextTick(() => {
-                const modal = document.querySelector('.modal-content');
-                if (modal) modal.focus();
-            });
-        },
-        closeModal() {
-            this.selectedOrdinance = null;
-        },
-        // Debounce the search input to prevent excessive filtering on every keypress
-        debouncedSearch: debounce(function() {
-            this.isLoading = true;
-            // Simulate a small delay for filtering feedback
-            setTimeout(() => {
-                this.isLoading = false;
-            }, 300);
-        }, 300),
-    },
-    // Add event listener to close modal on ESC key
-    mounted() {
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape' && this.selectedOrdinance) {
-                this.closeModal();
-            }
-        });
-    },
-    beforeUnmount() {
-        document.removeEventListener('keydown', (e) => {
-            if (e.key === 'Escape' && this.selectedOrdinance) {
-                this.closeModal();
-            }
-        });
-    }
-};
-</script>
-
+  
+  const applyFilter = () => {
+    isLoading.value = true;
+    Inertia.get('/ordinances', filters.value, {
+      preserveState: true,
+      onFinish: () => (isLoading.value = false),
+    });
+  };
+  
+  const showOrdinance = (ordinance: Ordinance) => {
+    selectedOrdinance.value = ordinance;
+  };
+  
+  const closeModal = () => {
+    selectedOrdinance.value = null;
+  };
+  
+  const changePage = (page: number) => {
+    isLoading.value = true;
+    Inertia.get('/ordinances', { ...filters.value, page }, {
+      preserveState: true,
+      onFinish: () => (isLoading.value = false),
+    });
+  };
+  
+  const formatDate = (date: string) => {
+    return new Date(date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+  };
+  </script>
+  
 <style>
 /* --- Global Variables (Synced with user's requested roots) --- */
 :root {
