@@ -10,7 +10,7 @@ class ResolutionsSeeder extends Seeder
     public function run(): void
     {
         // Example: create 10 resolutions
-        for ($i = 1; $i <= 10; $i++) {
+        for ($i = 1; $i <= 25; $i++) {
             DB::table('resolutions')->insert([
                 'resolutions_number' => '2025-' . str_pad($i, 3, '0', STR_PAD_LEFT),
                 'title_resolutions' => 'Resolution Title ' . $i,

@@ -16,6 +16,7 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->foreignId('ordinance_id')->constrained()->onDelete('cascade');
             $table->text('purpose')->nullable();
+            $table->string('rejection_reason')->nullable();
             $table->enum('status', ['pending', 'approved', 'rejected'])->default('pending');
             $table->timestamps();
         });

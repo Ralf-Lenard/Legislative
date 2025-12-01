@@ -11,7 +11,7 @@ class OrdinancesSeeder extends Seeder
     public function run(): void
     {
         // Example: create 10 ordinances
-        for ($i = 1; $i <= 10; $i++) {
+        for ($i = 1; $i <= 25; $i++) {
             DB::table('ordinances')->insert([
                 'ordinance_number' => '2025-' . str_pad($i, 3, '0', STR_PAD_LEFT),
                 'title_ordinances' => 'Ordinance Title ' . $i,

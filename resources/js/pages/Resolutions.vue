@@ -73,7 +73,7 @@
                     <h3 class="modal-title-text">{{ selectedResolution.title }}</h3>
                     <p class="date">Date Approved: **{{ selectedResolution.date }}**</p>
                     <div class="detail-content-box">
-                        <h4>Full Details:</h4>
+                        <h4>Description:</h4>
                         <p class="details">{{ selectedResolution.details }}</p>
                     </div>
                     <a href="#" class="download-link" @click.prevent="">Download Full Text (PDF)</a>
@@ -225,7 +225,7 @@ export default {
     text-align: center;
     background: 
         linear-gradient(rgba(0, 60, 0, 0.65), rgba(0, 0, 0, 0.6)),
-        url('images/lg.jpg') center/cover no-repeat;
+        url('/images/lg.jpg') center/cover no-repeat;
     background-attachment: fixed;
     overflow: hidden;
 }

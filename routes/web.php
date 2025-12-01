@@ -29,6 +29,8 @@ Route::middleware('auth')->group(function () {
     // Protected download
     Route::get('/ordinances/pdf/{id}', [OrdinancesController::class, 'downloadPdf'])
         ->name('ordinances.download');
+
+    
 });
 
 
@@ -49,8 +51,13 @@ Route::get('/sessions-history', function () {
 // ordinances
 Route::get('/admin-ordinances', [OrdinancesController::class, 'index'])->name('ordinances.index');
 Route::post('/admin-ordinances', [OrdinancesController::class, 'store'])->name('ordinances.store');
-Route::put('/ordinances/{id}', [OrdinancesController::class, 'update'])->name('ordinances.update');
+Route::post('/admin-ordinances/{id}', [OrdinancesController::class, 'update'])->name('ordinances.update');
 Route::delete('/ordinances/{id}', [OrdinancesController::class, 'destroy'])->name('ordinances.destroy');
+Route::get('/ordinance-request', [OrdinancesController::class, 'indexRequest'])->name('ordinances.indexRequest');
+Route::post('/ordinance-request/{id}/approve', [OrdinancesController::class, 'approveDownloadRequest']);
+Route::post('/ordinance-request/{id}/reject', [OrdinancesController::class, 'rejectDownloadRequest']);
+
+
 
 // resolutions
 Route::get('/admin-resolutions', [ResolutionController::class, 'index'])->name('resolutions.index');

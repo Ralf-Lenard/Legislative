@@ -99,7 +99,7 @@
             />
           </div>
           <div class="detail-content-box">
-            <h4>Full Details:</h4>
+            <h4>Description:</h4>
             <p class="details">{{ selectedOrdinance.description_ordinances }}</p>
           </div>
           <a
@@ -334,7 +334,7 @@ const submitRequestForm = () => {
   text-align: center;
   background:
     linear-gradient(rgba(27, 94, 32, 0.8), rgba(0, 0, 0, 0.6)),
-    url('images/lg.jpg') center/cover no-repeat;
+    url('/images/lg.jpg') center/cover no-repeat;
   background-attachment: fixed;
 }
 

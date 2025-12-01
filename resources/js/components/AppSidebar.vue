@@ -10,6 +10,9 @@ import {
     Users,
     ChevronDown,
     ChevronUp,
+    Library,
+    FileSearch,
+    ClipboardList
 } from 'lucide-vue-next';
 import { computed, ref, onMounted } from 'vue';
 import AppLogo from './AppLogo.vue';
@@ -24,11 +27,25 @@ interface NavItem {
 }
 
 const mainNavItems: NavItem[] = [
-    { title: 'Dashboard', href: '/', icon: LayoutGrid },
-    { title: 'Ordinances', href: '/admin-ordinances', icon: FileText },
-    { title: 'Resolutions', href: '/admin-resolutions', icon: FileText },
-    { title: 'SB Members', href: '/members', icon: Users },
-    { title: 'Announcements', href: '/announcements', icon: Megaphone },
+  { title: 'Dashboard', href: '/', icon: LayoutGrid },
+
+  // More appropriate icon for ordinances
+  { title: 'Ordinances', href: '/admin-ordinances', icon: Library },
+
+  // Legal document icon for resolutions
+  { title: 'Resolutions', href: '/admin-resolutions', icon: FileText },
+
+  // Document with magnifying glass = request or review
+  { title: 'Ordinance Request', href: '/ordinance-request', icon: FileSearch },
+
+  // Clipboard list fits "requests"
+  { title: 'Resolution Request', href: '/resolution-request', icon: ClipboardList },
+
+  // Members stays the same
+  { title: 'SB Members', href: '/members', icon: Users },
+
+  // Announcements stays same
+  { title: 'Announcements', href: '/announcements', icon: Megaphone },
 ];
 
 const currentRoute = computed(() => window.location.pathname);
