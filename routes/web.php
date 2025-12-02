@@ -12,7 +12,7 @@ Route::get('/', function () {
     ]);
 })->name('home');
 
-Route::get('/home', function () {
+Route::get('/homes', function () {
     return Inertia::render('Home');
 });
 
@@ -30,13 +30,10 @@ Route::middleware('auth')->group(function () {
     Route::get('/ordinances/pdf/{id}', [OrdinancesController::class, 'downloadPdf'])
         ->name('ordinances.download');
 
-    
 });
 
-
-Route::get('/resolutions', function () {
-    return Inertia::render('Resolutions');
-});
+// resolution
+Route::get('/resolutions', [ResolutionController::class, 'indexUser'])->name('resolutions.indexUser');
 
 Route::get('/sessions', function () {
     return Inertia::render('Sessions');

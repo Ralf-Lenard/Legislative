@@ -4,51 +4,95 @@ namespace App\Http\Controllers;
 
 use App\Models\Resolution;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 
 class ResolutionController extends Controller
 {
+
+    // index user
+    public function indexUser(Request $request)
+    {
+        $query = Resolution::query();
+
+        // Search filter
+        if ($request->filled('search')) {
+            $search = $request->search;
+
+            $query->where(function ($q) use ($search) {
+                $q->where('resolutions_number', 'like', "%{$search}%")
+                    ->orWhere('title_resolutions', 'like', "%{$search}%")
+                    ->orWhere('description_resolutions', 'like', "%{$search}%")
+                    ->orWhere('author_resolutions', 'like', "%{$search}%");
+            });
+        }
+
+        // Year filter
+        if ($request->filled('year')) {
+            $query->whereYear('date_approved_resolutions', $request->year);
+        }
+
+        // Paginate results
+        $resolutions = $query->paginate(10)->appends($request->only('search', 'year'));
+
+        // Get unique years for filter dropdown
+        $years = Resolution::selectRaw('YEAR(date_approved_resolutions) as year')
+            ->whereNotNull('date_approved_resolutions')
+            ->orderBy('year', 'desc')
+            ->pluck('year')
+            ->unique()
+            ->values();
+
+        return inertia('User/Resolutions', [
+            'resolutions' => $resolutions,
+            'filters' => $request->only('search', 'year'),
+            'years' => $years,
+            'user' => Auth::user(),
+        ]);
+    }
+
+    // admin index
     public function index(Request $request)
     {
         $query = Resolution::query();
-    
+
         // ✅ Search filter
         if ($request->filled('search')) {
             $search = $request->search;
             // Important: wrap these in a closure to avoid mixing with the year filter
-            $query->where(function($q) use ($search) {
+            $query->where(function ($q) use ($search) {
                 $q->where('resolutions_number', 'like', "%{$search}%")
-                  ->orWhere('title_resolutions', 'like', "%{$search}%")
-                  ->orWhere('description_resolutions', 'like', "%{$search}%")
-                  ->orWhere('author_resolutions', 'like', "%{$search}%");
+                    ->orWhere('title_resolutions', 'like', "%{$search}%")
+                    ->orWhere('description_resolutions', 'like', "%{$search}%")
+                    ->orWhere('author_resolutions', 'like', "%{$search}%");
             });
         }
-        
+
         // ✅ Year filter
         if ($request->filled('year')) {
             $year = $request->year;
             $query->whereYear('date_approved_resolutions', $year);
         }
-    
+
         // ✅ Pagination with appended filters so search & year persist on links
         $resolutions = $query->paginate(10)->appends($request->only('search', 'year'));
-    
+
         // Make sure $years is defined somewhere, e.g., all unique years in your table
         $years = Resolution::selectRaw('YEAR(date_approved_resolutions) as year')
-                    ->distinct()
-                    ->orderBy('year', 'desc')
-                    ->pluck('year');
-    
+            ->distinct()
+            ->orderBy('year', 'desc')
+            ->pluck('year');
+
         return inertia('Admin/Resolutions', [
             'resolutions' => $resolutions,
             'filters' => $request->only('search', 'year'),
             'years' => $years,
         ]);
     }
-    
-    
 
-    
+
+
+
 
     // ==========================
     // STORE - Create resolution

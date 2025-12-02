@@ -1,962 +1,313 @@
 <template>
-  <div class="sb-sangguniang-bayan">
+  <div class="bg-white min-h-screen">
     <Navbar />
 
-    <section class="sb-hero">
-      <div class="sb-hero-overlay"></div>
-      <div class="sb-hero-content">
-        <h2>Sangguniang Bayan Members</h2>
-        <p class="sb-motto">Meet the Legislative Leaders of Concepcion</p>
-        <div class="sb-hero-accent"></div>
-      </div>
-    </section>
-
-    <section class="sb-presiding-section">
-      <div class="sb-section-header">
-        <h3 class="animated-header">Presiding Officer</h3>
-      </div>
-      <div class="sb-presiding-container">
-        <div class="sb-featured-card card-shadow-hover" @click="showMemberInfo(presidingOfficer)">
-          <div class="sb-image-wrapper sb-featured-image-wrapper">
-            <img :src="presidingOfficer.photo" :alt="presidingOfficer.name" loading="lazy" />
-          </div>
-          <h4 class="sb-card-title">{{ presidingOfficer.name }}</h4>
-          <p class="sb-card-position">{{ presidingOfficer.position }}</p>
-          <button class="sb-view-btn">View Profile</button>
-        </div>
-      </div>
-    </section>
-
-    <section class="sb-councilors-section">
-      <div class="sb-section-header">
-        <h3 class="animated-header">Municipal Councilors</h3>
-      </div>
-      <div class="sb-council-grid">
-        <div
-          v-for="(member, index) in councilors"
-          :key="index"
-          class="sb-council-card card-shadow-hover"
-          @click="showMemberInfo(member)"
-        >
-          <div class="sb-image-wrapper sb-councilor-image-wrapper">
-            <img :src="member.photo" :alt="member.name" loading="lazy" />
-          </div>
-          <h4 class="sb-card-title">{{ member.name }}</h4>
-          <p class="sb-card-position">{{ member.position }}</p>
-          <button class="sb-view-btn">View Profile</button>
-        </div>
-      </div>
-    </section>
-
-    <section class="sb-secretary-section">
-      <div class="sb-section-header">
-        <h3 class="animated-header">SB Secretary</h3>
-      </div>
-      <div class="sb-presiding-container">
-        <div class="sb-featured-card card-shadow-hover" @click="showMemberInfo(secretary)">
-          <div class="sb-image-wrapper sb-featured-image-wrapper">
-            <img :src="secretary.photo" :alt="secretary.name" loading="lazy" />
-          </div>
-          <h4 class="sb-card-title">{{ secretary.name }}</h4>
-          <p class="sb-card-position">{{ secretary.position }}</p>
-          <button class="sb-view-btn">View Profile</button>
-        </div>
-      </div>
-    </section>
-
-    <transition 
-      name="sb-modal-fade"
-      @enter="onModalEnter"
-      @leave="onModalLeave"
+    <section
+      class="pt-28 pb-20 bg-gradient-to-br from-green-900 to-green-700 relative overflow-hidden"
     >
-      <div v-if="selectedMember" class="sb-modal-overlay" @click.self="closeModal">
-        <div class="sb-modal-content">
+      <div
+        class="absolute top-0 right-0 w-96 h-96 bg-yellow-300/10 rounded-full blur-3xl"
+      ></div>
 
-          <!-- Close Button -->
-          <button class="sb-close-btn" @click="closeModal" aria-label="Close modal">×</button>
+      <div
+        class="max-w-7xl mx-auto px-4 flex flex-col md:flex-row items-center gap-10"
+      >
+        <div class="flex-1 text-white relative z-10">
+          <span
+            class="text-xs tracking-widest uppercase bg-yellow-400 text-green-900 px-4 py-1 rounded-full font-bold"
+          >
+          Leadership
+          </span>
 
-          <!-- Top Section -->
-          <div class="sb-modal-main-info">
-            <div class="sb-modal-image-container">
-              <img :src="selectedMember.photo" :alt="selectedMember.name" class="sb-modal-image" />
+          <h1 class="text-5xl md:text-6xl font-extrabold mt-4 leading-tight">
+            The Council Members
+          </h1>
+
+          <p class="text-lg mt-3 text-gray-100">
+            Meet the elected officials of the Sangguniang Bayan (Municipal Council), dedicated to effective legislation and public service.
+          </p>
+        </div>
+
+         <!-- RIGHT IMAGE -->
+         <div class="hidden lg:block">
+          <div class="relative w-full h-96 rounded-2xl overflow-hidden shadow-2xl">
+            <picture>
+              <source media="(min-width:1024px)" srcset="https://upload.wikimedia.org/wikipedia/commons/7/78/Concepcion_Municipal_Hall%2C_Tarlac%2C_Oct_2023.jpg">
+              <source media="(min-width:640px)" srcset="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f4/Concepcion_Tarlac_Municipal_Hall_plaza_view_%28Timbol%2C_Concepcion%2C_Tarlac%3B_07-23-2023%29.jpg/1024px-Concepcion_Tarlac_Municipal_Hall_plaza_view_%28Timbol%2C_Concepcion%2C_Tarlac%3B_07-23-2023%29.jpg">
+              <img src="https://upload.wikimedia.org/wikipedia/commons/c/c0/Concepcion_Tarlac_Municipal_Hall_%28Timbol%2C_Concepcion%2C_Tarlac%3B_07-23-2023%29.jpg" 
+                alt="Concepcion Municipal Hall" 
+                class="w-full h-full object-cover">
+            </picture>
+            <div class="absolute bottom-4 right-4 bg-white/90 backdrop-blur-sm px-4 py-2 rounded-lg text-sm font-semibold">
+              Concepcion, Tarlac
             </div>
+          </div>
+        </div>
+      </div>
+    </section>
 
-            <div class="sb-modal-header-text">
-              <h2>{{ selectedMember.name }}</h2>
-              <p class="sb-modal-position">{{ selectedMember.position }}</p>
+    <!-- Presiding Officer Section -->
+    <section class="py-16 px-4 bg-gray-50">
+      <div class="max-w-7xl mx-auto">
+        <h2 class="text-3xl font-bold text-green-900 text-center mb-10">
+          Presiding Officer
+        </h2>
+
+        <div class="max-w-3xl mx-auto bg-white rounded-xl shadow-2xl border-4 border-yellow-400 overflow-hidden">
+          <div class="flex flex-col md:flex-row items-center p-8 gap-8">
+            <div class="w-56 h-96 flex-shrink-0 rounded-2xl overflow-hidden border-4 border-green-800 shadow-lg">
+              <img :src="presidingOfficer.image" alt="Presiding Officer" class="w-full h-full object-cover">
+            </div>
+            <div class="text-center md:text-left">
+              <p class="text-lg font-semibold text-gray-500 uppercase tracking-wider">Vice Mayor</p>
+              <h3 class="text-3xl font-extrabold text-green-900 mt-1">
+                {{ presidingOfficer.name }}
+              </h3>
+              <p class="text-lg mt-3 text-gray-700 italic">
+                "Leading the Sangguniang Bayan toward responsive and effective governance."
+              </p>
+              <button 
+                @click="openBio(presidingOfficer)" 
+                class="inline-block mt-4 px-5 py-2 text-sm bg-yellow-400 text-green-900 font-bold rounded-lg hover:bg-yellow-500 transition"
+              >
+                View Bio
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Council Members Section -->
+    <section class="py-16 px-4 bg-white">
+      <div class="max-w-7xl mx-auto">
+        <h2 class="text-3xl font-bold text-green-900 text-center mb-12">
+          Municipal Councilors ({{ councilMembers.length }} Members)
+        </h2>
+
+        <div class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-8">
+          <div 
+            v-for="member in councilMembers" 
+            :key="member.id"
+            class="bg-gray-50 rounded-xl shadow-lg border border-gray-200 overflow-hidden hover:shadow-xl transition duration-300"
+          >
+            <div class="h-72 bg-gray-200 overflow-hidden relative">
+              <img :src="member.image" :alt="member.name" class="w-full h-full object-cover grayscale hover:grayscale-0 transition duration-500">
+              <div class="absolute inset-0 bg-green-900/10"></div>
+            </div>
+            <div class="p-4 text-center">
+              <h3 class="text-lg font-bold text-green-900 leading-tight">
+                {{ member.name }}
+              </h3>
+              <p class="text-sm text-gray-600 mt-1 line-clamp-2 h-10">
+                {{ member.main_committee }}
+              </p>
+              <button 
+                @click="openBio(member)" 
+                class="inline-block mt-3 text-xs font-semibold text-yellow-700 hover:text-yellow-500 transition cursor-pointer"
+              >
+                View Bio →
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Modal Section -->
+    <transition name="modal-fade">
+      <div
+        v-if="showBioModal"
+        class="fixed inset-0 flex items-center justify-center bg-black/50 backdrop-blur-sm z-[100]"
+        @click.self="closeBio"
+      >
+        <div
+          class="bg-white w-full max-w-4xl rounded-2xl shadow-2xl border-t-8 border-green-800 relative flex flex-col overflow-hidden"
+          style="max-height: 90vh;"
+        >
+          <button
+            class="absolute top-4 right-4 text-gray-500 hover:text-gray-700 transition z-10"
+            @click="closeBio"
+          >
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round"
+              stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+          </button>
+
+          <div class="overflow-y-auto custom-scrollbar p-8 sm:p-12">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+              <div class="md:col-span-1 flex flex-col items-center">
+                <div class="w-64 h-96 rounded-xl overflow-hidden border-8 border-yellow-400 shadow-xl mb-4">
+                  <img :src="modalMemberData.image || '/images/placeholder-male.jpg'" :alt="modalMemberData.name" class="w-full h-full object-cover"/>
+                </div>
+
+                <h2 class="text-2xl font-extrabold text-green-900 text-center">
+                  {{ modalMemberData.name }}
+                </h2>
+                <p class="text-lg font-semibold text-gray-600 mt-1 mb-4 text-center">
+                  {{ modalMemberData.position }}
+                </p>
+
+                <span class="px-3 py-1 bg-green-100 text-green-800 rounded-full text-xs font-bold border border-green-300">
+                    Active Term (2022-2025)
+                </span>
+              </div>
+
+              <div class="md:col-span-2 space-y-8">
+                <div>
+                  <h3 class="text-xl font-bold text-green-800 border-b-2 border-yellow-400 pb-2 mb-4">Biography & Platform</h3>
+                  <p class="text-gray-700 leading-relaxed whitespace-pre-line">
+                    {{ modalMemberData.bio || 'No detailed biography provided yet.' }}
+                  </p>
+                </div>
+
+                <div>
+                  <h3 class="text-xl font-bold text-green-800 border-b-2 border-yellow-400 pb-2 mb-4">Committee Assignments</h3>
+                  <div v-if="modalMemberData.committees && modalMemberData.committees.length" class="space-y-4">
+                    <div 
+                        v-for="committee in modalMemberData.committees" 
+                        :key="committee.name" 
+                        class="bg-gray-100 p-4 rounded-lg border-l-4"
+                        :class="committee.role === 'Chairperson' ? 'border-yellow-500' : 'border-green-500'"
+                    >
+                      <p class="text-sm font-bold" :class="committee.role === 'Chairperson' ? 'text-yellow-800' : 'text-green-800'">
+                        {{ committee.role }}
+                      </p>
+                      <h4 class="text-lg font-extrabold text-gray-900 mt-0.5">
+                        {{ committee.name }}
+                      </h4>
+                      <p class="text-xs text-gray-600 mt-1">
+                        Focus: {{ committee.focus }}
+                      </p>
+                    </div>
+                  </div>
+                  <p v-else class="text-gray-500 italic text-sm">No specific committee assignments listed.</p>
+                </div>
+
+                <div>
+                  <h3 class="text-xl font-bold text-green-800 border-b-2 border-yellow-400 pb-2 mb-4">Key Ordinances Authored</h3>
+                  <ul v-if="modalMemberData.ordinances && modalMemberData.ordinances.length" class="space-y-2">
+                      <li v-for="ordinance in modalMemberData.ordinances" :key="ordinance.id" class="text-gray-700 hover:text-green-800 transition">
+                          <a :href="`/ordinances/${ordinance.id}`" class="flex items-center gap-2">
+                              <span class="text-yellow-500 font-bold">•</span>
+                              Ordinance No. {{ ordinance.number }}: {{ ordinance.title }}
+                          </a>
+                      </li>
+                  </ul>
+                  <p v-else class="text-gray-500 italic text-sm">No major ordinances recorded in the current term.</p>
+                </div>
+              </div>
             </div>
           </div>
 
-          <!-- Body: ONE COLUMN -->
-          <div class="sb-modal-body">
-
-            <!-- BIOGRAPHY -->
-            <div class="sb-modal-section">
-              <h3><i class="fas fa-info-circle"></i> Biography</h3>
-              <p class="sb-bio" v-if="selectedMember.bio">{{ selectedMember.bio }}</p>
-              <p class="sb-bio" v-else>No biography available.</p>
-            </div>
-
-            <!-- COMMITTEES -->
-            <div 
-              class="sb-modal-section"
-              v-if="selectedMember.committees && selectedMember.committees.length > 0"
-            >
-              <h3><i class="fas fa-gavel"></i> Committee Assignments</h3>
-
-              <ul class="sb-committees-list">
-                <li v-for="(committee, i) in selectedMember.committees" :key="i">
-                  <span class="sb-committee-icon"><i class="far fa-check-circle"></i></span>
-                  {{ committee }}
-                </li>
-              </ul>
-            </div>
-
+          <div class="p-4 border-t border-gray-200 bg-gray-50 flex justify-end">
+              <button 
+                  @click="closeBio"
+                  class="bg-gray-300 text-gray-800 px-6 py-2 rounded-lg font-semibold hover:bg-gray-400 transition"
+              >
+                  Close Profile
+              </button>
           </div>
-
         </div>
       </div>
     </transition>
 
-    <FooterSection />
+    <Footer />
   </div>
 </template>
 
-<script>
-import Navbar from "@/components/Home/Navbar.vue";
-import FooterSection from "@/components/Home/Footer.vue";
+<script setup>
+import { ref } from "vue";
+import Navbar from "@/components/Home/Navbar.vue"; 
+import Footer from "@/components/Home/Footer.vue";
 
-export default {
-  name: "SangguniangBayan",
-  components: { Navbar, FooterSection },
-  data() {
-    return {
-      selectedMember: null,
-      presidingOfficer: {
-        name: "Hon. [Vice Mayor's Name]",
-        position: "Presiding Officer",
-        badgePosition: "Presiding Officer",
-        photo: "https://upload.wikimedia.org/wikipedia/commons/a/a3/Vice_Mayor_Example.jpg",
-        committees: [
-          "Committee on Good Governance",
-          "Committee on Public Safety",
-          "Committee on Local Legislation",
-        ],
-        bio: "The Presiding Officer leads the Sangguniang Bayan, ensuring effective legislation and transparency in all municipal matters and is the second-highest elected official in the local government unit. He or she is responsible for signing all approved ordinances, resolutions, and measures.",
-      },
-      secretary: {
-        name: "Ms. [Secretary Name]",
-        position: "SB Secretary",
-        badgePosition: "Secretary",
-        photo: "https://images.unsplash.com/photo-1607746882042-944635dfe10e?auto=format&fit=crop&w=800&q=60",
-        committees: [], 
-        bio: "Responsible for maintaining legislative records, handling official documents, and supporting council operations efficiently and impartially. The Secretary prepares minutes of meetings and attests to the authenticity of resolutions and ordinances.",
-      },
-      councilors: [
-        {
-          name: "Hon. Juan Dela Cruz",
-          position: "Municipal Councilor",
-          photo: "https://images.unsplash.com/photo-1595151228-14d9def656e4?auto=format&fit=crop&w=800&q=60",
-          committees: ["Committee on Education", "Committee on Health"],
-          bio: "Championing educational reforms and public health initiatives to uplift the lives of every constituent. Dedicated to securing quality learning environments for the youth of Concepcion.",
-        },
-        {
-          name: "Hon. Maria Santos",
-          position: "Municipal Councilor",
-          photo: "https://images.unsplash.com/photo-155415122814d9def654761-15a19d654956?auto=format&fit=crop&w=800&q=60",
-          committees: ["Committee on Women and Family", "Committee on Social Welfare"],
-          bio: "Advocating for gender equality and providing robust social welfare programs for vulnerable sectors. A strong voice for maternal and child health care.",
-        },
-        {
-          name: "Hon. Roberto Garcia",
-          position: "Municipal Councilor",
-          photo: "https://images.unsplash.com/photo-1531123897727-8f129e1688ce?auto=format&fit=crop&w=800&q=60",
-          committees: ["Committee on Finance", "Committee on Infrastructure"],
-          bio: "A dedicated public servant with a focus on fiscal responsibility and fast-tracking development projects across the municipality. He ensures public funds are utilized efficiently and transparently.",
-        },
-        {
-          name: "Hon. Angela Ramos",
-          position: "Municipal Councilor",
-          photo: "https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=800&q=60",
-          committees: ["Committee on Youth and Sports", "Committee on Tourism"],
-          bio: "Focused on empowering the youth through sports and cultural activities, and promoting local tourism. She actively organizes inter-barangay sports leagues and local festivals.",
-        },
-        {
-          name: "Hon. Jose Manalo",
-          position: "Municipal Councilor",
-          photo: "https://images.unsplash.com/photo-1599566150163-29194ca60f91?auto=format&fit=crop&w=800&q=60",
-          committees: ["Committee on Environment", "Committee on Agriculture"],
-          bio: "Spearheading environmental protection policies and supporting local farmers for agricultural sustainability. His priority is the long-term ecological balance of the municipality.",
-        },
-        {
-          name: "Hon. Liza Mendoza",
-          position: "Municipal Councilor",
-          photo: "https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?auto=format&fit=crop&w=800&q=60",
-          committees: ["Committee on Trade and Industry", "Committee on Human Resources"],
-          bio: "Working to create a business-friendly environment and develop the skills of the municipal workforce. She believes a strong local economy is key to prosperity.",
-        },
-        {
-          name: "Hon. Carlo Reyes",
-          position: "Municipal Councilor",
-          photo: "https://images.unsplash.com/photo-1527980965255-d3b416303d12?auto=format&fit=crop&w=800&q=60",
-          committees: ["Committee on Rules", "Committee on Public Works"],
-          bio: "Ensuring adherence to legislative rules and overseeing the quality and efficiency of public infrastructure projects. He is known for his strict oversight on construction timelines and budgets.",
-        },
-        {
-          name: "Hon. Regina Bautista",
-          position: "Municipal Councilor",
-          photo: "https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?auto=format&fit=crop&w=800&q=60",
-          committees: ["Committee on Disaster Management", "Committee on Ways and Means"],
-          bio: "Dedicated to enhancing disaster preparedness and managing revenue generation for the municipality. She leads initiatives for community training on calamity response.",
-        },
-      ],
-    };
+// ==========================
+// MOCK DATA: 9 MEMBERS TOTAL
+// ==========================
+const allMembersData = [
+  { id: 0, name: "Hon. John Doe", position: "Vice Mayor / Presiding Officer", main_committee: "Oversight and Internal Affairs",
+    image: "https://previews.123rf.com/images/mmiixx/mmiixx1705/mmiixx170500154/78969254-one-young-adult-man-side-view-looking-sideways-portrait-upper-body-white-shirt-studio-gray.jpg",
+    bio: "As the head of the Sangguniang Bayan, the Presiding Officer ensures legislative procedures are followed and maintains order during sessions. He champions efficiency and collaboration among members.",
+    committees: [
+      { name: "Rules & Legislative", role: "Chairperson", focus: "Oversees rules of procedure and calendar of business." },
+      { name: "Appropriations", role: "Ex-Officio Member", focus: "Provides guidance on financial matters and budget approval." }
+    ],
+    ordinances: [ { id: 101, number: 202300, title: "Annual Budget Ordinance" } ]
   },
-  methods: {
-    showMemberInfo(member) {
-      this.selectedMember = member;
-      setTimeout(() => {
-        document.body.style.overflow = "hidden";
-      }, 50);
-    },
-    closeModal() {
-      this.selectedMember = null;
-      document.body.style.overflow = "auto";
-    },
-    onModalEnter(el) {
-      el.style.opacity = "0";
-      setTimeout(() => {
-        el.style.transition = "opacity 0.4s ease";
-        el.style.opacity = "1";
-      }, 100);
-
-      const content = el.querySelector('.sb-modal-content');
-      if (content) {
-        content.style.transform = "scale(0.95) translateY(20px)";
-        setTimeout(() => {
-          content.style.transition = "transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1)";
-          content.style.transform = "scale(1) translateY(0)";
-        }, 150);
-      }
-    },
-    onModalLeave(el) {
-      el.style.transition = "opacity 0.3s ease";
-      el.style.opacity = "0";
-
-      const content = el.querySelector('.sb-modal-content');
-      if (content) {
-        content.style.transition = "transform 0.3s ease-out";
-        content.style.transform = "scale(0.98) translateY(10px)";
-      }
-    },
+  { id: 1, name: "Hon. Maria Santos", position: "Senior Councilor", main_committee: "Appropriations and Finance", 
+    image: "https://png.pngtree.com/thumb_back/fh260/background/20220806/pngtree-half-body-portrait-male-one-body-photo-image_6408592.jpg",
+    bio: "Councilor Santos has a background in economics and finance. She is dedicated to fiscal transparency and the prudent use of municipal funds to benefit the constituents.",
+    committees: [ { name: "Appropriations", role: "Chairperson", focus: "Municipal budget, taxation, and financial policy." } ], ordinances: [] 
   },
+  { id: 2, name: "Hon. Roberto Gomez", position: "Councilor", main_committee: "Public Works and Infrastructure", 
+    image: "https://watermark.lovepik.com/photo/20211121/large/lovepik-half-body-image-of-white-collar-profession-picture_500578391.jpg",
+    bio: "With experience in engineering, Councilor Gomez is focused on upgrading the town's infrastructure.", 
+    committees: [ { name: "Public Works", role: "Chairperson", focus: "Infrastructure projects, road maintenance, and LGU building standards." } ], ordinances: [] 
+  },
+  { id: 3, name: "Hon. Liza Ramos", position: "Councilor", main_committee: "Health and Sanitation", 
+    image: "https://previews.123rf.com/images/noname3132/noname31321806/noname3132180600003/102411328-portrait-of-the-asian-women-close-up-half-body-on-nature-bokeh-background.jpg",
+    bio: "Advocates public health programs and accessible healthcare for all constituents.", 
+    committees: [ { name: "Health & Sanitation", role: "Chairperson", focus: "Public health, hospital operations, and sanitation policies." } ], ordinances: [] 
+  },
+  { id: 4, name: "Hon. Jose Palma", position: "Councilor", main_committee: "Agriculture and Fisheries", 
+    image: "https://c8.alamy.com/comp/2B0AAB7/half-body-portrait-of-mature-asian-man-standing-against-wooden-wall-2B0AAB7.jpg",
+    bio: "Represents the interests of local farmers and fishermen, promoting sustainable practices.", 
+    committees: [ { name: "Agriculture", role: "Chairperson", focus: "Farm support programs, irrigation, and cooperative development." } ], ordinances: [] 
+  },
+  { id: 5, name: "Hon. Elena Cruz", position: "Councilor", main_committee: "Education and Youth Welfare", 
+    image: "https://st2.depositphotos.com/3521287/9010/i/450/depositphotos_90100914-stock-photo-smiling-indian-businesswoman-half-body.jpg",
+    bio: "A former teacher, she champions policies that improve educational facilities and opportunities for the town's youth.", 
+    committees: [ { name: "Education", role: "Chairperson", focus: "School funding, scholarship programs, and library services." } ], ordinances: [] 
+  },
+  { id: 6, name: "Hon. Daniel Pangan", position: "Councilor", main_committee: "Tourism and Cultural Heritage", 
+    image: "https://previews.123rf.com/images/tomert/tomert1604/tomert160400032/55513793-half-body-portrait-of-a-man-in-a-white-t-shirt-looking-forward-against-white-background.jpg",
+    bio: "Dedicated to boosting local tourism and preserving the town's historical landmarks.", 
+    committees: [ { name: "Tourism", role: "Chairperson", focus: "Tourism development plans and cultural events promotion." } ], ordinances: [] 
+  },
+  { id: 7, name: "Hon. Sofia Dela Cruz", position: "Ex-Officio Member", main_committee: "Liga ng mga Barangay President", 
+    image: "https://t3.ftcdn.net/jpg/02/76/89/65/360_F_276896594_z1g3qM3X1n7nI6tX8hN2oE7oFk7Xb3J7.jpg",
+    bio: "Represents all Barangay Captains, ensuring municipal legislation addresses village-level concerns.", 
+    committees: [ { name: "Barangay Affairs", role: "Chairperson", focus: "Coordination and support for local villages." } ], ordinances: [] 
+  },
+  { id: 8, name: "Hon. Miguel Reyes", position: "Councilor", main_committee: "Environment and Sustainability", 
+    image: "https://images.unsplash.com/photo-1595152772835-219674b2a8a1?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5NjEyOXwwfDF8c2VhcmNofDJ8fG1hbGV8ZW58MHx8fHwxNjg4NzYxODg3&ixlib=rb-4.0.3&q=80&w=400",
+    bio: "Focused on eco-friendly policies, waste management, and promoting green initiatives within the municipality.", 
+    committees: [ { name: "Environment", role: "Chairperson", focus: "Sustainability projects, pollution control, and conservation programs." } ], ordinances: [] 
+  },
+];
+
+const presidingOfficer = allMembersData[0];
+const councilMembers = allMembersData.slice(1);
+
+// ==========================
+// MODAL LOGIC
+// ==========================
+const showBioModal = ref(false);
+const modalMemberData = ref({});
+
+const openBio = (member) => {
+  modalMemberData.value = member;
+  showBioModal.value = true;
+};
+
+const closeBio = () => {
+  showBioModal.value = false;
+  setTimeout(() => {
+    modalMemberData.value = {};
+  }, 300);
 };
 </script>
 
-<style>
-/* --- Global Reset and Font --- */
-@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap");
-@import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css');
+<style scoped>
+/* Modal Transition Styles */
+.modal-fade-enter-active,
+.modal-fade-leave-active { transition: opacity 0.3s ease; }
+.modal-fade-enter-from,
+.modal-fade-leave-to { opacity: 0; }
 
-/* Updated color palette to match standardized design system */
-:root {
-  --primary-green: #1b5e20; /* Darker, formal green */
-  --secondary-green: #388e3c; /* Medium green */
-  --accent-gold: #ffc107; /* Bright gold for accent */
-  --bg-light: #f9f9f9; /* Off-white for background */
-  --text-dark: #212121;
-  --shadow-color: rgba(27, 94, 32, 0.15);
-  --shadow-color-hover: rgba(27, 94, 32, 0.3);
-}
-
-.sb-sangguniang-bayan {
-  font-family: "Poppins", sans-serif;
-  background-color: var(--bg-light);
-  color: var(--text-dark);
-  overflow-x: hidden;
-  margin-top: 100px;
-}
-
-/* --- Hero Section --- */
-.sb-hero {
-  position: relative;
-  background-image: url("https://images.pexels.com/photos/3184299/pexels-photo-3184299.jpeg");
-  background-size: cover;
-  background-position: center;
-  height: 70vh; 
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin: 3rem auto; 
-  max-width: 90%; 
-  border-radius: 1.5rem; 
-  overflow: hidden;
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
-  animation: zoomHero 15s infinite alternate ease-in-out;
-}
-
-.sb-hero-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  /* Updated gradient to use new primary green */
-  background: linear-gradient(135deg, rgba(27, 94, 32, 0.95) 0%, rgba(30, 30, 30, 0.85) 100%);
-  background-image: url("data:image/svg+xml,%3Csvg width='6' height='6' viewBox='0 0 6 6' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ffffff' fill-opacity='0.05' fill-rule='evenodd'%3E%3Cpath d='M5 0h1L0 6V5zm1 5v1H5z'/%3E%3C/g%3E%3C/svg%3E");
-}
-
-.sb-hero-content {
-  max-width: 60rem;
-  padding: 4rem;
-  text-align: center;
-  border: 4px solid var(--accent-gold); 
-  border-radius: 1.25rem;
-  background: rgba(0, 0, 0, 0.2);
-  box-shadow: 0 0 50px rgba(27, 94, 32, 0.8);
-  position: relative;
-  z-index: 10;
-}
-
-.sb-hero-content h2 {
-  font-size: clamp(3rem, 6vw, 4.5rem);
-  margin-bottom: 1rem;
-  color: white;
-  font-weight: 900; 
-  text-shadow: 4px 4px 8px rgba(0, 0, 0, 0.9);
-}
-
-.sb-motto {
-  margin-bottom: 2rem;
-  font-size: clamp(1.4rem, 3vw, 2.2rem);
-  color: var(--accent-gold);
-  font-weight: 700;
-  letter-spacing: 3px;
-  text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.7);
-}
-
-.sb-hero-accent {
-  width: 100px; 
-  height: 5px; 
-  background-color: var(--accent-gold);
-  margin: 0 auto;
-  border-radius: 3px;
-}
-
-/* --- Sections and Header --- */
-.sb-presiding-section,
-.sb-councilors-section,
-.sb-secretary-section {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 6rem 1.5rem; 
-  text-align: center;
-}
-
-.sb-section-header h3 {
-  color: var(--primary-green);
-  font-weight: 800;
-  display: inline-block;
-  position: relative;
-  margin-bottom: 3.5rem; 
-  font-size: clamp(2.2rem, 5vw, 3.2rem); 
-  text-transform: uppercase;
-  letter-spacing: 2px;
-}
-
-.sb-section-header h3::after {
-  content: "";
-  display: block;
-  width: 6rem; 
-  height: 6px; 
-  background-color: var(--accent-gold);
-  margin: 0.75rem auto 0;
-  border-radius: 3px;
-}
-
-/* --- Card Styles --- */
-.sb-presiding-container {
-  display: flex;
-  justify-content: center;
-  max-width: 480px; 
-  margin: 0 auto;
-}
-
-.sb-featured-card,
-.sb-council-card {
-  background: white;
-  border-radius: 1.25rem; 
-  box-shadow: 0 8px 25px var(--shadow-color); 
-  overflow: hidden;
-  text-align: center;
-  transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
-  border-bottom: 6px solid var(--secondary-green); 
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 3rem 2rem;
-  position: relative;
-  cursor: pointer;
-}
-
-.sb-featured-card {
-  max-width: 450px;
-}
-
-.card-shadow-hover:hover {
-  transform: translateY(-1rem); 
-  box-shadow: 0 25px 50px var(--shadow-color-hover);
-  border-bottom-color: var(--accent-gold);
-}
-
-/* Image wrapper size and effect */
-.sb-image-wrapper {
-  border-radius: 50%;
-  overflow: hidden;
-  margin-bottom: 1.8rem;
-  border: 4px solid var(--accent-gold); 
-  transition: all 0.4s ease;
-  box-shadow: 0 0 0 10px rgba(27, 94, 32, 0.1); 
-}
-
-.sb-featured-image-wrapper {
-  width: 180px; 
-  height: 180px;
-}
-
-.sb-councilor-image-wrapper {
-  width: 190px;
-  height: 190px;
-}
-
-.card-shadow-hover:hover .sb-image-wrapper {
-  border-color: var(--primary-green);
-  box-shadow: 0 0 0 10px rgba(255, 193, 7, 0.2); 
-}
-
-.sb-image-wrapper img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transition: transform 0.4s ease;
-}
-
-.card-shadow-hover:hover .sb-image-wrapper img {
-  transform: scale(1.05); 
-}
-
-/* Card text styling */
-.sb-card-title {
-  color: var(--primary-green);
-  font-weight: 800;
-  margin-top: 0;
-  font-size: clamp(1.3rem, 2.5vw, 1.6rem); 
-  line-height: 1.2;
-}
-
-.sb-card-position {
-  color: #666;
-  font-size: 0.95rem;
-  font-weight: 500;
-  margin: 0.4rem 0 1.5rem 0;
-}
-
-/* Button styling */
-.sb-view-btn {
-  background-color: var(--primary-green);
-  color: white;
-  padding: 0.8rem 2rem;
-  border-radius: 50px;
-  cursor: pointer;
-  font-weight: 700;
-  border: 2px solid var(--primary-green);
-  transition: all 0.3s ease;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  font-size: 0.9rem;
-  margin-top: auto;
-}
-
-.sb-view-btn:hover {
-  background-color: transparent;
-  color: var(--primary-green);
-  border-color: var(--accent-gold);
-  box-shadow: 0 5px 15px rgba(255, 193, 7, 0.4);
-  transform: translateY(-3px);
-}
-
-/* Council grid */
-.sb-council-grid {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(260px, 1fr));
-  gap: 1rem;
-}
-
-/* --- MODAL STYLES --- */
-.sb-modal-overlay {
-  position: fixed;
-  inset: 0;
-  /* Updated background color to match design system */
-  background: rgba(0, 0, 0, 0.85); 
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 1rem;
-  z-index: 1000;
-  backdrop-filter: blur(10px);
-}
-
-.sb-modal-content {
-  background: white;
-  border-radius: 1.5rem;
-  padding: 2rem;
-  width: 100%;
-  max-width: 700px;
-  max-height: 90vh;
-  overflow-y: auto;
-  position: relative;
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
-  border-top: 10px solid var(--primary-green);
-}
-
-/* Close Button */
-.sb-close-btn {
-  position: absolute;
-  top: 1.2rem;
-  right: 1.2rem;
-  background: var(--primary-green);
-  color: white;
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
-  font-size: 30px;
-  border: none;
-  cursor: pointer;
-  transition: 0.3s ease;
-}
-
-.sb-close-btn:hover {
-  background: var(--accent-gold);
-  color: var(--primary-green);
-  transform: rotate(360deg) scale(1.08);
-  box-shadow: 0 6px 15px rgba(255, 193, 7, 0.5);
-}
-
-/* HEADER – Image + Name */
-.sb-modal-main-info {
-  text-align: center;
-  margin-bottom: 2rem;
-  padding-bottom: 1.5rem;
-  border-bottom: 2px solid #eee;
-}
-
-.sb-modal-image-container {
-  width: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin-bottom: 1rem;
-}
-
-.sb-modal-image {
-  width: 180px;
-  height: 180px;
-  border-radius: 50%;
-  object-fit: cover;
-  border: 6px solid var(--accent-gold);
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
-}
-
-.sb-modal-header-text h2 {
-  font-size: 2rem;
-  color: var(--primary-green);
-  margin: 1rem 0 0.2rem;
-  font-weight: 800;
-}
-
-.sb-modal-position {
-  font-size: 1.1rem;
-  color: #666;
-}
-
-/* ONE COLUMN BODY */
-.sb-modal-body {
-  display: flex;
-  flex-direction: column;
-  gap: 2.2rem;
-}
-
-/* Section Titles */
-.sb-modal-section h3 {
-  color: var(--primary-green);
-  font-size: 1.3rem;
-  margin-bottom: 1rem;
-  font-weight: 800;
-  border-bottom: 3px solid var(--accent-gold);
-  padding-bottom: 0.5rem;
-}
-
-/* Biography */
-.sb-bio {
-  color: var(--text-dark);
-  line-height: 1.7;
-  font-size: 1rem;
-  text-align: justify;
-}
-
-/* Committees */
-.sb-committees-list {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 0.7rem;
-}
-
-.sb-committees-list li {
-  background: rgba(27, 94, 32, 0.05);
-  padding: 0.8rem 1rem;
-  border-radius: 8px;
-  border-left: 4px solid var(--primary-green);
-  transition: 0.3s ease;
-}
-
-.sb-committees-list li:hover {
-  background: rgba(27, 94, 32, 0.09);
-  border-left-color: var(--accent-gold);
-}
-
-.sb-committee-icon {
-  color: var(--accent-gold);
-  margin-right: 0.6rem;
-}
-
-/* --- Responsive Design --- */
-@media (max-width: 1200px) {
-  .sb-council-grid {
-    grid-template-columns: repeat(3, 1fr);
-    gap: 1.5rem;
-  }
-  
-  .sb-presiding-section,
-  .sb-councilors-section,
-  .sb-secretary-section {
-    padding: 4rem 1.5rem;
-  }
-}
-
-@media (max-width: 992px) {
-  .sb-sangguniang-bayan {
-    margin-top: 80px;
-  }
-  
-  .sb-hero {
-    height: 50vh;
-    margin: 2rem auto;
-    border-radius: 1rem;
-  }
-  
-  .sb-hero-content {
-    padding: 3rem 2rem;
-    border: 3px solid var(--accent-gold);
-  }
-  
-  .sb-hero-content h2 {
-    font-size: 2.8rem;
-  }
-  
-  .sb-motto {
-    font-size: 1.4rem;
-  }
-
-  .sb-council-grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 1.5rem;
-  }
-  
-  .sb-featured-image-wrapper {
-    width: 160px;
-    height: 160px;
-  }
-  
-  .sb-councilor-image-wrapper {
-    width: 150px;
-    height: 150px;
-  }
-  
-  .sb-presiding-section,
-  .sb-councilors-section,
-  .sb-secretary-section {
-    padding: 3.5rem 1.5rem;
-  }
-  
-  .sb-section-header h3 {
-    font-size: 2.2rem;
-    margin-bottom: 2.5rem;
-  }
-
-  .sb-modal-content {
-    max-width: 90%;
-    padding: 1.5rem;
-  }
-}
-
-@media (max-width: 768px) {
-  .sb-sangguniang-bayan {
-    margin-top: 70px;
-  }
-  
-  .sb-hero {
-    height: 45vh;
-    margin: 1.5rem auto;
-    border-radius: 0.8rem;
-  }
-  
-  .sb-hero-content {
-    padding: 2.5rem 1.5rem;
-    border: 2px solid var(--accent-gold);
-  }
-  
-  .sb-hero-content h2 {
-    font-size: 2rem;
-  }
-  
-  .sb-motto {
-    font-size: 1.1rem;
-  }
-
-  .sb-council-grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 1.2rem;
-  }
-  
-  .sb-featured-image-wrapper {
-    width: 140px;
-    height: 140px;
-  }
-  
-  .sb-councilor-image-wrapper {
-    width: 120px;
-    height: 120px;
-  }
-
-  .sb-card-title {
-    font-size: 1.1rem;
-  }
-
-  .sb-modal-image {
-    width: 140px;
-    height: 140px;
-  }
-  
-  .sb-modal-header-text h2 {
-    font-size: 1.6rem;
-  }
-  
-  .sb-modal-position {
-    font-size: 0.95rem;
-  }
-  
-  .sb-presiding-section,
-  .sb-councilors-section,
-  .sb-secretary-section {
-    padding: 2.5rem 1rem;
-  }
-  
-  .sb-section-header h3 {
-    font-size: 1.8rem;
-    margin-bottom: 2rem;
-  }
-  
-  .sb-modal-section h3 {
-    font-size: 1.1rem;
-  }
-  
-  .sb-modal-content {
-    max-width: 95%;
-    padding: 1.2rem;
-    border-radius: 1rem;
-    max-height: 95vh;
-  }
-  
-  .sb-close-btn {
-    width: 40px;
-    height: 40px;
-    font-size: 24px;
-    top: 1rem;
-    right: 1rem;
-  }
-}
-
-@media (max-width: 480px) {
-  .sb-sangguniang-bayan {
-    margin-top: 60px;
-  }
-  
-  .sb-hero {
-    height: 35vh;
-    margin: 1rem auto;
-    border-radius: 0.5rem;
-  }
-  
-  .sb-hero-content {
-    padding: 1.5rem 1rem;
-    border: 2px solid var(--accent-gold);
-  }
-  
-  .sb-hero-content h2 {
-    font-size: 1.5rem;
-  }
-  
-  .sb-motto {
-    font-size: 0.95rem;
-    letter-spacing: 1px;
-  }
-  
-  .sb-hero-accent {
-    width: 60px;
-    height: 4px;
-  }
-
-  .sb-council-grid {
-    grid-template-columns: 1fr;
-    gap: 1rem;
-  }
-  
-  .sb-featured-card,
-  .sb-council-card {
-    padding: 2rem 1.5rem;
-  }
-  
-  .sb-featured-image-wrapper {
-    width: 120px;
-    height: 120px;
-  }
-  
-  .sb-councilor-image-wrapper {
-    width: 110px;
-    height: 110px;
-  }
-  
-  .sb-image-wrapper {
-    margin-bottom: 1.2rem;
-  }
-
-  .sb-card-title {
-    font-size: 1rem;
-  }
-  
-  .sb-card-position {
-    font-size: 0.85rem;
-  }
-
-  .sb-view-btn {
-    padding: 0.7rem 1.5rem;
-    font-size: 0.85rem;
-  }
-
-  .sb-presiding-section,
-  .sb-councilors-section,
-  .sb-secretary-section {
-    padding: 2rem 0.8rem;
-  }
-  
-  .sb-section-header h3 {
-    font-size: 1.5rem;
-    margin-bottom: 1.5rem;
-  }
-  
-  .sb-section-header h3::after {
-    width: 4rem;
-    height: 4px;
-  }
-  
-  .sb-modal-overlay {
-    padding: 0.5rem;
-  }
-  
-  .sb-modal-content {
-    max-width: 100%;
-    padding: 1rem;
-    border-radius: 0.8rem;
-    max-height: 100vh;
-  }
-  
-  .sb-modal-main-info {
-    margin-bottom: 1.5rem;
-    padding-bottom: 1rem;
-  }
-  
-  .sb-modal-image {
-    width: 120px;
-    height: 120px;
-  }
-  
-  .sb-modal-header-text h2 {
-    font-size: 1.4rem;
-    margin: 0.8rem 0 0.2rem;
-  }
-  
-  .sb-modal-position {
-    font-size: 0.9rem;
-  }
-  
-  .sb-modal-body {
-    gap: 1.5rem;
-  }
-  
-  .sb-modal-section h3 {
-    font-size: 1rem;
-  }
-  
-  .sb-bio {
-    font-size: 0.9rem;
-    line-height: 1.6;
-    text-align: left;
-  }
-  
-  .sb-committees-list li {
-    padding: 0.7rem 0.8rem;
-    font-size: 0.9rem;
-  }
-  
-  .sb-close-btn {
-    width: 36px;
-    height: 36px;
-    font-size: 20px;
-    top: 0.8rem;
-    right: 0.8rem;
-  }
-}
-
-@media (max-width: 320px) {
-  .sb-hero-content h2 {
-    font-size: 1.2rem;
-    margin-bottom: 0.5rem;
-  }
-  
-  .sb-motto {
-    font-size: 0.85rem;
-  }
-  
-  .sb-featured-card,
-  .sb-council-card {
-    padding: 1.5rem 1rem;
-  }
-  
-  .sb-card-title {
-    font-size: 0.95rem;
-  }
-  
-  .sb-view-btn {
-    padding: 0.6rem 1rem;
-    font-size: 0.8rem;
-  }
-  
-  .sb-section-header h3 {
-    font-size: 1.3rem;
-  }
-}
-
+/* Custom scrollbar styling for better look inside the modal */
+.custom-scrollbar::-webkit-scrollbar { width: 8px; }
+.custom-scrollbar::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 10px; }
+.custom-scrollbar::-webkit-scrollbar-thumb { background: #a5a5a5; border-radius: 10px; }
+.custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #737373; }
 </style>

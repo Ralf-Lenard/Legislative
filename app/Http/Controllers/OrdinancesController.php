@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Ordinance;
 use App\Models\OrdinanceDownloadRequest;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 
@@ -17,11 +18,10 @@ class OrdinancesController extends Controller
     public function indexUser(Request $request)
     {
         $query = Ordinance::query();
-
-        // ✅ Search filter
+    
         if ($request->filled('search')) {
             $search = $request->search;
-            // Important: wrap these in a closure to avoid mixing with the year filter
+    
             $query->where(function ($q) use ($search) {
                 $q->where('ordinance_number', 'like', "%{$search}%")
                     ->orWhere('title_ordinances', 'like', "%{$search}%")
@@ -29,28 +29,29 @@ class OrdinancesController extends Controller
                     ->orWhere('author_ordinances', 'like', "%{$search}%");
             });
         }
-
-        // ✅ Year filter
+    
         if ($request->filled('year')) {
-            $year = $request->year;
-            $query->whereYear('date_approved_ordinances', $year);
+            $query->whereYear('date_approved_ordinances', $request->year);
         }
-
-        // ✅ Pagination with appended filters so search & year persist on links
+    
         $ordinances = $query->paginate(10)->appends($request->only('search', 'year'));
-
-        // Make sure $years is defined somewhere, e.g., all unique years in your table
+    
+        // 🔥 FIXED YEAR LIST
         $years = Ordinance::selectRaw('YEAR(date_approved_ordinances) as year')
-            ->distinct()
+            ->whereNotNull('date_approved_ordinances')
             ->orderBy('year', 'desc')
-            ->pluck('year');
-
+            ->pluck('year')
+            ->unique()
+            ->values();
+    
         return inertia('User/Ordinances', [
             'ordinances' => $ordinances,
             'filters' => $request->only('search', 'year'),
             'years' => $years,
+            'user' => Auth::user(),
         ]);
     }
+    
 
 
     public function index(Request $request)
