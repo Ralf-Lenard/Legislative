@@ -40,12 +40,17 @@ Route::middleware('auth')->group(function () {
 // resolution
 Route::get('/resolutions', [ResolutionController::class, 'indexUser'])->name('resolutions.indexUser');
 
+// sessions
 Route::get('/sessions', function () {
-    return Inertia::render('Sessions');
+    return Inertia::render('Sessions', [
+        'canRegister' => Route::has('register'),
+    ]);
 });
 
 Route::get('/sessions-history', function () {
-    return Inertia::render('SessionsHistory');
+    return Inertia::render('SessionsHistory', [
+        'canRegister' => Route::has('register'),
+    ]);
 });
 
 // Admin

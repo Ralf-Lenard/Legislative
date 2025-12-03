@@ -201,20 +201,18 @@ class OrdinancesController extends Controller
 
     public function indexRequest(Request $request)
     {
-        // Only allow admin
-        // if (auth()->user()->usertype !== 'admin') {
-        //     abort(403, 'Unauthorized action.');
-        // }
+        // Ensure only authorized users (e.g., admin) can access this route
+        // Gate::authorize('view-ordinance-requests'); 
 
         $query = OrdinanceDownloadRequest::with(['user', 'ordinance']);
+        
+        // Capture both search and status filters from the request
+        $filters = $request->only('search', 'status');
 
-        // ------------------------------------
-        // 🔍 SEARCH
-        // ------------------------------------
+        // 1. Search Filter (Filtering by user name, ordinance title/number, or purpose)
         if ($request->filled('search')) {
             $search = $request->search;
 
-            // Search on user name, ordinance title, or purpose
             $query->where(function ($q) use ($search) {
                 $q->where('purpose', 'like', "%{$search}%")
                     ->orWhereHas('user', function ($u) use ($search) {
@@ -227,17 +225,20 @@ class OrdinancesController extends Controller
             });
         }
 
-        // ------------------------------------
-        // 📄 PAGINATION
-        // ------------------------------------
+        // 2. Status Filter (New: Filtering by pending, approved, or rejected)
+        if ($request->filled('status') && in_array($request->status, ['pending', 'approved', 'rejected'])) {
+            $query->where('status', $request->status);
+        }
+
         $requests = $query
             ->latest()
             ->paginate(10)
-            ->appends($request->only('search'));
+            // Append all active filters to the pagination links
+            ->appends($filters);
 
         return inertia('Admin/OrdinanceDownloadRequests', [
             'requests' => $requests,
-            'filters' => $request->only('search'),
+            'filters' => $filters, // Pass all active filters back to the front-end
         ]);
     }
 
