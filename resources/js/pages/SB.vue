@@ -55,7 +55,7 @@
 
         <div class="max-w-3xl mx-auto bg-white rounded-xl shadow-2xl border-4 border-yellow-400 overflow-hidden">
           <div class="flex flex-col md:flex-row items-center p-8 gap-8">
-            <div class="w-56 h-96 flex-shrink-0 rounded-2xl overflow-hidden border-4 border-green-800 shadow-lg">
+            <div class="w-65 h-96 flex-shrink-0 rounded-2xl overflow-hidden border-4 border-green-800 shadow-lg">
               <img :src="presidingOfficer.image" alt="Presiding Officer" class="w-full h-full object-cover">
             </div>
             <div class="text-center md:text-left">

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Resolution;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
 
 class ResolutionController extends Controller
@@ -48,6 +49,7 @@ class ResolutionController extends Controller
             'filters' => $request->only('search', 'year'),
             'years' => $years,
             'user' => Auth::user(),
+            'canRegister' => Route::has('register'),
         ]);
     }
 
@@ -87,6 +89,7 @@ class ResolutionController extends Controller
             'resolutions' => $resolutions,
             'filters' => $request->only('search', 'year'),
             'years' => $years,
+            'canRegister' => Route::has('register'),
         ]);
     }
 

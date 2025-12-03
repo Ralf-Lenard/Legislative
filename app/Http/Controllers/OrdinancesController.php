@@ -6,6 +6,7 @@ use App\Models\Ordinance;
 use App\Models\OrdinanceDownloadRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 
@@ -49,6 +50,7 @@ class OrdinancesController extends Controller
             'filters' => $request->only('search', 'year'),
             'years' => $years,
             'user' => Auth::user(),
+            'canRegister' => Route::has('register'),
         ]);
     }
     
@@ -89,6 +91,8 @@ class OrdinancesController extends Controller
             'ordinances' => $ordinances,
             'filters' => $request->only('search', 'year'),
             'years' => $years,
+            'canRegister' => Route::has('register'),
+            
         ]);
     }
 

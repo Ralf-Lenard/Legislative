@@ -250,12 +250,16 @@
         </div>
 
         <div class="rounded-2xl overflow-hidden shadow-xl h-96 bg-gray-100 flex items-center justify-center border-4 border-gray-200">
-          <div class="text-center text-gray-600">
-            <p class="text-5xl mb-2">🗺️</p>
-            <p class="font-bold">Municipal Hall Location</p>
-            <p class="text-sm">Embed Map Placeholder</p>
-          </div>
+          <iframe
+            class="w-full h-full"
+            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d492.365013920174!2d120.65524349999999!3d15.324464299999998!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3396c27808ce141f%3A0xff3616ce0f24c62c!2sConcepcion%20Legislative%20Building!5e1!3m2!1sen!2sph!4v1731084631234!5m2!1sen!2sph"
+            style="border: 0;"
+            allowfullscreen=""
+            loading="lazy"
+            referrerpolicy="no-referrer-when-downgrade"
+          ></iframe>
         </div>
+
 
       </div>
     </section>

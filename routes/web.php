@@ -13,11 +13,16 @@ Route::get('/', function () {
 })->name('home');
 
 Route::get('/homes', function () {
-    return Inertia::render('Home');
+    return Inertia::render('Home', [
+        'canRegister' => Route::has('register'),
+    ]);
 });
 
+
 Route::get('/sb', function () {
-    return Inertia::render('SB');
+    return Inertia::render('SB', [
+        'canRegister' => Route::has('register'),
+    ]);
 });
 
 // ordinances

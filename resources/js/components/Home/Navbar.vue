@@ -141,12 +141,13 @@
 <script setup>
 import { ref, onMounted, watch } from 'vue'
 import { Link, usePage } from '@inertiajs/vue3'
-import { login, register } from '@/routes' // ✅ Make sure index.ts exports login/register
+// Import the route helper functions.
+import { login, register } from '@/routes' 
 
 const isOpen = ref(false)
-const activeLink = ref('/home')
-const profileOpen = ref(false)
-const profileOpenMobile = ref(false)
+const activeLink = ref('/home') 
+const profileOpen = ref(false) 
+const profileOpenMobile = ref(false) 
 
 const navLinks = [
   { label: 'Home', path: '/homes' },
@@ -162,12 +163,39 @@ function setActive(path) {
 }
 
 onMounted(() => {
-  activeLink.value = window.location.pathname === '/' ? '/home' : window.location.pathname
+  const currentPath = window.location.pathname
+  const matchedLink = navLinks.find(link => link.path === currentPath)
+  activeLink.value = matchedLink ? currentPath : '/homes'
+
+  // 🐛 DIAGNOSTIC CONSOLE LOGS FOR MISSING REGISTER BUTTON 🐛
+  console.groupCollapsed('Navbar Diagnostics')
+  
+  const pageProps = usePage().props
+  const user = pageProps.auth?.user ?? null
+  const canRegister = pageProps.canRegister ?? false 
+
+  console.log(`User is logged in: ${!!user}`)
+  console.log(`canRegister prop value (from server): ${canRegister}`)
+  
+  if (!user && !canRegister) {
+    console.warn("❌ REGISTER BUTTON HIDDEN: 'canRegister' is false. Please check your Laravel/Inertia HandleInertiaRequests.php or controller to ensure the prop is passed as true.")
+  } else if (!user && canRegister) {
+    console.log("✅ 'canRegister' is true. Checking 'register' function...")
+    if (typeof register === 'function') {
+      console.log(`✅ 'register()' function is accessible and returns: ${register()}`)
+    } else {
+      console.error("❌ REGISTER BUTTON ERROR: 'register' is NOT a function. Check your '@/routes' file for the export.")
+    }
+  }
+
+  console.groupEnd()
+  // 🐛 END DIAGNOSTICS 🐛
 })
 
+// Get props after mounting for consistency in the diagnostic section
 const pageProps = usePage().props
 const user = pageProps.auth?.user ?? null
-const canRegister = pageProps.canRegister ?? false
+const canRegister = pageProps.canRegister ?? false 
 
 watch(
   () => user,
