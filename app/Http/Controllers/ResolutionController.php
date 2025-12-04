@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Resolution;
+use App\Models\ResolutionDownloadRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -193,4 +194,50 @@ class ResolutionController extends Controller
 
         return back()->with('success', 'Resolution deleted successfully.');
     }
+
+
+    public function indexRequest(Request $request)
+    {
+        // Ensure only authorized users (e.g., admin) can access this route
+        // Gate::authorize('view-ordinance-requests'); 
+
+        $query = ResolutionDownloadRequest::with(['user', 'resolution']);
+        
+        // Capture both search and status filters from the request
+        $filters = $request->only('search', 'status');
+
+        // 1. Search Filter (Filtering by user name, resolution title/number, or purpose)
+        if ($request->filled('search')) {
+            $search = $request->search;
+
+            $query->where(function ($q) use ($search) {
+                $q->where('purpose', 'like', "%{$search}%")
+                    ->orWhereHas('user', function ($u) use ($search) {
+                        $u->where('name', 'like', "%{$search}%");
+                    })
+                    ->orWhereHas('resolution', function ($o) use ($search) {
+                        // **FIX: Changed 'title_ordinances' to 'title_resolutions'**
+                        $o->where('title_resolutions', 'like', "%{$search}%")
+                            ->orWhere('resolutions_number', 'like', "%{$search}%");
+                    });
+            });
+        }
+
+        // 2. Status Filter (New: Filtering by pending, approved, or rejected)
+        if ($request->filled('status') && in_array($request->status, ['pending', 'approved', 'rejected'])) {
+            $query->where('status', $request->status);
+        }
+
+        $requests = $query
+            ->latest()
+            ->paginate(10)
+            // Append all active filters to the pagination links
+            ->appends($filters);
+
+        return inertia('Admin/ResolutionDownloadRequest', [
+            'requests' => $requests,
+            'filters' => $filters, // Pass all active filters back to the front-end
+        ]);
+    }
+
 }

@@ -71,6 +71,9 @@ Route::get('/admin-resolutions', [ResolutionController::class, 'index'])->name('
 Route::post('/admin-resolutions', [ResolutionController::class, 'store'])->name('resolutions.store');
 Route::put('/resolutions/{id}', [ResolutionController::class, 'update'])->name('resolutions.update');
 Route::delete('/resolutions/{id}', [ResolutionController::class, 'destroy'])->name('resolutions.destroy');
+Route::get('/resolution-request', [ResolutionController::class, 'indexRequest'])->name('resolutions.indexRequest');
+Route::post('/resolution-request/{id}/approve', [ResolutionController::class, 'approveDownloadRequest']);
+Route::post('/resolution-request/{id}/reject', [ResolutionController::class, 'rejectDownloadRequest']);
 
 Route::get('dashboard', function () {
     return Inertia::render('Dashboard');

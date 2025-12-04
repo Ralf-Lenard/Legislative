@@ -2,22 +2,19 @@
   <div class="bg-white min-h-screen">
     <Navbar />
 
-    <!-- HERO SECTION -->
     <section class="pt-28 pb-20 px-4 relative overflow-hidden bg-gray-50">
-      <!-- Gradient decorations -->
       <div class="absolute top-0 right-0 w-[500px] h-[500px] bg-gradient-to-br from-yellow-400 to-transparent rounded-full blur-3xl opacity-20"></div>
       <div class="absolute bottom-0 left-0 w-[400px] h-[400px] bg-gradient-to-tr from-green-900 to-transparent rounded-full blur-3xl opacity-10"></div>
 
       <div class="max-w-7xl mx-auto relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
         
-        <!-- LEFT SIDE -->
         <div class="space-y-6">
           <span class="text-xs font-bold uppercase tracking-widest text-green-900 bg-green-100 px-4 py-2 rounded-full shadow-sm inline-block">
             Official Website
           </span>
 
           <h1 class="text-6xl font-black text-gray-900 leading-tight">
-            Sangguniang Bayan <span class="text-green-800">«Bayan»</span>
+            Sangguniang Bayan <span class="text-green-800">Concepcion</span>
           </h1>
 
           <p class="text-xl text-gray-600 font-medium">
@@ -25,12 +22,18 @@
           </p>
 
           <div class="flex flex-col sm:flex-row gap-4 pt-6">
-            <button class="px-8 py-3 bg-green-800 text-white font-bold rounded-lg hover:bg-green-900 transition shadow-lg">
+            <a 
+              href="/ordinances" 
+              class="px-8 py-3 bg-green-800 text-white font-bold rounded-lg hover:bg-green-900 transition shadow-lg text-center"
+            >
               Explore
-            </button>
-            <button class="px-8 py-3 border-2 border-green-900 text-green-900 font-bold rounded-lg hover:bg-gray-50">
+            </a>
+            <a 
+              href="#about" 
+              class="px-8 py-3 border-2 border-green-900 text-green-900 font-bold rounded-lg hover:bg-gray-50 text-center"
+            >
               Learn More
-            </button>
+            </a>
           </div>
 
           <div class="grid grid-cols-3 gap-6 pt-10 border-t border-gray-200 mt-10">
@@ -49,7 +52,6 @@
           </div>
         </div>
 
-        <!-- RIGHT IMAGE -->
         <div class="hidden lg:block">
           <div class="relative w-full h-96 rounded-2xl overflow-hidden shadow-2xl">
             <picture>
@@ -67,8 +69,7 @@
       </div>
     </section>
 
-    <!-- MESSAGE + ABOUT SECTION -->
-    <section class="py-20 px-4">
+    <section id="about" class="py-20 px-4">
       <div class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 xl:grid-cols-4 gap-8">
 
         <div class="lg:col-span-2 space-y-8">
@@ -81,7 +82,7 @@
             
             <p class="text-base text-white/80 italic leading-relaxed">
               "Yone tlaen nat al ahe te erne haea eagi waei merrite eaeaeitun thi enmne thowarwelaee ttaat ttae ttaai thaiik haathalaeneud dae btenacri eler salelotelee naeetae pae eeaw." 
-              </p>
+            </p>
 
             <button class="px-8 py-3 bg-yellow-400 text-green-900 font-bold rounded-lg hover:bg-white transition shadow-lg">
               Read Full Message →
@@ -131,7 +132,6 @@
       </div>
     </section>
 
-    <!-- KEY SECTIONS -->
     <section class="py-20 px-4 bg-gray-50">
       <div class="max-w-7xl mx-auto">
         <div class="text-center mb-16 space-y-4">
@@ -141,10 +141,11 @@
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-          <div
+          <a
             v-for="feature in features"
             :key="feature.title"
-            class="bg-white rounded-xl p-8 border-t-4 border-yellow-400 shadow-lg hover:shadow-xl group transition"
+            :href="feature.href" 
+            class="bg-white rounded-xl p-8 border-t-4 border-yellow-400 shadow-lg hover:shadow-xl group transition block"
           >
             <div class="text-5xl text-green-900 group-hover:scale-110 transition-transform">
               {{ feature.icon }}
@@ -152,15 +153,14 @@
             <h3 class="text-xl font-extrabold mt-4">{{ feature.title }}</h3>
             <p class="text-gray-600 text-sm mt-2">{{ feature.desc }}</p>
 
-            <a class="mt-6 inline-flex items-center text-green-900 font-bold group-hover:text-yellow-500">
+            <p class="mt-6 inline-flex items-center text-green-900 font-bold group-hover:text-yellow-500">
               View Details → 
-            </a>
-          </div>
+            </p>
+          </a>
         </div>
       </div>
     </section>
 
-    <!-- PROGRAMS -->
     <section class="py-20 px-4">
       <div class="max-w-7xl mx-auto">
         <div class="text-center mb-16">
@@ -170,10 +170,11 @@
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-          <div
+          <a
             v-for="program in programs"
             :key="program.title"
-            class="bg-white rounded-xl p-8 border-2 border-green-900/10 hover:border-yellow-400 shadow-md transition group"
+            :href="program.href"
+            class="bg-white rounded-xl p-8 border-2 border-green-900/10 hover:border-yellow-400 shadow-md transition group block"
           >
             <div class="text-6xl text-yellow-400 mb-4 group-hover:scale-110 transition-transform">
               {{ program.icon }}
@@ -182,15 +183,14 @@
             <h3 class="text-xl font-bold">{{ program.title }}</h3>
             <p class="text-gray-600 text-sm mt-2">{{ program.desc }}</p>
 
-            <a class="text-green-900 font-semibold mt-4 inline-block group-hover:text-yellow-400">
+            <p class="text-green-900 font-semibold mt-4 inline-block group-hover:text-yellow-400">
               Learn More
-            </a>
-          </div>
+            </p>
+          </a>
         </div>
       </div>
     </section>
 
-    <!-- GALLERY SECTION -->
     <section class="py-20 px-4 bg-gray-50">
       <div class="max-w-7xl mx-auto">
         <div class="text-center mb-16">
@@ -219,7 +219,6 @@
       </div>
     </section>
 
-    <!-- CONTACT -->
     <section class="py-20 px-4">
       <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
 
@@ -273,16 +272,18 @@ import Navbar from "@/components/Home/Navbar.vue"
 import Footer from "@/components/Home/Footer.vue"
 
 const features = [
-  { icon: '📜', title: 'Ordinances', desc: 'Browse all approved municipal ordinances.' },
-  { icon: '✍️', title: 'Resolutions', desc: 'Access past resolutions and legislative decisions.' },
-  { icon: '👥', title: 'Members', desc: 'Meet our elected council members.' },
-  { icon: '📅', title: 'Sessions', desc: 'View schedules and minutes of past sessions.' }
+  // ADDED HREFs
+  { icon: '📜', title: 'Ordinances', desc: 'Browse all approved municipal ordinances.', href: '/ordinances' },
+  { icon: '✍️', title: 'Resolutions', desc: 'Access past resolutions and legislative decisions.', href: '/resolutions' },
+  { icon: '👥', title: 'Members', desc: 'Meet our elected council members.', href: '/members' },
+  { icon: '📅', title: 'Sessions', desc: 'View schedules and minutes of past sessions.', href: '/sessions' }
 ]
 
 const programs = [
-  { icon: '🌳', title: 'Green Concepcion', desc: 'Environmental programs and sustainability efforts.' },
-  { icon: '💡', title: 'Transparency Portal', desc: 'Access public records, budget, and governance data.' },
-  { icon: '🤝', title: 'Community Engagement', desc: 'Citizen participation through town hall consultations.' }
+  // ADDED HREFs
+  { icon: '🌳', title: 'Green Concepcion', desc: 'Environmental programs and sustainability efforts.', href: '/programs/green-concepcion' },
+  { icon: '💡', title: 'Transparency Portal', desc: 'Access public records, budget, and governance data.', href: '/transparency' },
+  { icon: '🤝', title: 'Community Engagement', desc: 'Citizen participation through town hall consultations.', href: '/community-engagement' }
 ]
 
 const missionVision = [
