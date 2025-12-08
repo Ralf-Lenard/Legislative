@@ -14,6 +14,7 @@ class OrdinanceDownloadRequest extends Model
         'ordinance_id',
         'purpose',
         'status',
+        'is_downloaded',
     ];
 
     // Relationship: Each request belongs to a user

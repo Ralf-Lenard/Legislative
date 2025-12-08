@@ -36,8 +36,17 @@ class OrdinancesController extends Controller
         }
     
         $ordinances = $query->paginate(10)->appends($request->only('search', 'year'));
+
+        foreach ($ordinances as $ordinance) {
+            $userRequest = OrdinanceDownloadRequest::where('user_id', auth()->id())
+                ->where('ordinance_id', $ordinance->id)
+                ->first();
+        
+            $ordinance->status = $userRequest->status ?? null;
+        }
+        
     
-        // 🔥 FIXED YEAR LIST
+        // 🔥 GET YEAR LIST
         $years = Ordinance::selectRaw('YEAR(date_approved_ordinances) as year')
             ->whereNotNull('date_approved_ordinances')
             ->orderBy('year', 'desc')
@@ -250,6 +259,9 @@ class OrdinancesController extends Controller
             'purpose' => 'required|string|max:500',
         ]);
 
+        // Fetch the ordinance first
+        $ordinance = Ordinance::findOrFail($id);
+
         OrdinanceDownloadRequest::create([
             'user_id' => auth()->id(),
             'ordinance_id' => $id,
@@ -257,8 +269,9 @@ class OrdinancesController extends Controller
             'status' => 'pending',
         ]);
 
-        return redirect()->back()->with('message', 'Request submitted. Wait for admin approval.');
+        return redirect()->back()->with('success', 'Request for Ordinance No. ... submitted successfully.');
     }
+
 
     public function approveDownloadRequest($id)
     {
@@ -283,6 +296,52 @@ class OrdinancesController extends Controller
         return back()->with('success', 'Request rejected.');
     }
 
-
-
+    public function download($id)
+    {
+        $ordinance = Ordinance::findOrFail($id);
+    
+        // Find ANY request by the user for this ordinance
+        $request = OrdinanceDownloadRequest::where('user_id', auth()->id())
+            ->where('ordinance_id', $id)
+            ->first();
+    
+        // 1. Check if a request exists at all
+        if (!$request) {
+            // If the frontend didn't check for 'no request', redirect with error.
+            return redirect()->back()->with('error', 'You must request access to this ordinance first.');
+        }
+        
+        // 2. Check if the request is still PENDING
+        if ($request->status === 'pending') {
+            // Flash Error: Request is pending
+            return redirect()->back()->with('warning', 'Your download request is still pending approval. Please wait for an update.');
+        }
+    
+        // 3. Check if the request was DENIED (or any status other than 'approved')
+        if ($request->status !== 'approved') {
+            // Flash Error: Request was not approved
+            return redirect()->back()->with('error', 'Your request has not been approved yet. Current status: ' . ucfirst($request->status));
+        }
+        
+        // 4. Check if already downloaded (This logic is fine)
+        if ($request->is_downloaded) {
+            // Flash Error: Already downloaded
+            return redirect()->back()->with('error', 'You have already downloaded this ordinance. Please submit a new request.');
+        }
+    
+        // 5. Check for file existence (This logic is fine)
+        if (!$ordinance->file_path_ordinances || !Storage::disk('public')->exists($ordinance->file_path_ordinances)) {
+            abort(404, 'File not found.');
+        }
+    
+        // 6. Mark as downloaded and save
+        $request->is_downloaded = true;
+        $request->save();
+    
+        // 7. Set SUCCESS FLASH MESSAGE
+        session()->flash('success', "Download successful! Ordinance No. {$ordinance->ordinance_number} is now downloading.");
+    
+        // 8. Trigger file download
+        return Storage::disk('public')->download($ordinance->file_path_ordinances);
+    }
 }

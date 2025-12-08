@@ -11,11 +11,6 @@ class CreateNewUser implements CreatesNewUsers
 {
     use PasswordValidationRules;
 
-    /**
-     * Validate and create a newly registered user.
-     *
-     * @param  array<string, string>  $input
-     */
     public function create(array $input): User
     {
         Validator::make($input, [
@@ -28,12 +23,20 @@ class CreateNewUser implements CreatesNewUsers
                 Rule::unique(User::class),
             ],
             'password' => $this->passwordRules(),
+            'address' => ['required', 'string', 'max:255'],
+           
+            'birthdate' => ['required', 'date'],
+            'contact_number' => ['required', 'regex:/^09\d{9}$/'],
         ])->validate();
 
         return User::create([
             'name' => $input['name'],
             'email' => $input['email'],
-            'password' => $input['password'],
+            'password' => bcrypt($input['password']),
+            'address' => $input['address'],
+            
+            'birthdate' => $input['birthdate'],
+            'contact_number' => $input['contact_number'],
         ]);
     }
 }

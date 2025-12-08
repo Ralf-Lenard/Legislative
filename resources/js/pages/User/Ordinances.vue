@@ -2,6 +2,8 @@
   <div class="bg-white min-h-screen">
     <Navbar />
 
+    <FlashMessage />
+
     <section
       class="pt-28 pb-20 bg-gradient-to-br from-green-900 to-green-700 relative overflow-hidden"
     >
@@ -28,21 +30,20 @@
           </p>
         </div>
 
-         <!-- RIGHT IMAGE -->
-         <div class="hidden lg:block">
-          <div class="relative w-full h-96 rounded-2xl overflow-hidden shadow-2xl">
-            <picture>
-              <source media="(min-width:1024px)" srcset="https://upload.wikimedia.org/wikipedia/commons/7/78/Concepcion_Municipal_Hall%2C_Tarlac%2C_Oct_2023.jpg">
-              <source media="(min-width:640px)" srcset="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f4/Concepcion_Tarlac_Municipal_Hall_plaza_view_%28Timbol%2C_Concepcion%2C_Tarlac%3B_07-23-2023%29.jpg/1024px-Concepcion_Tarlac_Municipal_Hall_plaza_view_%28Timbol%2C_Concepcion%2C_Tarlac%3B_07-23-2023%29.jpg">
-              <img src="https://upload.wikimedia.org/wikipedia/commons/c/c0/Concepcion_Tarlac_Municipal_Hall_%28Timbol%2C_Concepcion%2C_Tarlac%3B_07-23-2023%29.jpg" 
-                alt="Concepcion Municipal Hall" 
-                class="w-full h-full object-cover">
-            </picture>
-            <div class="absolute bottom-4 right-4 bg-white/90 backdrop-blur-sm px-4 py-2 rounded-lg text-sm font-semibold">
-              Concepcion, Tarlac
-            </div>
-          </div>
-        </div>
+          <div class="hidden lg:block">
+           <div class="relative w-full h-96 rounded-2xl overflow-hidden shadow-2xl">
+             <picture>
+               <source media="(min-width:1024px)" srcset="https://upload.wikimedia.org/wikipedia/commons/7/78/Concepcion_Municipal_Hall%2C_Tarlac%2C_Oct_2023.jpg">
+               <source media="(min-width:640px)" srcset="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f4/Concepcion_Tarlac_Municipal_Hall_plaza_view_%28Timbol%2C_Concepcion%2C_Tarlac%3B_07-23-2023%29.jpg/1024px-Concepcion_Tarlac_Municipal_Hall_plaza_view_%28Timbol%2C_Concepcion%2C_Tarlac%3B_07-23-2023%29.jpg">
+               <img src="https://upload.wikimedia.org/wikipedia/commons/c/c0/Concepcion_Tarlac_Municipal_Hall_%28Timbol%2C_Concepcion%2C_Tarlac%3B_07-23-2023%29.jpg" 
+                 alt="Concepcion Municipal Hall" 
+                 class="w-full h-full object-cover">
+             </picture>
+             <div class="absolute bottom-4 right-4 bg-white/90 backdrop-blur-sm px-4 py-2 rounded-lg text-sm font-semibold">
+               Concepcion, Tarlac
+             </div>
+           </div>
+         </div>
       </div>
     </section>
 
@@ -96,8 +97,8 @@
             :key="ordinance.id"
             class="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden"
             :class="{
-                'lg:col-span-1': true, // Standard column size for most items
-                // 'lg:col-span-2': ordinance.id % 5 === 1 // Making some cards wider to match the visual variety in the image
+              'lg:col-span-1': true, // Standard column size for most items
+              // 'lg:col-span-2': ordinance.id % 5 === 1 // Making some cards wider to match the visual variety in the image
             }"
           >
             <div class="bg-green-800 text-white px-5 py-2 font-semibold text-sm">
@@ -120,27 +121,44 @@
 
                     </span>
                 
-                <!-- <span class="text-green-800 flex items-center gap-1">
-                  <span class="text-sm">✅</span>
-                  Status: Approved
-                </span> -->
-              </div>
+                </div>
 
-              <div class="flex justify-between items-center gap-3 pt-3">
-                <button
-                  @click="openModal(ordinance)"
-                  class="px-4 py-2 text-sm text-green-800 font-bold border border-green-800 rounded-lg hover:bg-green-50 transition"
-                >
-                  View Details
-                </button>
-                
-                <button
-                  @click="openRequestModal(ordinance)"
-                  class="px-4 py-2 text-sm bg-yellow-400 text-green-900 font-bold rounded-lg hover:bg-yellow-500 transition shadow-md"
-                >
-                  Download PDF
-                </button>
-              </div>
+                <div class="flex justify-between items-center gap-3 pt-3">
+  <button
+    @click="openModal(ordinance)"
+    class="px-4 py-2 text-sm text-green-800 font-bold border border-green-800 rounded-lg hover:bg-green-50 transition"
+  >
+    View Details
+  </button>
+
+  <!-- Approved: Download PDF -->
+  <button
+    v-if="ordinance.status === 'approved'"
+    @click="handleDownloadClick(ordinance)"
+    class="px-4 py-2 text-sm bg-yellow-400 text-green-900 font-bold rounded-lg hover:bg-yellow-500 transition shadow-md"
+  >
+    Download PDF
+  </button>
+
+  <!-- Pending: show disabled Request Pending -->
+  <button
+    v-else-if="ordinance.status === 'pending'"
+    disabled
+    class="px-4 py-2 text-sm bg-gray-300 text-gray-600 font-bold rounded-lg cursor-not-allowed"
+  >
+    Request Pending
+  </button>
+
+  <!-- Rejected or no request: Request Access -->
+  <button
+    v-else
+    @click="openRequestModal(ordinance)"
+    class="px-4 py-2 text-sm bg-green-800 text-white font-bold rounded-lg hover:bg-green-900 transition shadow-md"
+  >
+    Request Access
+  </button>
+</div>
+
             </div>
           </div>
         </div>
@@ -250,21 +268,43 @@
           </div>
 
           <div class="px-6 py-4 border-t border-gray-200 flex justify-end gap-2">
-            <button
-              @click="openRequestModal(ordinance)"
-              class="px-4 py-2 text-sm bg-yellow-400 text-green-900 font-bold rounded-lg hover:bg-yellow-500 transition shadow-md"
-              :title="!user ? 'Please login first to download' : ''"
-            >
-              Download PDF
-            </button>
+  <!-- Approved: Download PDF -->
+  <button
+    v-if="selectedOrdinance.status === 'approved'"
+    @click="handleDownloadClick(selectedOrdinance)"
+    class="px-4 py-2 text-sm bg-yellow-400 text-green-900 font-bold rounded-lg hover:bg-yellow-500 transition shadow-md"
+  >
+    Download PDF
+  </button>
 
-            <button
-              @click="closeModal"
-              class="bg-gray-200 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-300 transition"
-            >
-              Close
-            </button>
-          </div>
+  <!-- Pending: show disabled Request Pending -->
+  <button
+    v-else-if="selectedOrdinance.status === 'pending'"
+    disabled
+    class="px-4 py-2 text-sm bg-gray-300 text-gray-600 font-bold rounded-lg cursor-not-allowed"
+  >
+    Request Pending
+  </button>
+
+  <!-- Rejected or no request: Request Access -->
+  <button
+    v-else
+    @click="openRequestModal(selectedOrdinance)"
+    class="px-4 py-2 text-sm bg-green-800 text-white font-bold rounded-lg hover:bg-green-900 transition shadow-md"
+  >
+    Request Access
+  </button>
+
+  <!-- Close button always visible -->
+  <button
+    @click="closeModal"
+    class="bg-gray-200 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-300 transition"
+  >
+    Close
+  </button>
+</div>
+
+
         </div>
       </div>
     </transition>
@@ -318,101 +358,147 @@
 </template>
 
 <script setup>
-import { reactive, ref } from "vue";
-// Assuming you are using Inertia.js for routing and data passing
-import { router } from "@inertiajs/vue3"; 
+import { computed, ref, reactive, watch, nextTick, onMounted, onUnmounted } from 'vue';
+import { router, usePage } from '@inertiajs/vue3';
 
-import Navbar from "@/components/Home/Navbar.vue";
-import Footer from "@/components/Home/Footer.vue";
+import Navbar from '@/components/Home/Navbar.vue';
+import Footer from '@/components/Home/Footer.vue';
+import FlashMessage from '@/components/FlashMessage.vue'; // The toast component handles its own state
+import { route } from 'ziggy-js';
 
+// -------------------------
+// PROPS
+// -------------------------
 const props = defineProps({
-  ordinances: Object,
-  filters: Object,
-  years: Array,
-  user: Object, // null if not logged in
+    ordinances: Object,
+    filters: Object,
+    years: Array,
+    user: Object,
 });
 
-
-// FILTER FORM
+// -------------------------
+// FILTER FORM LOGIC
+// -------------------------
 const form = reactive({
-  search: props.filters.search || "",
-  year: props.filters.year || "",
+    search: props.filters.search || "",
+    year: props.filters.year || "",
 });
 
-// APPLY FILTERS
 const applyFilters = () => {
-  // Uses Inertia to make a GET request to the current URL with new filter parameters
-  router.get("/ordinances", form, { 
-    preserveState: true, // keeps local component state
-    replace: true, // prevents history stack pollution
-  });
+    router.get("/ordinances", form, { 
+        preserveState: true, 
+        replace: true, 
+    });
 };
 
 const clearFilters = () => {
-  form.search = "";
-  form.year = "";
-  applyFilters();
+    form.search = "";
+    form.year = "";
+    applyFilters();
 };
 
-// ==========================
-//        MODAL LOGIC
-// ==========================
+// -------------------------
+// MODAL & REQUEST LOGIC
+// -------------------------
 const selectedOrdinance = ref(null);
-
-const openModal = (ordinance) => {
-  selectedOrdinance.value = ordinance;
-};
-
-const closeModal = () => {
-  selectedOrdinance.value = null;
-};
-
-// ==========================
-//   REQUEST DOWNLOAD MODAL
-// ==========================
 const showRequestModal = ref(false);
 
+const openModal = (ordinance) => { 
+    selectedOrdinance.value = ordinance; 
+};
+
+const closeModal = () => { 
+    selectedOrdinance.value = null; 
+};
+
 const openRequestModal = (ordinance) => {
-  if (!props.user) {
-    // User is not logged in, redirect to login
-    router.visit('/login');
-    return;
-  }
-  
-  selectedOrdinance.value = ordinance; // Ensure the correct ordinance is selected for the request
-  showRequestModal.value = true;
+    if (!props.user) {
+        router.visit('/login');
+        return;
+    }
+    selectedOrdinance.value = ordinance;
+    showRequestModal.value = true;
 };
 
-const closeRequestModal = () => {
-  showRequestModal.value = false;
+const closeRequestModal = () => { 
+    showRequestModal.value = false; 
 };
 
-const requestForm = reactive({
-  purpose: "",
-});
+const requestForm = reactive({ purpose: "" });
 
-// Submit form
-const submitRequestForm = () => {
-  // Placeholder for Inertia POST request to backend for access request
-  console.log('Request submitted for ordinance:', selectedOrdinance.value.ordinance_number, 'Purpose:', requestForm.purpose);
-  alert("Request submitted successfully! The secretariat will review your request.");
-  requestForm.purpose = "";
-  showRequestModal.value = false;
+// -------------------------
+// SUBMIT REQUEST FORM
+// -------------------------
+const submitRequestForm = async () => {
+    if (!selectedOrdinance.value) return;
+
+    const currentOrdinanceId = selectedOrdinance.value.id;
+
+    router.post(
+        `/ordinances/${currentOrdinanceId}/request-access`,
+        { purpose: requestForm.purpose },
+        {
+            onFinish: () => {
+                requestForm.purpose = '';
+                showRequestModal.value = false;
+
+                // Optimistically update the status in the UI
+                const ordinanceInList = props.ordinances.data.find(
+                    (o) => o.id === currentOrdinanceId
+                );
+                if (ordinanceInList) {
+                    ordinanceInList.status = 'pending';
+                }
+            },
+            preserveScroll: true,
+        }
+    );
 };
 
-// Date format
+// -------------------------
+// DATE FORMAT UTILITY
+// -------------------------
 const formatDate = (dateString) => {
-  if (!dateString) return "N/A";
-  return new Date(dateString).toLocaleDateString("en-US", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  });
+    if (!dateString) return "N/A";
+    return new Date(dateString).toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+    });
 };
+
+// -------------------------
+// DOWNLOAD HANDLER
+// -------------------------
+const handleDownloadClick = (ordinance) => {
+    if (!props.user) {
+        router.visit('/login');
+        return;
+    }
+
+    if (ordinance.status === 'approved') {
+        // Approved → download file
+        window.location.href = `/ordinance/download/${ordinance.id}`;
+    } else {
+        // Pending / rejected / no request → show modal
+        openRequestModal(ordinance);
+
+        // Optionally, call backend to refresh flash (pending/rejected message)
+        router.reload({
+            only: ['flash'],      // Only refresh flash messages
+            preserveScroll: true,
+            preserveState: true,  // Keeps search/filter state
+        });
+    }
+};
+
+
+
 </script>
 
+
 <style scoped>
-/* Smooth modal fade animation */
+/* (Your existing scoped styles remain here) */
 .modal-enter-active,
 .modal-leave-active {
   transition: opacity 0.25s ease;
@@ -423,13 +509,10 @@ const formatDate = (dateString) => {
   opacity: 0;
 }
 
-/* Custom select styling for the dropdown arrow */
 .custom-select {
-  /* Hides default appearance */
   -webkit-appearance: none;
   -moz-appearance: none;
   appearance: none; 
-  /* Adds a custom background image arrow */
   background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%234B5563%22%20d%3D%22M287%20197.8%20146.2%2057%205.4%20197.8z%22%2F%3E%3C%2Fsvg%3E');
   background-repeat: no-repeat;
   background-position: right 0.75rem center;

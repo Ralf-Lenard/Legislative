@@ -145,12 +145,12 @@ import { Link, usePage } from '@inertiajs/vue3'
 import { login, register } from '@/routes' 
 
 const isOpen = ref(false)
-const activeLink = ref('/home') 
+const activeLink = ref('/') 
 const profileOpen = ref(false) 
 const profileOpenMobile = ref(false) 
 
 const navLinks = [
-  { label: 'Home', path: '/homes' },
+  { label: 'Home', path: '/' },
   { label: 'Members', path: '/sb' },
   { label: 'Ordinances', path: '/ordinances' },
   { label: 'Resolutions', path: '/resolutions' },

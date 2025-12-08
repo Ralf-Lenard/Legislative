@@ -27,7 +27,7 @@
             Quick Links
           </h4>
           <ul class="space-y-3">
-            <li><a href="/home" class="text-white text-opacity-80 hover:text-[#ffc107] transition text-sm">Home</a></li>
+            <li><a href="/" class="text-white text-opacity-80 hover:text-[#ffc107] transition text-sm">Home</a></li>
             <li><a href="/sb" class="text-white text-opacity-80 hover:text-[#ffc107] transition text-sm">About SB</a></li>
             <li><a href="/members" class="text-white text-opacity-80 hover:text-[#ffc107] transition text-sm">Council Members</a></li>
             <li><a href="/sessions" class="text-white text-opacity-80 hover:text-[#ffc107] transition text-sm">Sessions</a></li>
@@ -48,20 +48,20 @@
         <!-- Stay Connected -->
         <div class="col-span-2 sm:col-span-1">
           <h4 class="font-extrabold text-[#ffc107] mb-5 text-sm uppercase tracking-wider">Stay Connected</h4>
-          <div class="flex gap-4 mb-6">
-            <a
-  v-for="social in socials"
-  :key="social.name"
-  :href="social.url"
-  target="_blank"
-  :aria-label="social.name"
-  class="w-10 h-10 bg-transparent hover:bg-[#ffc107] rounded-full flex items-center justify-center transition"
->
-  <component
-    :is="social.icon"
-    class="w-5 h-5 text-white hover:text-[#1b5e20] transition"
-  />
-</a>
+            <div class="flex gap-4 mb-6">
+              <a
+                  v-for="social in socials"
+                  :key="social.name"
+                  :href="social.url"
+                  target="_blank"
+                  :aria-label="social.name"
+                  class="w-10 h-10 bg-transparent hover:bg-[#ffc107] rounded-full flex items-center justify-center transition"
+                >
+                  <component
+                    :is="social.icon"
+                    class="w-5 h-5 text-white hover:text-[#1b5e20] transition"
+                  />
+                </a>
 
           </div>
           <p class="text-sm font-bold text-white mb-1">(045) 923-4567</p>
