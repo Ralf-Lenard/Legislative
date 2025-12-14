@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\OfficialController;
 use App\Http\Controllers\OrdinancesController;
 use App\Http\Controllers\ResolutionController;
 use Illuminate\Support\Facades\Route;
@@ -84,6 +85,11 @@ Route::middleware(['admin'])->group(function () {
     Route::get('/resolution-request', [ResolutionController::class, 'indexRequest'])->name('resolutions.indexRequest');
     Route::post('/resolution-request/{id}/approve', [ResolutionController::class, 'approveDownloadRequest']);
     Route::post('/resolution-request/{id}/reject', [ResolutionController::class, 'rejectDownloadRequest']);
+});
+
+Route::middleware('admin')->group(function () {
+    Route::resource('officials', OfficialController::class)
+        ->except(['create', 'edit', 'show']);
 });
 
 

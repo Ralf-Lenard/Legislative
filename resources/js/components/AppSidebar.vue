@@ -42,7 +42,7 @@ const mainNavItems: NavItem[] = [
   { title: 'Resolution Request', href: '/resolution-request', icon: ClipboardList },
 
   // Members stays the same
-  { title: 'SB Members', href: '/members', icon: Users },
+  { title: 'SB Members', href: '/officials', icon: Users },
 
   // Announcements stays same
   { title: 'Announcements', href: '/announcements', icon: Megaphone },
