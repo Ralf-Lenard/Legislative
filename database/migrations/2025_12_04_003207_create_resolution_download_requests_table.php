@@ -18,6 +18,7 @@ return new class extends Migration
             $table->text('purpose')->nullable();
             $table->string('rejection_reason')->nullable();
             $table->enum('status', ['pending', 'approved', 'rejected'])->default('pending');
+            $table->boolean('is_downloaded')->default(false);
             $table->timestamps();
         });
     }

@@ -14,6 +14,8 @@ class ResolutionDownloadRequest extends Model
         'resolution_id',
         'purpose',
         'status',
+        'is_downloaded',
+        'rejection_reason'
     ];
 
     // Relationship: Each request belongs to a user

@@ -1,209 +1,129 @@
 <template>
   <header class="fixed top-0 left-0 w-full z-50 bg-white border-b border-gray-100 shadow-sm">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="flex justify-between items-center py-4">
+      <div class="flex justify-between items-center h-16 md:h-20">
 
-        <div class="flex items-center gap-3 cursor-pointer">
-          <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-[#1b5e20] to-[#0d3d1a] flex items-center justify-center">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-white" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M12 2L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-3zm-1 15.02L6.98 13.01l1.41-1.41L11 14.2l5.61-5.61 1.41 1.41L11 17.02z"/>
-            </svg>
+        <div class="flex items-center gap-3 cursor-pointer group" @click="goToHome">
+          <div class="w-9 h-9 md:w-10 md:h-10 rounded-xl bg-gradient-to-br from-[#1b5e20] to-[#0d3d1a] flex items-center justify-center shadow-md group-hover:scale-105 transition-transform shrink-0">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-3zm-1 15.02L6.98 13.01l1.41-1.41L11 14.2l5.61-5.61 1.41 1.41L11 17.02z"/></svg>
           </div>
-          <h1 class="text-lg font-bold text-gray-900 tracking-tight">
-            Sangguniang Bayan
-          </h1>
+          <h1 class="text-base md:text-lg font-bold text-gray-900 tracking-tight xs:block">Sangguniang Bayan</h1>
         </div>
 
-        <div class="flex items-center gap-6">
-
+        <div class="flex items-center gap-2 md:gap-6">
           <nav class="hidden lg:flex items-center gap-8">
-            <a
-              v-for="link in navLinks"
-              :key="link.path"
-              :href="link.path"
-              @click="setActive(link.path)"
-              :class="[
-                'text-sm font-semibold transition-colors duration-200 pb-1 border-b-2',
-                activeLink === link.path
-                  ? 'text-[#1b5e20] border-[#ffc107]'
-                  : 'text-gray-600 border-transparent hover:text-[#1b5e20] hover:border-[#ffc107]'
-              ]"
-            >
-              {{ link.label }}
-            </a>
+            <Link v-for="link in navLinks" :key="link.path" :href="link.path" @click="setActive(link.path)" :class="[activeLink === link.path ? 'text-[#1b5e20] border-[#ffc107]' : 'text-gray-500 border-transparent', 'text-sm font-semibold transition-all duration-200 pb-1 border-b-2 hover:text-[#1b5e20] hover:border-[#ffc107]']">{{ link.label }}</Link>
           </nav>
 
-          <div class="hidden md:flex items-center gap-3 relative">
+          <div class="flex items-center gap-1 md:gap-4">
+            
+            <NotificationComponent 
+              v-if="user" 
+              ref="notifRef"
+              :user="user" 
+              @toggle="handleNotifToggle" 
+            />
+
             <template v-if="user">
-                <button
-                @click="profileOpen = !profileOpen"
-                class="flex items-center gap-3 px-5 py-2 bg-[#1b5e20] text-white rounded-lg hover:bg-[#0d3d1a] transition font-bold shadow-md relative"
-              >
-                <div class="w-6 h-6 rounded-full bg-[#ffc107] text-[#1b5e20] flex items-center justify-center font-bold uppercase text-xs overflow-hidden border-2 border-white">
-                  <img v-if="user.profile_photo_url" :src="user.profile_photo_url" :alt="user.name" class="w-full h-full object-cover"/>
-                  <span v-else>{{ user.name.charAt(0) }}</span>
-                </div>
-                {{ user.name }}
-                <svg :class="['w-4 h-4 transition-transform duration-200', profileOpen ? 'transform rotate-180' : '']" 
-                    fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"></path>
-                </svg>
-              </button>
-
-              <div v-if="profileOpen" 
-                class="absolute right-0 top-full mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-xl overflow-hidden z-50">
-                
-                <div class="p-3 border-b border-gray-100 bg-gray-50">
-                    <p class="text-sm font-bold text-gray-800 truncate">{{ user.name }}</p>
-                    <p class="text-xs text-gray-500 truncate">{{ user.email }}</p>
-                </div>
-
-                <Link href="/profile" class="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-yellow-50 hover:text-[#1b5e20] transition-colors">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.121 17.804A5 5 0 0112 15a5 5 0 016.879 2.804M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                  </svg>
-                  Profile Settings
-                </Link>
-                <Link href="/logout" method="post" as="button" 
-                  class="flex items-center gap-2 w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7" />
-                  </svg>
-                  Log Out
-                </Link>
+              <div class="relative hidden md:block">
+                <button @click="profileOpen = !profileOpen" class="flex items-center gap-2 px-4 py-2 bg-[#1b5e20] text-white rounded-xl hover:shadow-lg transition-all font-bold">
+                  <div class="w-7 h-7 rounded-lg bg-[#ffc107] text-[#1b5e20] flex items-center justify-center border-2 border-white shrink-0 overflow-hidden text-xs">
+                    <img v-if="profilePhotoUrl" :src="profilePhotoUrl" class="w-full h-full object-cover" />
+                    <span v-else>{{ user.name.charAt(0) }}</span>
+                  </div>
+                  <span class="truncate max-w-[100px]">{{ user.name }}</span>
+                </button>
+                <transition enter-active-class="transition duration-100" enter-from-class="opacity-0 scale-95" enter-to-class="opacity-100 scale-100">
+                  <div v-if="profileOpen" class="absolute right-0 top-full mt-2 w-56 bg-white border border-gray-200 rounded-2xl shadow-xl z-50 overflow-hidden">
+                    <div class="p-4 border-b bg-gray-50/50">
+                      <p class="text-sm font-bold truncate">{{ user.name }}</p>
+                      <p class="text-xs text-gray-500 truncate">{{ user.email }}</p>
+                    </div>
+                    <div class="p-2">
+                      <Link href="/profile" class="block px-3 py-2 text-sm hover:bg-yellow-50 rounded-lg font-medium">Profile Settings</Link>
+                      <Link href="/logout" method="post" as="button" class="w-full text-left px-3 py-2 text-sm text-red-600 hover:bg-red-50 rounded-lg font-medium">Log Out</Link>
+                    </div>
+                  </div>
+                </transition>
               </div>
             </template>
 
             <template v-else>
-                <Link :href="login()" class="inline-block rounded-lg px-4 py-2 text-sm font-semibold border border-[#1b5e20] text-[#1b5e20] hover:bg-[#1b5e20] hover:text-white transition-colors">
-                Log in
-              </Link>
-              <Link v-if="canRegister" :href="register()" class="inline-block rounded-lg px-4 py-2 text-sm font-semibold bg-[#ffc107] text-[#1b5e20] hover:bg-[#ffb300] shadow-md transition-colors">
-                Register
-              </Link>
+              <div class="hidden md:flex items-center gap-2">
+                <Link :href="login()" class="px-3 py-2 text-sm font-bold text-gray-600">Log in</Link>
+                <Link v-if="canRegister" :href="register()" class="px-5 py-2.5 text-sm font-bold bg-[#ffc107] text-[#1b5e20] rounded-xl shadow-sm">Register</Link>
+              </div>
             </template>
-          </div>
 
-          <button
-            class="lg:hidden w-10 h-10 flex items-center justify-center text-gray-900 hover:bg-gray-100 rounded-lg transition"
-            @click="isOpen = !isOpen"
-          >
-            {{ isOpen ? '✕' : '☰' }}
-          </button>
+            <button class="lg:hidden p-2.5 text-gray-600 hover:bg-gray-100 rounded-xl transition-all" @click="toggleMenu">
+              <svg v-if="!isOpen" class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8h16M4 16h16" /></svg>
+              <svg v-else class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+            </button>
+          </div>
         </div>
       </div>
-
-      <nav v-if="isOpen" class="lg:hidden pb-4 pt-2 space-y-2">
-        <a
-          v-for="link in navLinks"
-          :key="link.path"
-          :href="link.path"
-          @click="setActive(link.path)"
-          :class="[
-            'block px-4 py-2 rounded-lg text-sm font-medium transition-colors',
-            activeLink === link.path
-              ? 'bg-[#ffc107] text-[#1b5e20]'
-              : 'text-gray-700 hover:bg-gray-100'
-          ]"
-        >
-          {{ link.label }}
-        </a>
-
-        <div class="px-4 mt-3 space-y-2">
-          <template v-if="user">
-            <button @click="profileOpenMobile = !profileOpenMobile"
-              class="w-full px-4 py-2 text-left rounded-lg bg-gray-100 font-semibold hover:bg-gray-200 flex items-center gap-2">
-              <div class="w-6 h-6 rounded-full bg-[#ffc107] text-[#1b5e20] flex items-center justify-center font-bold uppercase text-xs overflow-hidden">
-                <img v-if="user.profile_photo_url" :src="user.profile_photo_url" alt="Profile" class="w-full h-full object-cover"/>
-                <span v-else>{{ user.name.charAt(0) }}</span>
-              </div>
-              {{ user.name }}
-            </button>
-            <div v-if="profileOpenMobile" class="space-y-1 pl-4 border-l-2 border-gray-200">
-              <Link href="/profile" class="block px-4 py-2 text-sm hover:bg-gray-100 rounded-lg">Profile Settings</Link>
-              <Link href="/logout" method="post" as="button" class="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 rounded-lg">Log Out</Link>
-            </div>
-          </template>
-          <template v-else>
-            <Link :href="login()" class="block w-full px-4 py-2 text-center rounded-lg border border-[#1b5e20] text-sm font-semibold text-[#1b5e20] hover:bg-[#1b5e20] hover:text-white transition-colors">
-              Log in
-            </Link>
-            <Link v-if="canRegister" :href="register()" class="block w-full px-4 py-2 text-center rounded-lg bg-[#ffc107] text-[#1b5e20] text-sm font-semibold hover:bg-[#ffb300] transition-colors">
-              Register
-            </Link>
-          </template>
-        </div>
-      </nav>
     </div>
+
+    <transition enter-active-class="transition duration-300 ease-out" enter-from-class="-translate-y-full opacity-0" enter-to-class="translate-y-0 opacity-100">
+      <div v-if="isOpen" class="lg:hidden bg-white border-b border-gray-100 absolute w-full left-0 z-40 shadow-2xl overflow-y-auto max-h-[calc(100vh-64px)]">
+        <div class="px-4 py-6 space-y-1">
+          <Link v-for="link in navLinks" :key="link.path" :href="link.path" @click="isOpen = false; setActive(link.path)" :class="[activeLink === link.path ? 'bg-yellow-50 text-[#1b5e20]' : 'text-gray-600', 'block px-5 py-4 rounded-2xl text-lg font-black']">{{ link.label }}</Link>
+          <div class="pt-6 mt-4 border-t border-gray-100">
+            <template v-if="user">
+                <Link href="/profile" @click="isOpen = false" class="block px-5 py-4 text-gray-700 font-bold">⚙️ Profile Settings</Link>
+                <Link href="/logout" method="post" as="button" class="w-full text-left px-5 py-4 text-red-600 font-black">🚪 Logout</Link>
+            </template>
+          </div>
+        </div>
+      </div>
+    </transition>
   </header>
 </template>
 
 <script setup>
-import { ref, onMounted, watch } from 'vue'
-import { Link, usePage } from '@inertiajs/vue3'
-// Import the route helper functions.
-import { login, register } from '@/routes' 
+import { ref, onMounted, computed } from 'vue'
+import { Link, usePage, router } from '@inertiajs/vue3'
+import { login, register } from '@/routes'
+import NotificationComponent from '@/components/Home/NotificationComponent.vue'
 
 const isOpen = ref(false)
-const activeLink = ref('/') 
-const profileOpen = ref(false) 
-const profileOpenMobile = ref(false) 
+const activeLink = ref('/')
+const profileOpen = ref(false)
+const notifRef = ref(null)
+
+const pageProps = usePage().props
+const user = computed(() => pageProps.auth?.user ?? null)
+const canRegister = pageProps.canRegister ?? false
 
 const navLinks = [
   { label: 'Home', path: '/' },
-  { label: 'Members', path: '/sb' },
+  { label: 'Members', path: '/sanguniang-bayan-members' },
   { label: 'Ordinances', path: '/ordinances' },
   { label: 'Resolutions', path: '/resolutions' },
   { label: 'Sessions', path: '/sessions' },
+  // { label: 'News', path: '/announcement-&-news' },
 ]
 
-function setActive(path) {
-  activeLink.value = path
-  isOpen.value = false
-}
-
-onMounted(() => {
-  const currentPath = window.location.pathname
-  const matchedLink = navLinks.find(link => link.path === currentPath)
-  activeLink.value = matchedLink ? currentPath : '/homes'
-
-  // 🐛 DIAGNOSTIC CONSOLE LOGS FOR MISSING REGISTER BUTTON 🐛
-  console.groupCollapsed('Navbar Diagnostics')
-  
-  const pageProps = usePage().props
-  const user = pageProps.auth?.user ?? null
-  const canRegister = pageProps.canRegister ?? false 
-
-  console.log(`User is logged in: ${!!user}`)
-  console.log(`canRegister prop value (from server): ${canRegister}`)
-  
-  if (!user && !canRegister) {
-    console.warn("❌ REGISTER BUTTON HIDDEN: 'canRegister' is false. Please check your Laravel/Inertia HandleInertiaRequests.php or controller to ensure the prop is passed as true.")
-  } else if (!user && canRegister) {
-    console.log("✅ 'canRegister' is true. Checking 'register' function...")
-    if (typeof register === 'function') {
-      console.log(`✅ 'register()' function is accessible and returns: ${register()}`)
-    } else {
-      console.error("❌ REGISTER BUTTON ERROR: 'register' is NOT a function. Check your '@/routes' file for the export.")
-    }
-  }
-
-  console.groupEnd()
-  // 🐛 END DIAGNOSTICS 🐛
+const profilePhotoUrl = computed(() => {
+  const photo = user.value?.profile_photo || user.value?.profile_photo_url
+  return photo ? `/storage/${photo.replace('/storage/', '')}` : null
 })
 
-// Get props after mounting for consistency in the diagnostic section
-const pageProps = usePage().props
-const user = pageProps.auth?.user ?? null
-const canRegister = pageProps.canRegister ?? false 
+const goToHome = () => { router.visit('/'); }
 
-watch(
-  () => user,
-  (newUser) => {
-    if (!newUser) {
-      profileOpen.value = false
-      profileOpenMobile.value = false
-    }
-  }
-)
+const toggleMenu = () => {
+    isOpen.value = !isOpen.value;
+    if (isOpen.value && notifRef.value) notifRef.value.close();
+}
+
+const handleNotifToggle = (notifState) => {
+    if (notifState) isOpen.value = false;
+}
+
+const setActive = (path) => {
+    activeLink.value = path;
+    isOpen.value = false;
+}
+
+onMounted(() => { activeLink.value = window.location.pathname })
 </script>

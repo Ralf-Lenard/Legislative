@@ -1,10 +1,13 @@
 <script setup lang="ts">
     import AppSidebar from '@/components/AppSidebar.vue';
     import OfficialModal from '@/components/ModalOfficials/OfficialDialog.vue';
-    // import DeleteModal from '@/components/ModalOfficials/DeleteDialog.vue';
-    import { router, usePage } from '@inertiajs/vue3';
+    import DeleteModal from '@/components/ModalOfficials/DeleteDialog.vue';
+    import FlashMessage from '@/components/Admin/FlashMessage.vue';
+    import { Head, router, usePage } from '@inertiajs/vue3';
     import { computed, ref, watch, onMounted, nextTick } from 'vue';
-    import { Edit, Plus, Search, Trash2, X, User, Users, Image, Zap } from 'lucide-vue-next';
+
+    import { Eye, Edit, Plus, Search, Trash2, X, User, Users, Image, Zap } from 'lucide-vue-next';
+    import ViewOfficialModal from '@/components/ModalOfficials/ViewOfficialDialog.vue'; // New Import
     
     interface Committee {
         id: number;
@@ -125,6 +128,15 @@
         const mainCommittee = official.committees.find(c => c.name === official.main_committee);
         return mainCommittee?.pivot?.role || 'Member';
     }
+
+    const isViewModalOpen = ref(false);
+    const viewingOfficial = ref<Official | null>(null);
+
+    // 3. Add the open function
+    const openViewModal = (official: Official) => {
+        viewingOfficial.value = official;
+        isViewModalOpen.value = true;
+    };
     
     
     // --- Watchers & Lifecycle ---
@@ -137,20 +149,6 @@
         }
     );
     
-    // Watch flash message
-    watch(
-        () => props.flash,
-        (newVal) => {
-            if (newVal?.success) {
-                flashMessage.value = { type: 'success', text: newVal.success };
-                setTimeout(() => (flashMessage.value = null), 4000);
-            } else if (newVal?.error) {
-                flashMessage.value = { type: 'error', text: newVal.error };
-                setTimeout(() => (flashMessage.value = null), 4000);
-            }
-        },
-        { deep: true }
-    );
     
     // Handle ESC key to close dialogs
     onMounted(() => {
@@ -164,24 +162,13 @@
     </script>
     
     <template>
+        <Head title="Officials Management" />
         <div class="flex h-screen bg-slate-50">
             <AppSidebar />
             <main class="relative flex-1 overflow-auto">
-                
-                <transition name="fade-slide">
-                    <div v-if="flashMessage"
-                        :class="{'bg-red-600': flashMessage.type === 'error'}"
-                        class="fixed top-4 right-4 z-[9999] flex items-center gap-2 rounded-lg bg-emerald-600 px-5 py-3 text-sm font-medium text-white shadow-xl">
-                        <svg v-if="flashMessage.type === 'success'" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" stroke="currentColor" fill="none">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-                        </svg>
-                        <svg v-else xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <line x1="18" y1="6" x2="6" y2="18"></line>
-                            <line x1="6" y1="6" x2="18" y2="18"></line>
-                        </svg>
-                        {{ flashMessage.text }}
-                    </div>
-                </transition>
+           
+            <FlashMessage />
+
     
                 <div class="sticky top-0 z-40 border-b border-slate-200 bg-white shadow-md">
                     <div class="flex items-center justify-between px-8 py-6">
@@ -331,6 +318,11 @@
                                     
                                     <td class="whitespace-nowrap px-6 py-4 text-center">
                                         <div class="flex items-center justify-center gap-2">
+                                            <button @click="openViewModal(official)" 
+                                                class="flex h-8 w-8 items-center justify-center rounded-full bg-emerald-50 text-emerald-600 shadow-sm transition-all hover:bg-emerald-100" 
+                                                title="View Profile">
+                                                <Eye class="h-4 w-4"/>
+                                            </button>
                                             <button @click="openModal(official)" class="flex h-8 w-8 items-center justify-center rounded-full bg-sky-50 text-sky-600 shadow-sm transition-all hover:bg-sky-100" title="Edit Official">
                                                 <Edit class="h-4 w-4"/>
                                             </button>
@@ -378,6 +370,11 @@
                     :official="deletingOfficial" 
                     @close="isDeleteDialogOpen = false"
                     :official-id="deletingOfficial?.id"
+                />
+                <ViewOfficialModal 
+                    :is-open="isViewModalOpen" 
+                    :official="viewingOfficial" 
+                    @close="isViewModalOpen = false"
                 />
             </main>
         </div>

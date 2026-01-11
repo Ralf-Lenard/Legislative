@@ -1,4 +1,5 @@
 <template>
+  <Head title="Ordinances" />
   <div class="bg-white min-h-screen">
     <Navbar />
 
@@ -124,40 +125,40 @@
                 </div>
 
                 <div class="flex justify-between items-center gap-3 pt-3">
-  <button
-    @click="openModal(ordinance)"
-    class="px-4 py-2 text-sm text-green-800 font-bold border border-green-800 rounded-lg hover:bg-green-50 transition"
-  >
-    View Details
-  </button>
+                <button
+                  @click="openModal(ordinance)"
+                  class="px-4 py-2 text-sm text-green-800 font-bold border border-green-800 rounded-lg hover:bg-green-50 transition"
+                >
+                  View Details
+                </button>
 
-  <!-- Approved: Download PDF -->
-  <button
-    v-if="ordinance.status === 'approved'"
-    @click="handleDownloadClick(ordinance)"
-    class="px-4 py-2 text-sm bg-yellow-400 text-green-900 font-bold rounded-lg hover:bg-yellow-500 transition shadow-md"
-  >
-    Download PDF
-  </button>
+                <!-- Approved: Download PDF -->
+                <button
+                  v-if="ordinance.status === 'approved'"
+                  @click="handleDownloadClick(ordinance)"
+                  class="px-4 py-2 text-sm bg-yellow-400 text-green-900 font-bold rounded-lg hover:bg-yellow-500 transition shadow-md"
+                >
+                  Download PDF
+                </button>
 
-  <!-- Pending: show disabled Request Pending -->
-  <button
-    v-else-if="ordinance.status === 'pending'"
-    disabled
-    class="px-4 py-2 text-sm bg-gray-300 text-gray-600 font-bold rounded-lg cursor-not-allowed"
-  >
-    Request Pending
-  </button>
+                <!-- Pending: show disabled Request Pending -->
+                <button
+                  v-else-if="ordinance.status === 'pending'"
+                  disabled
+                  class="px-4 py-2 text-sm bg-gray-300 text-gray-600 font-bold rounded-lg cursor-not-allowed"
+                >
+                  Request Pending
+                </button>
 
-  <!-- Rejected or no request: Request Access -->
-  <button
-    v-else
-    @click="openRequestModal(ordinance)"
-    class="px-4 py-2 text-sm bg-green-800 text-white font-bold rounded-lg hover:bg-green-900 transition shadow-md"
-  >
-    Request Access
-  </button>
-</div>
+                <!-- Rejected or no request: Request Access -->
+                <button
+                  v-else
+                  @click="openRequestModal(ordinance)"
+                  class="px-4 py-2 text-sm bg-green-800 text-white font-bold rounded-lg hover:bg-green-900 transition shadow-md"
+                >
+                  Request Access
+                </button>
+              </div>
 
             </div>
           </div>
@@ -268,41 +269,41 @@
           </div>
 
           <div class="px-6 py-4 border-t border-gray-200 flex justify-end gap-2">
-  <!-- Approved: Download PDF -->
-  <button
-    v-if="selectedOrdinance.status === 'approved'"
-    @click="handleDownloadClick(selectedOrdinance)"
-    class="px-4 py-2 text-sm bg-yellow-400 text-green-900 font-bold rounded-lg hover:bg-yellow-500 transition shadow-md"
-  >
-    Download PDF
-  </button>
+            <!-- Approved: Download PDF -->
+            <button
+              v-if="selectedOrdinance.status === 'approved'"
+              @click="handleDownloadClick(selectedOrdinance)"
+              class="px-4 py-2 text-sm bg-yellow-400 text-green-900 font-bold rounded-lg hover:bg-yellow-500 transition shadow-md"
+            >
+              Download PDF
+            </button>
 
-  <!-- Pending: show disabled Request Pending -->
-  <button
-    v-else-if="selectedOrdinance.status === 'pending'"
-    disabled
-    class="px-4 py-2 text-sm bg-gray-300 text-gray-600 font-bold rounded-lg cursor-not-allowed"
-  >
-    Request Pending
-  </button>
+            <!-- Pending: show disabled Request Pending -->
+            <button
+              v-else-if="selectedOrdinance.status === 'pending'"
+              disabled
+              class="px-4 py-2 text-sm bg-gray-300 text-gray-600 font-bold rounded-lg cursor-not-allowed"
+            >
+              Request Pending
+            </button>
 
-  <!-- Rejected or no request: Request Access -->
-  <button
-    v-else
-    @click="openRequestModal(selectedOrdinance)"
-    class="px-4 py-2 text-sm bg-green-800 text-white font-bold rounded-lg hover:bg-green-900 transition shadow-md"
-  >
-    Request Access
-  </button>
+            <!-- Rejected or no request: Request Access -->
+            <button
+              v-else
+              @click="openRequestModal(selectedOrdinance)"
+              class="px-4 py-2 text-sm bg-green-800 text-white font-bold rounded-lg hover:bg-green-900 transition shadow-md"
+            >
+              Request Access
+            </button>
 
-  <!-- Close button always visible -->
-  <button
-    @click="closeModal"
-    class="bg-gray-200 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-300 transition"
-  >
-    Close
-  </button>
-</div>
+            <!-- Close button always visible -->
+            <button
+              @click="closeModal"
+              class="bg-gray-200 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-300 transition"
+            >
+              Close
+            </button>
+          </div>
 
 
         </div>
@@ -359,7 +360,7 @@
 
 <script setup>
 import { computed, ref, reactive, watch, nextTick, onMounted, onUnmounted } from 'vue';
-import { router, usePage } from '@inertiajs/vue3';
+import { Head, router, usePage } from '@inertiajs/vue3';
 
 import Navbar from '@/components/Home/Navbar.vue';
 import Footer from '@/components/Home/Footer.vue';

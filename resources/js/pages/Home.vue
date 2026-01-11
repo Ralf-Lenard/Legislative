@@ -70,68 +70,69 @@
     </section>
 
     <section id="about" class="py-20 px-4">
-      <div class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+<div class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 xl:grid-cols-4 gap-8">
 
-        <div class="lg:col-span-2 space-y-8">
-          
-          <div class="p-10 bg-gradient-to-br from-green-900 to-green-800 text-white rounded-xl shadow-2xl space-y-6">
-            <div class="text-6xl text-yellow-400 font-serif leading-none">“</div>
-            
-            <span class="text-xs font-bold uppercase tracking-widest text-yellow-400">Leadership</span>
-            <h2 class="text-3xl font-black mt-1">Message From Our Presiding Officer</h2>
-            
-            <p class="text-base text-white/80 italic leading-relaxed">
-              "Yone tlaen nat al ahe te erne haea eagi waei merrite eaeaeitun thi enmne thowarwelaee ttaat ttae ttaai thaiik haathalaeneud dae btenacri eler salelotelee naeetae pae eeaw." 
-            </p>
+  <div class="lg:col-span-2 space-y-8">
 
-            <button class="px-8 py-3 bg-yellow-400 text-green-900 font-bold rounded-lg hover:bg-white transition shadow-lg">
-              Read Full Message →
-            </button>
+    <div class="p-10 bg-gradient-to-r from-green-900 to-green-800 text-white rounded-2xl shadow-2xl grid md:grid-cols-3 gap-10 items-center transform hover:scale-[1.01] transition duration-300">
 
-            <div class="text-6xl text-yellow-400 font-serif leading-none text-right">”</div>
-          </div>
+      <div class="flex justify-center">
+        <img v-if="viceMayor?.image" :src="viceMayor.image" :alt="viceMayor.name" class="w-64 h-64 md:w-80 md:h-80 object-cover rounded-full shadow-xl border-[6px] border-yellow-400">
+      </div>
 
-          
+      <div class="md:col-span-2 space-y-6">
+        <div class="text-7xl text-yellow-400 font-serif leading-none opacity-90">“</div>
+
+        <span class="text-xs font-semibold uppercase tracking-[0.2em] text-yellow-300">Leadership</span>
+        <h2 class="text-3xl md:text-4xl font-extrabold">Message From Our Presiding Officer</h2>
+
+        <p class="text-base text-white/80 italic leading-relaxed">
+          "Yone tlaen nat al ahe te erne haea eagi waei merrite eaeaeitun thi enmne thowarwelaee ttaat ttae ttaai thaiik haathalaeneud dae btenacri eler salelotelee naeetae pae eeaw."
+        </p>
+
+        <button @click="isModalOpen = true" class="px-8 py-3 bg-yellow-400 text-green-900 font-bold rounded-lg hover:bg-white transition shadow-lg hover:shadow-xl active:scale-95">
+          Read Full Message →
+        </button>
+
+        <div class="text-7xl text-yellow-400 font-serif leading-none text-right opacity-90">”</div>
+      </div>
+    </div>
+  </div>
+
+
+  <div class="lg:col-span-1 xl:col-span-2 space-y-8">
+
+    <div class="p-6 border border-gray-100 rounded-xl shadow-md space-y-4 bg-white">
+      <span class="text-xs font-bold uppercase tracking-widest text-green-800">About Us</span>
+      <h3 class="text-2xl font-black text-gray-900">Sangguniang Bayan</h3>
+
+      <div class="flex gap-4">
+        <div class="w-1/2 space-y-2">
+          <p class="text-gray-700 text-sm leading-relaxed">
+            The Sangguniang Bayan of Concepcion serves as the legislative body. Government's datal taeeuaet aebnered tb teredq qweas. Rteaeis wleaeae ttaet tyaea prateasramas. nteaee resepuael.
+          </p>
         </div>
-
-        <div class="lg:col-span-1 xl:col-span-2 space-y-8">
-          
-          <div class="p-6 border border-gray-100 rounded-xl shadow-md space-y-4 bg-white">
-            <span class="text-xs font-bold uppercase tracking-widest text-green-800">About Us</span>
-            <h3 class="text-2xl font-black text-gray-900">Sangguniang Bayan</h3>
-
-            <div class="flex gap-4">
-              <div class="w-1/2 space-y-2">
-                <p class="text-gray-700 text-sm leading-relaxed">
-                  The Sangguniang Bayan of Concepcion serves as the legislative body. Government's datal taeeuaet aebnered tb teredq qweas. Rteaeis wleaeae ttaet tyaea prateasramas. nteaee resepuael.
-                </p>
-              </div>
-              <div class="w-1/2 h-28 bg-gray-100 rounded-lg overflow-hidden flex items-center justify-center">
-                 <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f4/Concepcion_Tarlac_Municipal_Hall_plaza_view_%28Timbol%2C_Concepcion%2C_Tarlac%3B_07-23-2023%29.jpg/300px-Concepcion_Tarlac_Municipal_Hall_plaza_view_%28Timbol%2C_Concepcion%2C_Tarlac%3B_07-23-2023%29.jpg" alt="Municipal Hall" class="w-full h-full object-cover">
-              </div>
-            </div>
-          </div>
-
-          <div class="p-6 border border-gray-100 rounded-xl shadow-md space-y-6 bg-white">
-            <h3 class="text-2xl font-extrabold text-gray-900 text-center">Mission & Vision</h3>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div 
-                v-for="item in missionVision" 
-                :key="item.title" 
-                class="p-4 border rounded-lg shadow-sm hover:shadow-md transition hover:bg-green-50"
-              >
-                <div class="text-4xl mb-2 text-green-800 text-center">{{ item.icon }}</div>
-                <h4 class="text-lg font-bold text-gray-900 text-center">{{ item.title }}</h4>
-                <p class="text-sm text-gray-600 mt-2 text-center">{{ item.desc }}</p>
-              </div>
-            </div>
-          </div>
-
+        <div class="w-1/2 h-40 bg-gray-100 rounded-lg overflow-hidden flex items-center justify-center">
+          <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f4/Concepcion_Tarlac_Municipal_Hall_plaza_view_%28Timbol%2C_Concepcion%2C_Tarlac%3B_07-23-2023%29.jpg/300px-Concepcion_Tarlac_Municipal_Hall_plaza_view_%28Timbol%2C_Concepcion%2C_Tarlac%3B_07-23-2023%29.jpg" alt="Municipal Hall" class="w-full h-full object-cover">
         </div>
       </div>
-    </section>
+    </div>
 
+    <div class="p-6 border border-gray-100 rounded-xl shadow-md space-y-6 bg-white">
+      <h3 class="text-2xl font-extrabold text-gray-900 text-center">Mission & Vision</h3>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div v-for="item in missionVision" :key="item.title" class="p-4 border rounded-lg shadow-sm hover:shadow-md transition hover:bg-green-50">
+          <div class="text-4xl mb-2 text-green-800 text-center">{{ item.icon }}</div>
+          <h4 class="text-lg font-bold text-gray-900 text-center">{{ item.title }}</h4>
+          <p class="text-sm text-gray-600 mt-2 text-center">{{ item.desc }}</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+</section>
     <section class="py-20 px-4 bg-gray-50">
       <div class="max-w-7xl mx-auto">
         <div class="text-center mb-16 space-y-4">
@@ -265,11 +266,105 @@
 
     <Footer />
   </div>
+
+  <Transition name="fade">
+<div v-if="isModalOpen" class="fixed inset-0 z-[100] flex items-center justify-center px-4 overflow-y-auto py-10">
+  <div @click="isModalOpen = false" class="fixed inset-0 bg-black/75 backdrop-blur-md"></div>
+
+  <div class="relative z-10 bg-white w-full max-w-5xl rounded-2xl shadow-2xl overflow-hidden flex flex-col md:flex-row my-auto">
+    
+    <div class="relative w-full md:w-2/5 h-[400px] md:h-auto bg-gray-200">
+      <img
+        v-if="viceMayor?.image" :src="viceMayor.image" :alt="viceMayor.name"
+        class="w-full h-full object-cover object-top" 
+      />
+      <div class="absolute inset-0 bg-gradient-to-t from-green-950/40 via-transparent to-transparent"></div>
+      
+      <div class="absolute bottom-6 left-6 right-6">
+          <span class="bg-yellow-400 text-green-900 px-3 py-1 rounded text-xs font-bold uppercase tracking-widest">
+              Presiding Officer
+          </span>
+      </div>
+    </div>
+
+    <div class="w-full md:w-3/5 flex flex-col">
+      <button
+        @click="isModalOpen = false"
+        class="absolute top-5 right-5 z-20 bg-gray-100 hover:bg-gray-200 text-gray-900 rounded-full w-10 h-10 flex items-center justify-center shadow-sm transition"
+      >
+        ✕
+      </button>
+
+      <div class="p-8 md:p-12 flex-grow">
+        <div class="mb-8">
+          <p class="text-xs uppercase tracking-[0.3em] text-green-800 font-bold mb-1">
+            Office of the Vice Mayor
+          </p>
+          <h2 class="text-3xl font-black text-gray-900 leading-tight">
+            Official Message to the People
+          </h2>
+          <div class="w-12 h-1 bg-yellow-400 mt-3"></div>
+        </div>
+
+        <div class="prose prose-green max-w-none text-gray-700 leading-relaxed space-y-6 italic font-serif text-lg">
+          <p>
+            "Greetings to my fellow Concepcioneños. It is with great pride and dedication
+            that we present this digital platform to ensure that governance remains within
+            your reach."
+          </p>
+
+          <p>
+            "Our commitment to transparency is not just a promise, but a continuous journey.
+            Through this portal, we aim to bridge the gap between the Sangguniang Bayan and the
+            community we serve."
+          </p>
+
+          <p>
+            "Yone tlaen nat al ahe te erne haea eagi waei merrite eaeaeitun thi enmne thowarwelaee
+            ttaat ttae ttaai thaiik haathalaeneud dae btenacri eler salelotelee naeetae pae eeaw."
+          </p>
+        </div>
+
+        <div v-if="props.viceMayor" class="mt-10 pt-6 border-t border-gray-100">
+          <p class="font-bold text-gray-900 text-xl">{{ props.viceMayor.name }}</p>
+          <p class="text-sm text-green-800 font-medium">Vice Mayor, Concepcion Tarlac</p>
+        </div>
+      </div>
+
+      <div class="bg-gray-50 p-6 flex justify-end">
+        <button
+          @click="isModalOpen = false"
+          class="px-10 py-2.5 bg-green-900 text-white font-bold rounded-lg hover:bg-green-800 transition shadow-md"
+        >
+          Close Message
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+</Transition>
 </template>
 
-<script setup>
+<script lang="ts" setup>
+import { ref } from 'vue'; // Import ref
 import Navbar from "@/components/Home/Navbar.vue"
 import Footer from "@/components/Home/Footer.vue"
+
+interface ViceMayor {
+name: string;
+image: string | null;
+}
+
+interface Props {
+viceMayor?: ViceMayor | null;
+canRegister: boolean;
+errors: Record<string, string>;
+flash: Record<string, string | null>;
+}
+
+const props = defineProps<Props>();
+
+const isModalOpen = ref(false); // Modal state
 
 const features = [
   // ADDED HREFs
@@ -332,5 +427,9 @@ const contactDetails = [
   { icon: '📍', title: 'Address', detail: 'Municipal Hall, Concepcion, Tarlac' },
   { icon: '📞', title: 'Phone', detail: '(045) 923-4567' },
   { icon: '📧', title: 'Email', detail: 'sangguniangbayan@concepcion.gov.ph' }
-]
+];
+
+
+
 </script>
+

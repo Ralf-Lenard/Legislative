@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\ResolutionDownloadRequestSubmitted;
+use App\Events\ResolutionDownloadStatusUpdated;
 use App\Models\Resolution;
 use App\Models\ResolutionDownloadRequest;
 use Illuminate\Http\Request;
@@ -17,7 +19,7 @@ class ResolutionController extends Controller
     {
         $query = Resolution::query();
 
-        // Search filter
+        // 🔍 Search filter
         if ($request->filled('search')) {
             $search = $request->search;
 
@@ -29,15 +31,27 @@ class ResolutionController extends Controller
             });
         }
 
-        // Year filter
+        // 📅 Year filter
         if ($request->filled('year')) {
             $query->whereYear('date_approved_resolutions', $request->year);
         }
 
-        // Paginate results
-        $resolutions = $query->paginate(10)->appends($request->only('search', 'year'));
+        // 📄 Pagination
+        $resolutions = $query
+            ->paginate(10)
+            ->appends($request->only('search', 'year'));
 
-        // Get unique years for filter dropdown
+       // Get all resolution requests of the user, keyed by resolution_id
+        $userRequests = ResolutionDownloadRequest::where('user_id', auth()->id())
+        ->get()
+        ->keyBy('resolution_id');
+
+        // Attach user request status to every resolution
+        foreach ($resolutions as $resolution) {
+        $resolution->status = $userRequests[$resolution->id]->status ?? null;
+        }
+
+        // 🔥 Year dropdown list
         $years = Resolution::selectRaw('YEAR(date_approved_resolutions) as year')
             ->whereNotNull('date_approved_resolutions')
             ->orderBy('year', 'desc')
@@ -55,6 +69,46 @@ class ResolutionController extends Controller
     }
 
     // admin index
+    // public function index(Request $request)
+    // {
+    //     $query = Resolution::query();
+
+    //     // ✅ Search filter
+    //     if ($request->filled('search')) {
+    //         $search = $request->search;
+    //         $query->where(function ($q) use ($search) {
+    //             $q->where('resolutions_number', 'like', "%{$search}%")
+    //                 ->orWhere('title_resolutions', 'like', "%{$search}%")
+    //                 ->orWhere('description_resolutions', 'like', "%{$search}%")
+    //                 ->orWhere('author_resolutions', 'like', "%{$search}%");
+    //         });
+    //     }
+
+    //     // ✅ Year filter
+    //     if ($request->filled('year')) {
+    //         $year = $request->year;
+    //         $query->whereYear('date_approved_resolutions', $year);
+    //     }
+
+    //     // ✅ Order by latest approved date first
+    //     $query->orderBy('date_approved_resolutions', 'desc');
+
+    //     // ✅ Pagination with appended filters
+    //     $resolutions = $query->paginate(10)->appends($request->only('search', 'year'));
+
+    //     // ✅ Unique years for dropdown
+    //     $years = Resolution::selectRaw('YEAR(date_approved_resolutions) as year')
+    //         ->distinct()
+    //         ->orderBy('year', 'desc')
+    //         ->pluck('year');
+
+    //     return inertia('Admin/Resolutions', [
+    //         'resolutions' => $resolutions,
+    //         'filters' => $request->only('search', 'year'),
+    //         'years' => $years,
+    //     ]);
+    // }
+
     public function index(Request $request)
     {
         $query = Resolution::query();
@@ -62,7 +116,6 @@ class ResolutionController extends Controller
         // ✅ Search filter
         if ($request->filled('search')) {
             $search = $request->search;
-            // Important: wrap these in a closure to avoid mixing with the year filter
             $query->where(function ($q) use ($search) {
                 $q->where('resolutions_number', 'like', "%{$search}%")
                     ->orWhere('title_resolutions', 'like', "%{$search}%")
@@ -77,25 +130,36 @@ class ResolutionController extends Controller
             $query->whereYear('date_approved_resolutions', $year);
         }
 
-        // ✅ Pagination with appended filters so search & year persist on links
+        // ✅ Order by latest approved date first
+        $query->orderBy('date_approved_resolutions', 'desc');
+
+        // ✅ Pagination with appended filters
         $resolutions = $query->paginate(10)->appends($request->only('search', 'year'));
 
-        // Make sure $years is defined somewhere, e.g., all unique years in your table
+        // ✅ Unique years for dropdown
         $years = Resolution::selectRaw('YEAR(date_approved_resolutions) as year')
             ->distinct()
             ->orderBy('year', 'desc')
             ->pluck('year');
 
+        // ✅ Dashboard counts
+        $totalResolutions = Resolution::count();
+        $latestYearResolutionsCount = $years->isNotEmpty()
+            ? Resolution::whereYear('date_approved_resolutions', $years[0])->count()
+            : 0;
+        $resolutionsWithPdfCount = Resolution::whereNotNull('file_path_resolutions')->count();
+        $resolutionsWithImageCount = Resolution::whereNotNull('image_resolutions')->count();
+
         return inertia('Admin/Resolutions', [
             'resolutions' => $resolutions,
             'filters' => $request->only('search', 'year'),
             'years' => $years,
-            'canRegister' => Route::has('register'),
+            'totalResolutions' => $totalResolutions,
+            'latestYearResolutionsCount' => $latestYearResolutionsCount,
+            'resolutionsWithPdfCount' => $resolutionsWithPdfCount,
+            'resolutionsWithImageCount' => $resolutionsWithImageCount,
         ]);
     }
-
-
-
 
 
     // ==========================
@@ -110,7 +174,7 @@ class ResolutionController extends Controller
             'date_approved_resolutions' => 'nullable|date',
 
             'file_path_resolutions' => 'nullable|file|mimes:pdf',
-            'image_resolutions' => 'nullable|image|mimes:jpg,png,jpeg,webp',
+            'image_resolutions' => 'nullable|image|mimes:jpg,png,jpeg,webp|max:51200',
 
             'author_resolutions' => 'nullable',
         ]);
@@ -129,7 +193,9 @@ class ResolutionController extends Controller
 
         Resolution::create($validated);
 
-        return back()->with('success', 'Resolution created successfully.');
+        return redirect()
+            ->route('resolutions.index')
+            ->with('success', 'Resolution created successfully.');
     }
 
     // ==========================
@@ -140,13 +206,13 @@ class ResolutionController extends Controller
         $resolution = Resolution::findOrFail($id);
 
         $validated = $request->validate([
-            'rresolutions_number' => 'required|unique:resolutions,rresolutions_number,' . $id,
+            'resolutions_number' => 'required|unique:resolutions,resolutions_number,' . $id,
             'title_resolutions' => 'required',
             'description_resolutions' => 'nullable',
             'date_approved_resolutions' => 'nullable|date',
 
             'file_path_resolutions' => 'nullable|file|mimes:pdf',
-            'image_resolutions' => 'nullable|image|mimes:jpg,png,jpeg,webp',
+            'image_resolutions' => 'nullable|image|mimes:jpg,png,jpeg,webp|max:51200',
 
             'author_resolutions' => 'nullable',
         ]);
@@ -171,7 +237,9 @@ class ResolutionController extends Controller
 
         $resolution->update($validated);
 
-        return back()->with('success', 'Resolution updated successfully.');
+        return redirect()
+            ->route('resolutions.index')
+            ->with('success', 'Resolution updated successfully.');
     }
 
     // ==========================
@@ -192,7 +260,9 @@ class ResolutionController extends Controller
 
         $resolution->delete();
 
-        return back()->with('success', 'Resolution deleted successfully.');
+        return redirect()
+            ->route('resolutions.index')
+            ->with('success', 'Resolution deleted successfully.');
     }
 
 
@@ -202,7 +272,7 @@ class ResolutionController extends Controller
         // Gate::authorize('view-ordinance-requests'); 
 
         $query = ResolutionDownloadRequest::with(['user', 'resolution']);
-        
+
         // Capture both search and status filters from the request
         $filters = $request->only('search', 'status');
 
@@ -234,10 +304,153 @@ class ResolutionController extends Controller
             // Append all active filters to the pagination links
             ->appends($filters);
 
+        // Counts for all requests
+        $totalRequests = ResolutionDownloadRequest::count();
+        $pendingCount = ResolutionDownloadRequest::where('status', 'pending')->count();
+        $approvedCount = ResolutionDownloadRequest::where('status', 'approved')->count();
+        $rejectedCount = ResolutionDownloadRequest::where('status', 'rejected')->count();
+
         return inertia('Admin/ResolutionDownloadRequest', [
             'requests' => $requests,
-            'filters' => $filters, // Pass all active filters back to the front-end
+            'filters' => $filters,
+            'counts' => [
+                'total' => $totalRequests,
+                'pending' => $pendingCount,
+                'approved' => $approvedCount,
+                'rejected' => $rejectedCount,
+            ],
         ]);
     }
 
+    public function submitResolutionRequest(Request $request, $id)
+    {
+        $request->validate([
+            'purpose' => 'required|string|max:500',
+        ]);
+    
+        // Fetch the resolution first
+        $resolution = Resolution::findOrFail($id);
+    
+        // Create the download request
+        $downloadRequest = ResolutionDownloadRequest::create([
+            'user_id' => auth()->id(),
+            'resolution_id' => $id,
+            'purpose' => $request->purpose,
+            'status' => 'pending',
+        ]);
+    
+        // 🔔 Notify admins & super admins in real-time
+        event(new ResolutionDownloadRequestSubmitted($downloadRequest));
+    
+        return redirect()
+            ->back()
+            ->with(
+                'success',
+                'Request for Resolution No. ' . $resolution->resolutions_number . ' submitted successfully.'
+            );
+    }
+    
+
+    /**
+     * Approve resolution download request (ADMIN)
+     */
+    public function approveDownloadRequest($id)
+    {
+        $request = ResolutionDownloadRequest::findOrFail($id);
+        $request->status = 'approved';
+        $request->save();
+
+        // 🔔 Fire notification + broadcast
+        event(new ResolutionDownloadStatusUpdated($request));
+
+        return redirect()
+            ->route('resolutions.indexRequest')
+            ->with('success', 'Request approved.');
+    }
+
+
+    /**
+     * Reject resolution download request (ADMIN)
+     */
+    public function rejectDownloadRequest(Request $request, $id)
+    {
+        $request->validate([
+            'reason' => 'required|string|max:255',
+        ]);
+
+        $downloadRequest = ResolutionDownloadRequest::findOrFail($id);
+        $downloadRequest->status = 'rejected';
+        $downloadRequest->rejection_reason = $request->reason;
+        $downloadRequest->save();
+
+        // 🔔 Fire notification + broadcast
+        event(new ResolutionDownloadStatusUpdated($downloadRequest));
+
+        return redirect()
+            ->route('resolutions.indexRequest')
+            ->with('success', 'Request rejected.');
+    }
+
+
+    /**
+     * Download resolution (USER)
+     */
+    public function download($id)
+    {
+        $resolution = Resolution::findOrFail($id);
+
+        // Find ANY request by the user for this resolution
+        $request = ResolutionDownloadRequest::where('user_id', auth()->id())
+            ->where('resolution_id', $id)
+            ->first();
+
+        // 1. No request at all
+        if (!$request) {
+            return redirect()
+                ->back()
+                ->with('error', 'You must request access to this resolution first.');
+        }
+
+        // 2. Still pending
+        if ($request->status === 'pending') {
+            return redirect()
+                ->back()
+                ->with('warning', 'Your download request is still pending approval. Please wait for an update.');
+        }
+
+        // 3. Not approved
+        if ($request->status !== 'approved') {
+            return redirect()
+                ->back()
+                ->with('error', 'Your request has not been approved yet. Current status: ' . ucfirst($request->status));
+        }
+
+        // 4. Already downloaded
+        if ($request->is_downloaded) {
+            return redirect()
+                ->back()
+                ->with('error', 'You have already downloaded this resolution. Please submit a new request.');
+        }
+
+        // 5. File existence check
+        if (
+            !$resolution->file_path_resolutions ||
+            !Storage::disk('public')->exists($resolution->file_path_resolutions)
+        ) {
+            abort(404, 'File not found.');
+        }
+
+        // 6. Mark as downloaded
+        $request->is_downloaded = true;
+        $request->save();
+
+        // 7. Success flash message
+        session()->flash(
+            'success',
+            "Download successful! Resolution No. {$resolution->resolutions_number} is now downloading."
+        );
+
+        // 8. Download file
+        return Storage::disk('public')->download($resolution->file_path_resolutions);
+    }
 }

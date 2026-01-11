@@ -26,6 +26,8 @@ class User extends Authenticatable
         'usertype',
         'birthdate',
         'contact_number',
+        'profile_photo',
+        'status'
     ];
 
     /**
@@ -53,4 +55,10 @@ class User extends Authenticatable
             'two_factor_confirmed_at' => 'datetime',
         ];
     }
+
+    public function notifications()
+    {
+        return $this->hasMany(Notification::class);
+    }
+
 }

@@ -15,6 +15,7 @@ class OrdinanceDownloadRequest extends Model
         'purpose',
         'status',
         'is_downloaded',
+        'rejection_reason'
     ];
 
     // Relationship: Each request belongs to a user

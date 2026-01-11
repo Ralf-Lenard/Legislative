@@ -28,8 +28,7 @@
           </h4>
           <ul class="space-y-3">
             <li><a href="/" class="text-white text-opacity-80 hover:text-[#ffc107] transition text-sm">Home</a></li>
-            <li><a href="/sb" class="text-white text-opacity-80 hover:text-[#ffc107] transition text-sm">About SB</a></li>
-            <li><a href="/members" class="text-white text-opacity-80 hover:text-[#ffc107] transition text-sm">Council Members</a></li>
+            <li><a href="/sanguniang-bayan-members" class="text-white text-opacity-80 hover:text-[#ffc107] transition text-sm">Sanguniang Bayan Members</a></li>
             <li><a href="/sessions" class="text-white text-opacity-80 hover:text-[#ffc107] transition text-sm">Sessions</a></li>
           </ul>
         </div>
@@ -40,8 +39,8 @@
           <ul class="space-y-3">
             <li><a href="/ordinances" class="text-white text-opacity-80 hover:text-[#ffc107] transition text-sm">Ordinances</a></li>
             <li><a href="/resolutions" class="text-white text-opacity-80 hover:text-[#ffc107] transition text-sm">Resolutions</a></li>
-            <li><a href="/documents" class="text-white text-opacity-80 hover:text-[#ffc107] transition text-sm">Public Records</a></li>
-            <li><a href="/transparency" class="text-white text-opacity-80 hover:text-[#ffc107] transition text-sm">Transparency Portal</a></li>
+            <!-- <li><a href="/documents" class="text-white text-opacity-80 hover:text-[#ffc107] transition text-sm">Public Records</a></li>
+            <li><a href="/transparency" class="text-white text-opacity-80 hover:text-[#ffc107] transition text-sm">Transparency Portal</a></li> -->
           </ul>
         </div>
 

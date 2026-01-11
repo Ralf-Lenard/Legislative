@@ -24,10 +24,14 @@ class CreateNewUser implements CreatesNewUsers
             ],
             'password' => $this->passwordRules(),
             'address' => ['required', 'string', 'max:255'],
-           
             'birthdate' => ['required', 'date'],
-            'contact_number' => ['required', 'regex:/^09\d{9}$/'],
+            'contact_number' => [
+                'required',
+                'regex:/^09\d{9}$/',
+                Rule::unique(User::class),
+            ],
         ])->validate();
+        
 
         return User::create([
             'name' => $input['name'],

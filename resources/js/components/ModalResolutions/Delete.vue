@@ -63,15 +63,22 @@ const isLoading = ref(false);
 const closeModal = () => emit('close');
 
 const confirm = async () => {
-  if (!props.resolution) return;
-  isLoading.value = true;
+    if (!props.resolution) return;
 
-  await router.delete(`/resolutions/${props.resolution.id}`, {
-    onSuccess: () => {
-      emit('deleted');
-      closeModal();
-    },
-    onFinish: () => (isLoading.value = false),
-  });
+    isLoading.value = true;
+
+    const data = new FormData();
+    data.append('_method', 'DELETE');
+
+    await router.visit(`/admin-resolutions/${props.resolution.id}`, {
+        method: 'post',          // ✅ ALWAYS POST
+        data,
+        forceFormData: true,
+        preserveState: false,    // ✅ FORCE RELOAD
+        onFinish: () => {
+            isLoading.value = false;
+            closeModal();
+        },
+    });
 };
 </script>

@@ -412,25 +412,40 @@ const submit = async () => {
     const data = new FormData();
 
     Object.entries(form).forEach(([k, v]) => {
-        if (v instanceof File) data.append(k, v);
-        else if (v !== null) data.append(k, v as string);
+        if (v instanceof File) {
+            data.append(k, v);
+        } else if (v !== null) {
+            data.append(k, String(v));
+        }
     });
 
-    if (!form.file_path_resolutions && oldPdf.value) data.append('keep_pdf', '1');
-    if (!form.image_resolutions && oldImage.value) data.append('keep_image', '1');
+    if (!form.file_path_resolutions && oldPdf.value) {
+        data.append('keep_pdf', '1');
+    }
+
+    if (!form.image_resolutions && oldImage.value) {
+        data.append('keep_image', '1');
+    }
 
     const url = props.resolution?.id
-        ? `/admin-resolutions/${props.resolution.id}`
-        : '/admin-resolutions';
+        ? `/admin-resolutions/${props.resolution.id}` // update
+        : `/admin-resolutions`;                      // create
 
-    await router.post(url, data, {
+    // ✅ METHOD SPOOFING FOR UPDATE
+    if (props.resolution?.id) {
+        data.append('_method', 'PUT');
+    }
+
+    // ✅ POST request with Inertia, full reload
+    await router.visit(url, {
+        method: 'post',          // ALWAYS POST
+        data,
         forceFormData: true,
-        onSuccess: () => {
-            emit('submitted');
+        preserveState: false,    // FORCE REFRESH
+        onFinish: () => {
+            isLoading.value = false;
             closeModal();
-            router.reload(); // <-- reload page after submit/update
         },
-        onFinish: () => (isLoading.value = false),
     });
 };
 
@@ -441,3 +456,16 @@ const getImagePreview = () => {
     return '';
 };
 </script>
+
+<style scoped>
+    /* Hide scrollbar for Chrome, Safari and Opera */
+    .overflow-y-auto::-webkit-scrollbar {
+        display: none;
+    }
+    
+    /* Hide scrollbar for IE, Edge and Firefox */
+    .overflow-y-auto {
+        -ms-overflow-style: none;  /* IE and Edge */
+        scrollbar-width: none;  /* Firefox */
+    }
+    </style>

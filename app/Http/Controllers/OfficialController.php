@@ -6,6 +6,7 @@ use App\Models\Official;
 use App\Models\Committee;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 
@@ -14,6 +15,34 @@ class OfficialController extends Controller
     /**
      * Display all officials
      */
+
+    public function indexUser()
+    {
+        $officials = Official::with([
+            'committees' => function ($q) {
+                $q->withPivot('role');
+            }
+        ])->get();
+
+        $presidingOfficer = $officials->first(function ($official) {
+            return stripos($official->position, 'vice') !== false;
+        });
+
+        $councilMembers = $officials
+            ->reject(function ($official) {
+                return stripos($official->position, 'vice') !== false;
+            })
+            ->values();
+
+        return Inertia::render('SB', [
+            'canRegister' => Route::has('register'),
+            'presidingOfficer' => $presidingOfficer ?: null,
+            'councilMembers' => $councilMembers ?: collect(),
+        ]);
+    }
+
+
+    // admin
     public function index(Request $request)
     {
         // 1. Get filters from the request
@@ -28,8 +57,8 @@ class OfficialController extends Controller
         if ($search) {
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', '%' . $search . '%')
-                  ->orWhere('position', 'like', '%' . $search . '%')
-                  ->orWhere('main_committee', 'like', '%' . $search . '%');
+                    ->orWhere('position', 'like', '%' . $search . '%')
+                    ->orWhere('main_committee', 'like', '%' . $search . '%');
             });
         }
 
@@ -40,7 +69,7 @@ class OfficialController extends Controller
                 $q->where('name', $committeeFilter);
             });
         }
-        
+
         // 3. Paginate the filtered results
         $officialsPaginated = $query->latest('created_at')->paginate($perPage)->withQueryString();
 
@@ -53,21 +82,21 @@ class OfficialController extends Controller
                 'main_committee' => $official->main_committee,
                 'image' => $official->image,
                 'bio' => $official->bio,
-                // Ensure date is formatted for consistency, though Inertia handles dates well
                 'created_at' => $official->created_at ? $official->created_at->format('Y-m-d H:i:s') : null,
                 'committees' => $official->committees->map(function ($committee) {
                     return [
                         'id' => $committee->id,
                         'name' => $committee->name,
+                        'focus' => $committee->focus, // <-- here
                         'pivot' => [
-                            // Assuming your pivot table is official_committee and has a 'role' column
                             'role' => $committee->pivot->role,
                         ],
                     ];
                 }),
             ];
         });
-        
+
+
         // Replace the default collection with the mapped collection
         $officialsPaginated->setCollection($mappedOfficials);
 
@@ -80,13 +109,13 @@ class OfficialController extends Controller
         return Inertia::render('Admin/Officials', [
             // Pass the paginated data object
             'officials' => $officialsPaginated,
-            
+
             // Pass current filter values
             'filters' => [
                 'search' => $search,
                 'committee' => $committeeFilter,
             ],
-            
+
             // Pass the full list of committees for the dropdown
             'committeesList' => $committeesList,
         ]);
@@ -99,118 +128,125 @@ class OfficialController extends Controller
 
 
 
-public function store(Request $request)
-{
-    $request->validate([
-        'name' => 'required|string|max:255',
-        'position' => 'required|string|max:255',
-        'main_committee' => 'nullable|string|max:255',
-        'image' => 'nullable|file|image|max:20480', // validate file
-        'bio' => 'nullable|string',
-        'committees' => 'nullable|array',
-        'committees.*.name' => 'required|string|max:255',
-        'committees.*.role' => 'required|string|max:255',
-        'committees.*.focus' => 'nullable|string',
-    ]);
-
-    DB::transaction(function () use ($request) {
-
-        // Handle image upload
-        $imagePath = null;
-        if ($request->hasFile('image')) {
-            $imagePath = $request->file('image')->store('officials', 'public');
-        }
-
-        // Create official
-        $official = Official::create([
-            'name' => $request->name,
-            'position' => $request->position,
-            'main_committee' => $request->main_committee,
-            'image' => $imagePath,
-            'bio' => $request->bio,
+    public function store(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'position' => 'required|string|max:255',
+            'main_committee' => 'nullable|string|max:255',
+            'image' => 'nullable|file|image|max:51200', // validate file
+            'bio' => 'nullable|string',
+            'committees' => 'nullable|array',
+            'committees.*.name' => 'required|string|max:255',
+            'committees.*.role' => 'required|string|max:255',
+            'committees.*.focus' => 'nullable|string',
         ]);
 
-        // Attach committees
-        if ($request->filled('committees')) {
-            foreach ($request->committees as $committeeData) {
-                $committee = Committee::firstOrCreate(
-                    ['name' => $committeeData['name']],
-                    ['focus' => $committeeData['focus'] ?? null]
-                );
+        DB::transaction(function () use ($request) {
 
-                $official->committees()->attach($committee->id, [
-                    'role' => $committeeData['role'],
-                ]);
-            }
-        }
-    });
-
-    return redirect()->back()->with('success', 'Official created successfully');
-}
-
-public function update(Request $request, $id)
-{
-    $official = Official::findOrFail($id);
-
-    $request->validate([
-        'name' => 'required|string|max:255',
-        'position' => 'required|string|max:255',
-        'main_committee' => 'nullable|string|max:255',
-        'image' => 'nullable|file|image|max:20480',
-        'keep_image' => 'nullable|boolean',
-        'bio' => 'nullable|string',
-        'committees' => 'nullable|array',
-        'committees.*.name' => 'required|string|max:255',
-        'committees.*.role' => 'required|string|max:255',
-        'committees.*.focus' => 'nullable|string',
-    ]);
-
-    DB::transaction(function () use ($request, $official) {
-
-        // Handle image
-        if ($request->hasFile('image')) {
-            // Delete old image if exists
-            if ($official->image) {
-                Storage::disk('public')->delete($official->image);
-            }
-            $imagePath = $request->file('image')->store('officials', 'public');
-        } elseif ($request->filled('keep_image')) {
-            $imagePath = $official->image; // keep old image
-        } else {
-            // User removed image
-            if ($official->image) {
-                Storage::disk('public')->delete($official->image);
-            }
+            // Handle image upload
             $imagePath = null;
-        }
+            if ($request->hasFile('image')) {
+                $imagePath = $request->file('image')->store('officials', 'public');
+            }
 
-        // Update official
-        $official->update([
-            'name' => $request->name,
-            'position' => $request->position,
-            'main_committee' => $request->main_committee,
-            'image' => $imagePath,
-            'bio' => $request->bio,
+            // Create official
+            $official = Official::create([
+                'name' => $request->name,
+                'position' => $request->position,
+                'main_committee' => $request->main_committee,
+                'image' => $imagePath,
+                'bio' => $request->bio,
+            ]);
+
+            // Attach committees
+            if ($request->filled('committees')) {
+                foreach ($request->committees as $committeeData) {
+                    $committee = Committee::firstOrCreate(
+                        ['name' => $committeeData['name']],
+                        ['focus' => $committeeData['focus'] ?? null]
+                    );
+
+                    $official->committees()->attach($committee->id, [
+                        'role' => $committeeData['role'],
+                    ]);
+                }
+            }
+        });
+
+        return redirect()
+            ->route('officials.index')
+            ->with('success', 'Official created successfully');
+    }
+
+    public function update(Request $request, $id)
+    {
+        $official = Official::findOrFail($id);
+
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'position' => 'required|string|max:255',
+            'main_committee' => 'nullable|string|max:255',
+            'image' => 'nullable|file|image|max:51200',
+            'keep_image' => 'nullable|boolean',
+            'bio' => 'nullable|string',
+            'committees' => 'nullable|array',
+            'committees.*.name' => 'required|string|max:255',
+            'committees.*.role' => 'required|string|max:255',
+            'committees.*.focus' => 'nullable|string',
         ]);
 
-        // Sync committees
-        if ($request->has('committees')) {
-            $syncData = [];
-            foreach ($request->committees as $committeeData) {
-                $committee = Committee::firstOrCreate(
-                    ['name' => $committeeData['name']],
-                    ['focus' => $committeeData['focus'] ?? null]
-                );
-                $syncData[$committee->id] = [
-                    'role' => $committeeData['role'],
-                ];
-            }
-            $official->committees()->sync($syncData);
-        }
-    });
+        DB::transaction(function () use ($request, $official) {
 
-    return redirect()->back()->with('success', 'Official updated successfully');
-}
+            // Handle image
+            if ($request->hasFile('image')) {
+                if ($official->image) {
+                    Storage::disk('public')->delete($official->image);
+                }
+                $imagePath = $request->file('image')->store('officials', 'public');
+            } elseif ($request->filled('keep_image')) {
+                $imagePath = $official->image;
+            } else {
+                if ($official->image) {
+                    Storage::disk('public')->delete($official->image);
+                }
+                $imagePath = null;
+            }
+
+            // Update official
+            $official->update([
+                'name' => $request->name,
+                'position' => $request->position,
+                'main_committee' => $request->main_committee,
+                'image' => $imagePath,
+                'bio' => $request->bio,
+            ]);
+
+            // Sync committees with role and update focus
+            if ($request->has('committees')) {
+                $syncData = [];
+                foreach ($request->committees as $committeeData) {
+                    $committee = Committee::firstOrCreate(
+                        ['name' => $committeeData['name']]
+                    );
+
+                    // Always update focus
+                    $committee->focus = $committeeData['focus'] ?? $committee->focus;
+                    $committee->save();
+
+                    $syncData[$committee->id] = [
+                        'role' => $committeeData['role'],
+                    ];
+                }
+                $official->committees()->sync($syncData);
+            }
+        });
+
+        return redirect()
+            ->route('officials.index')
+            ->with('success', 'Official updated successfully');
+    }
+
 
 
     /**
@@ -227,6 +263,8 @@ public function update(Request $request, $id)
 
         $official->delete();
 
-        return redirect()->back()->with('success', 'Official deleted successfully');
+        return redirect()
+            ->route('officials.index')
+            ->with('success', 'Official deleted successfully');
     }
 }

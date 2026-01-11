@@ -1,230 +1,208 @@
 <script setup lang="ts">
-import { Link, usePage } from '@inertiajs/vue3';
-import {
-    FileText,
-    LayoutGrid,
-    LogOut,
-    Megaphone,
-    Settings,
-    User,
-    Users,
-    ChevronDown,
-    ChevronUp,
-    Library,
-    FileSearch,
-    ClipboardList
-} from 'lucide-vue-next';
-import { computed, ref, onMounted } from 'vue';
-import AppLogo from './AppLogo.vue';
+    import { Link, usePage } from '@inertiajs/vue3';
+    import {
+        BookOpen,
+        ChevronUp,
+        ClipboardList,
+        FileSearch,
+        FileText,
+        LayoutGrid,
+        Library,
+        LogOut,
+        Megaphone,
+        User,
+        Users,
+        Bell,
+        Settings,
+    } from 'lucide-vue-next';
+    import { computed, onMounted, ref, onUnmounted } from 'vue';
+    import AppLogo from './AppLogo.vue';
 
-const { props } = usePage();
-const authUser = computed(() => props.auth?.user);
-
-interface NavItem {
-    title: string;
-    href: string;
-    icon: any;
-}
-
-const mainNavItems: NavItem[] = [
-  { title: 'Dashboard', href: '/', icon: LayoutGrid },
-
-  // More appropriate icon for ordinances
-  { title: 'Ordinances', href: '/admin-ordinances', icon: Library },
-
-  // Legal document icon for resolutions
-  { title: 'Resolutions', href: '/admin-resolutions', icon: FileText },
-
-  // Document with magnifying glass = request or review
-  { title: 'Ordinance Request', href: '/ordinance-request', icon: FileSearch },
-
-  // Clipboard list fits "requests"
-  { title: 'Resolution Request', href: '/resolution-request', icon: ClipboardList },
-
-  // Members stays the same
-  { title: 'SB Members', href: '/officials', icon: Users },
-
-  // Announcements stays same
-  { title: 'Announcements', href: '/announcements', icon: Megaphone },
-];
-
-const currentRoute = computed(() => window.location.pathname);
-const isActive = (href: string) => {
-    if (href === '/') return currentRoute.value === '/';
-    return currentRoute.value.startsWith(href) &&
-        (currentRoute.value.length === href.length ||
-            currentRoute.value.charAt(href.length) === '/');
-};
-
-// Profile dropdown
-const isProfileDropdownOpen = ref(false);
-const toggleProfile = () => (isProfileDropdownOpen.value = !isProfileDropdownOpen.value);
-
-// click outside dropdown
-const profileDropdown = ref<HTMLElement | null>(null);
-const userProfileButton = ref<HTMLElement | null>(null);
-const handleClickOutside = (event: MouseEvent) => {
-    if (
-        isProfileDropdownOpen.value &&
-        profileDropdown.value &&
-        !profileDropdown.value.contains(event.target as Node) &&
-        userProfileButton.value &&
-        !userProfileButton.value.contains(event.target as Node)
-    ) {
-        isProfileDropdownOpen.value = false;
-    }
-};
-
-onMounted(() => {
-    window.addEventListener('click', handleClickOutside);
-});
-</script>
-
-<template>
-    <aside
-        class="relative flex h-screen w-64 flex-col bg-white/30 backdrop-blur-xl text-black shadow-2xl border-r border-white/20"
-    >
-        <!-- Header -->
-        <div class="flex items-center gap-3 border-b border-white/20 px-6 py-5">
-            <div
-                class="flex h-10 w-10 items-center justify-center rounded-lg bg-black/70 text-white shadow-lg"
-            >
-                <AppLogo class="h-6 w-6" />
-            </div>
-            <div>
-                <p class="text-lg font-bold tracking-tight">Concepcion LGU</p>
-                <p class="text-xs font-medium text-black/60">Admin Portal</p>
-            </div>
-        </div>
-
-        <!-- Navigation -->
-        <nav class="mt-6 flex-1 overflow-y-auto custom-scrollbar">
-            <ul class="flex flex-col gap-1 px-4">
-                <li v-for="item in mainNavItems" :key="item.title">
-                    <Link
-                        :href="item.href"
-                        class="group relative flex items-center gap-3 rounded-xl px-4 py-3 transition-all duration-200"
-                        :class="{
-                            'bg-white/30 backdrop-blur-xl shadow-inner text-black font-semibold border-l-4 border-emerald-500':
-                                isActive(item.href),
-                            'text-black/70 hover:bg-white/40 hover:text-black hover:shadow-md':
-                                !isActive(item.href),
-                        }"
-                    >
-                        <component
-                            :is="item.icon"
-                            class="h-5 w-5 transition-transform"
-                            :class="{
-                                'text-black': isActive(item.href),
-                                'group-hover:text-black': !isActive(item.href),
-                            }"
-                        />
-                        <span class="text-sm font-medium">{{ item.title }}</span>
-
-                        <!-- Active indicator bar -->
-                        <div
-                            v-if="isActive(item.href)"
-                            class="absolute top-0 bottom-0 right-0 w-1 bg-emerald-600 rounded-r-lg"
-                        ></div>
-                    </Link>
-                </li>
-            </ul>
-        </nav>
-
-        <div class="px-4 py-3">
-            <div class="h-px bg-white/20"></div>
-        </div>
-
-        <!-- Profile -->
-        <div class="relative px-4 pb-4">
-            <div
-                ref="userProfileButton"
-                class="flex items-center justify-between cursor-pointer rounded-xl border border-white/30 bg-white/20 backdrop-blur-xl p-3 transition-colors hover:bg-white/40"
-                @click="toggleProfile"
-            >
-                <div class="flex items-center gap-3">
-                    <div
-                        class="flex h-10 w-10 items-center justify-center rounded-full bg-black text-white font-bold shadow-md"
-                    >
-                        {{ authUser?.name ? authUser.name.charAt(0).toUpperCase() : 'A' }}
+    import NotificationDropdown from '@/components/NotificationDropdown.vue'
+    
+    const { props } = usePage();
+    const authUser = computed(() => props.auth?.user);
+    
+    const pendingOrdinances = computed(() => props.ordinanceRequestStatus?.pending || 0);
+    const pendingResolutions = computed(() => props.resolutionRequestStatus?.pending || 0);
+    
+    const navGroups = computed(() => {
+        const managementItems: Array<any> = [
+            ...(authUser.value?.usertype === 'super_admin'
+                ? [{ title: 'Manage Users', href: '/super-admin-users', icon: Users }]
+                : []),
+            { title: 'Ordinances', href: '/admin-ordinances', icon: Library },
+            { title: 'Resolutions', href: '/admin-resolutions', icon: FileText },
+            { title: 'SB Members', href: '/admin-officials', icon: Users },
+            { title: 'Sessions', href: '/admin-sessions', icon: BookOpen },
+        ];
+    
+        return [
+            {
+                label: 'System Overview',
+                items: [{ title: 'Dashboard', href: '/dashboard', icon: LayoutGrid }],
+            },
+            {
+                label: 'Legislative Management',
+                items: managementItems,
+            },
+            {
+                label: 'Public Requests',
+                items: [
+                    { title: 'Ordinance Requests', href: '/ordinance-request', icon: FileSearch, count: pendingOrdinances },
+                    { title: 'Resolution Requests', href: '/resolution-request', icon: ClipboardList, count: pendingResolutions },
+                ],
+            },
+            {
+                label: 'Home Content',
+                items: [{ title: 'Home Content', href: '/home-content', icon: Megaphone }],
+            },
+        ];
+    });
+    
+    const currentRoute = computed(() => window.location.pathname);
+    const isActive = (href: string) => {
+        if (href === '/') return currentRoute.value === '/';
+        return currentRoute.value.startsWith(href);
+    };
+    
+    const isProfileDropdownOpen = ref(false);
+    const toggleProfile = () => (isProfileDropdownOpen.value = !isProfileDropdownOpen.value);
+    
+    const profileDropdown = ref<HTMLElement | null>(null);
+    const userProfileButton = ref<HTMLElement | null>(null);
+    
+    const handleClickOutside = (event: MouseEvent) => {
+        if (isProfileDropdownOpen.value && 
+            profileDropdown.value && !profileDropdown.value.contains(event.target as Node) && 
+            userProfileButton.value && !userProfileButton.value.contains(event.target as Node)) {
+            isProfileDropdownOpen.value = false;
+        }
+    };
+    
+    onMounted(() => window.addEventListener('click', handleClickOutside));
+    onUnmounted(() => window.removeEventListener('click', handleClickOutside));
+    </script>
+    
+    <template>
+        <aside class="relative flex h-screen w-72 flex-col border-r border-slate-200 bg-white/80 backdrop-blur-xl transition-all duration-300">
+            
+            <div class="px-6 py-8">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-emerald-600 text-white shadow-lg shadow-emerald-200/50 ring-4 ring-emerald-50">
+                            <AppLogo class="h-6 w-6" />
+                        </div>
+                        <div class="min-w-0">
+                            <h2 class="truncate text-sm font-black uppercase tracking-tight text-slate-800">Concepcion</h2>
+                            <div class="flex items-center gap-1.5">
+                                <span class="relative flex h-2 w-2">
+                                    <span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75"></span>
+                                    <span class="relative inline-flex h-2 w-2 rounded-full bg-emerald-500"></span>
+                                </span>
+                                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Admin Portal</span>
+                            </div>
+                        </div>
                     </div>
-                    <div class="min-w-0 flex-1">
-                        <p class="truncate text-sm font-semibold text-black">
-                            {{ authUser?.name || 'Administrator' }}
-                        </p>
-                        <p class="truncate text-xs text-black/50">Municipal Portal</p>
-                    </div>
+    
+                    <NotificationDropdown :user="authUser" />
                 </div>
-                <component
-                    :is="isProfileDropdownOpen ? ChevronUp : ChevronDown"
-                    class="w-4 h-4 text-black/60"
-                />
             </div>
-
-            <!-- Profile Dropdown -->
-            <div
-                v-if="isProfileDropdownOpen"
-                ref="profileDropdown"
-                class="animate-fadeIn absolute right-4 bottom-[90px] left-4 z-50 overflow-hidden rounded-xl bg-white/70 backdrop-blur-xl border border-black/10 shadow-xl text-black"
-            >
-                <Link
-                    href="/profile"
-                    class="flex items-center gap-3 px-4 py-3 text-sm font-medium hover:bg-black/10 transition"
+    
+            <nav class="custom-scrollbar flex-1 overflow-y-auto px-4 pb-4">
+                <div v-for="(group, idx) in navGroups" :key="idx" class="mb-8">
+                    <h3 class="mb-3 px-4 text-[10px] font-black uppercase tracking-[0.15em] text-slate-400/80">
+                        {{ group.label }}
+                    </h3>
+                    <ul class="space-y-1.5">
+                        <li v-for="item in group.items" :key="item.title">
+                            <Link
+                                :href="item.href"
+                                class="group relative flex items-center justify-between rounded-xl px-4 py-3 transition-all duration-200"
+                                :class="isActive(item.href)
+                                    ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-200 ring-1 ring-emerald-500'
+                                    : 'text-slate-500 hover:bg-emerald-50/50 hover:text-emerald-700'"
+                            >
+                                <div v-if="isActive(item.href)" class="absolute -left-1 h-6 w-1 rounded-r-full bg-white"></div>
+                                
+                                <div class="flex items-center gap-3.5">
+                                    <component 
+                                        :is="item.icon" 
+                                        class="h-5 w-5 transition-all duration-300"
+                                        :class="isActive(item.href) ? 'scale-110' : 'group-hover:scale-110 group-hover:text-emerald-600'"
+                                    />
+                                    <span class="text-sm font-bold tracking-tight">{{ item.title }}</span>
+                                </div>
+    
+                                <span 
+                                    v-if="item.count && item.count > 0" 
+                                    class="flex h-5 min-w-[20px] items-center justify-center rounded-lg px-1.5 text-[10px] font-black shadow-sm transition-colors"
+                                    :class="isActive(item.href) ? 'bg-emerald-400 text-emerald-950' : 'bg-amber-100 text-amber-600'"
+                                >
+                                    {{ item.count }}
+                                </span>
+                            </Link>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+    
+            <div class="relative p-4 mt-auto">
+                <transition name="slide-up">
+                    <div v-if="isProfileDropdownOpen" ref="profileDropdown" class="absolute bottom-24 left-4 right-4 z-50 overflow-hidden rounded-2xl border border-slate-200 bg-white p-2 shadow-2xl ring-1 ring-black/5">
+                        <div class="px-4 py-3 mb-1 border-b border-slate-50">
+                            <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">Account</p>
+                        </div>
+                        <Link href="/admin/profile" class="flex items-center gap-3 rounded-xl px-4 py-2.5 text-sm font-bold text-slate-600 transition hover:bg-slate-50 hover:text-emerald-600">
+                            <Settings class="h-4 w-4" /> Settings
+                        </Link>
+                        <div class="my-1 h-px bg-slate-100"></div>
+                        <Link href="/logout" method="post" as="button" class="flex w-full items-center gap-3 rounded-xl px-4 py-2.5 text-sm font-black text-red-500 transition hover:bg-red-50">
+                            <LogOut class="h-4 w-4" /> Sign Out
+                        </Link>
+                    </div>
+                </transition>
+    
+                <button 
+                    ref="userProfileButton" 
+                    @click="toggleProfile"
+                    class="group flex w-full items-center gap-3 rounded-2xl border border-slate-100 bg-white p-2.5 shadow-sm transition-all hover:border-emerald-200 hover:shadow-md active:scale-[0.98]"
                 >
-                    <User class="h-4 w-4 text-black/60" />
-                    My Profile
-                </Link>
-
-                <Link
-                    href="/settings"
-                    class="flex items-center gap-3 px-4 py-3 text-sm font-medium hover:bg-black/10 transition"
-                >
-                    <Settings class="h-4 w-4 text-black/60" />
-                    Settings
-                </Link>
-
-                <div class="h-px bg-black/10"></div>
-
-                <Link
-                    href="/logout"
-                    method="post"
-                    as="button"
-                    class="flex w-full items-center gap-3 px-4 py-3 text-sm font-medium hover:bg-red-100 text-red-600 transition"
-                >
-                    <LogOut class="h-4 w-4 text-red-500" />
-                    Logout
-                </Link>
+                    <div class="relative h-10 w-10 shrink-0 overflow-hidden rounded-xl bg-slate-100 shadow-inner">
+                        <img v-if="authUser?.profile_photo" :src="`/storage/${authUser.profile_photo.replace('/storage/', '')}`" class="h-full w-full object-cover"/>
+                        <div v-else class="flex h-full w-full items-center justify-center bg-emerald-600 font-black text-white text-sm">
+                            {{ authUser?.name?.charAt(0) }}
+                        </div>
+                    </div>
+                    <div class="min-w-0 flex-1 text-left">
+                        <p class="truncate text-[11px] font-black text-slate-400 uppercase tracking-wider leading-none mb-1">Administrator</p>
+                        <p class="truncate text-sm font-bold text-slate-800 tracking-tight capitalize">
+                            {{ authUser?.name || 'Admin User' }}
+                        </p>
+                    </div>
+                    <ChevronUp class="h-4 w-4 text-slate-300 transition-transform duration-500" :class="{'rotate-180': isProfileDropdownOpen}" />
+                </button>
             </div>
-        </div>
-    </aside>
-</template>
-
-<style scoped>
-.custom-scrollbar::-webkit-scrollbar {
-    width: 6px;
-}
-.custom-scrollbar::-webkit-scrollbar-track {
-    background: transparent;
-}
-.custom-scrollbar::-webkit-scrollbar-thumb {
-    background-color: rgba(0, 0, 0, 0.25);
-    border-radius: 3px;
-}
-.custom-scrollbar::-webkit-scrollbar-thumb:hover {
-    background-color: rgba(0, 0, 0, 0.45);
-}
-
-@keyframes fadeIn {
-    from {
+        </aside>
+    </template>
+    
+    <style scoped>
+    .custom-scrollbar::-webkit-scrollbar {
+        width: 4px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+        background: transparent;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+        background-color: #cbd5e1;
+        border-radius: 20px;
+    }
+    
+    .slide-up-enter-active, .slide-up-leave-active {
+        transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .slide-up-enter-from, .slide-up-leave-to {
         opacity: 0;
-        transform: translateY(6px);
+        transform: translateY(20px) scale(0.9);
     }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-.animate-fadeIn {
-    animation: fadeIn 0.18s ease-out;
-}
-</style>
+    </style>

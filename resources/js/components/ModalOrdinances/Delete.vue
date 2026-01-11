@@ -64,15 +64,23 @@
   
   const confirm = async () => {
     if (!props.ordinance) return;
+
     isLoading.value = true;
-  
-    await router.delete(`/ordinances/${props.ordinance.id}`, {
-      onSuccess: () => {
-        emit('deleted');
-        closeModal();
-      },
-      onFinish: () => (isLoading.value = false),
+
+    const data = new FormData();
+    data.append('_method', 'DELETE');
+
+    await router.visit(`/ordinances/${props.ordinance.id}`, {
+        method: 'post',          // ✅ ALWAYS POST
+        data,
+        forceFormData: true,
+        preserveState: false,    // ✅ FORCE RELOAD
+        onFinish: () => {
+            isLoading.value = false;
+            closeModal();
+        },
     });
-  };
+};
+
   </script>
   

@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import AppSidebar from '@/components/AppSidebar.vue';
-// NOTE: You will need to create these components for Resolutions
-import ResolutionModal from '@/components/ModalResolutions/NewDialog.vue';
+import ResolutionModal from '@/components/ModalResolutions/NewDialog.vue'; // Assuming similar path
 import DeleteModal from '@/components/ModalResolutions/Delete.vue';
-import { router, usePage } from '@inertiajs/vue3';
+import ViewModal from '@/components/ModalResolutions/ViewResolutionDialog.vue';
+import FlashMessage from '@/components/Admin/FlashMessage.vue';
+import { Head, router, usePage } from '@inertiajs/vue3';
 import {
     Edit,
     FileText,
@@ -12,22 +13,22 @@ import {
     Search,
     Trash2,
     X,
+    Eye,
+    ClipboardList
 } from 'lucide-vue-next';
 import { computed, nextTick, onMounted, ref, watch } from 'vue';
 
-// 1. Interface adapted for the Resolution Model
 interface Resolution {
     id: number;
-    resolutions_number: string; // Renamed from ordinance_number
-    title_resolutions: string; // Renamed from title_ordinances
-    description_resolutions: string; // Renamed from description_ordinances
-    date_approved_resolutions: string; // Renamed from date_approved_ordinances
-    author_resolutions: string; // Renamed from author_ordinances
-    file_path_resolutions: string | null; // Renamed from file_path_ordinances
-    image_resolutions: string | null; // Renamed from image_ordinances
+    resolutions_number: string;
+    title_resolutions: string;
+    description_resolutions: string;
+    date_approved_resolutions: string;
+    author_resolutions: string;
+    file_path_resolutions: string | null;
+    image_resolutions: string | null;
 }
 
-// 2. Paginated Interface adapted
 interface PaginatedResolutions {
     data: Resolution[];
     links: {
@@ -45,26 +46,26 @@ interface PaginatedResolutions {
     };
 }
 
-// 3. Page Props adapted
 const { props } = usePage<{
-    resolutions: PaginatedResolutions; // Renamed from ordinances
+    resolutions: PaginatedResolutions;
     filters: { search?: string; year?: string };
     years: number[];
+    totalResolutions: number;
+    latestYearResolutionsCount: number;
+    resolutionsWithPdfCount: number;
+    resolutionsWithImageCount: number;
     flash?: { success?: string };
 }>();
 
-
-const flashMessage = ref<{ type: 'success' | 'error'; text: string } | null>(null);
-const resolutions = ref<Resolution[]>([...(props.resolutions?.data || [])]); // Renamed variable and property
+const resolutions = ref<Resolution[]>([...(props.resolutions?.data || [])]);
 const search = ref(props.filters?.search || '');
 const year = ref(props.filters?.year || '');
 const isDeleteDialogOpen = ref(false);
-const isLoading = ref(false);
-const deletingResolution = ref<Resolution | null>(null); // Renamed variable
+const deletingResolution = ref<Resolution | null>(null);
 
 // Modal state
 const isModalOpen = ref(false);
-const editingResolution = ref<Resolution | null>(null); // Renamed variable
+const editingResolution = ref<Resolution | null>(null);
 
 // Image viewer
 const isImageViewerOpen = ref(false);
@@ -76,40 +77,26 @@ const descRefs = ref<Record<number, HTMLElement>>({});
 const hasMoreThanTwoLines = ref<Record<number, boolean>>({});
 
 const years = computed(() => props.years || []);
-// 4. Computed properties adapted
-const resolutionsWithPdfCount = computed(() => resolutions.value.filter(o => o.file_path_resolutions).length);
-const resolutionsWithImageCount = computed(() => resolutions.value.filter(o => o.image_resolutions).length);
-
-const latestYearResolutionsCount = computed(() => {
-    const latestYear = years.value[0];
-    if (!latestYear) return 0;
-    // Note: This relies on the date_approved_resolutions field
-    return resolutions.value.filter(o => new Date(o.date_approved_resolutions).getFullYear() === latestYear).length;
-});
-
 const paginationMeta = computed(() => props.resolutions?.meta || null);
 const paginationLinks = computed(() => props.resolutions?.links || []);
 
 const paginate = (url: string) => {
     if (url) {
-        // 5. Updated Inertia route
         router.get(url, {}, { preserveScroll: true });
     }
 };
 
 const applyFilters = () => {
-    // 6. Updated Inertia route
     router.get(
         '/admin-resolutions',
         { search: search.value, year: year.value, page: 1 },
-        { preserveState: false, replace: true },
+        { preserveState: true, replace: true },
     );
 };
 
 const clearFilters = () => {
     search.value = '';
     year.value = '';
-    // 7. Updated Inertia route
     router.get(
         '/admin-resolutions',
         { search: '', year: '', page: 1 },
@@ -117,18 +104,17 @@ const clearFilters = () => {
     );
 };
 
-const openModal = (resolution: Resolution | null = null) => { // Renamed parameter
-    editingResolution.value = resolution; // Renamed variable
+const openModal = (resolution: Resolution | null = null) => {
+    editingResolution.value = resolution;
     isModalOpen.value = true;
 };
 
 const handleModalSubmit = () => {
     isModalOpen.value = false;
-    router.reload();
 };
 
-const openDeleteDialog = (resolution: Resolution) => { // Renamed parameter
-    deletingResolution.value = resolution; // Renamed variable
+const openDeleteDialog = (resolution: Resolution) => {
+    deletingResolution.value = resolution;
     isDeleteDialogOpen.value = true;
 };
 
@@ -140,8 +126,16 @@ const checkLineClamp = () => {
     Object.entries(descRefs.value).forEach(([id, el]) => {
         if (!el) return;
         const lineHeight = parseFloat(getComputedStyle(el).lineHeight);
-        hasMoreThanTwoLines.value[id] = el.scrollHeight > lineHeight * 2 + 2;
+        hasMoreThanTwoLines.value[Number(id)] = el.scrollHeight > lineHeight * 2 + 2;
     });
+};
+
+const isViewOpen = ref(false);
+const selectedResolution = ref<Resolution | null>(null);
+
+const openViewModal = (resolution: Resolution) => {
+    selectedResolution.value = resolution;
+    isViewOpen.value = true;
 };
 
 onMounted(() => {
@@ -152,27 +146,13 @@ onMounted(() => {
 });
 
 watch(
-    () => props.resolutions?.data, // Renamed property
+    () => props.resolutions?.data,
     (newData) => {
         if (newData) {
-            resolutions.value = [...newData]; // Renamed variable
+            resolutions.value = [...newData];
             nextTick(() => checkLineClamp());
         }
     }
-);
-
-watch(
-    () => props.flash,
-    (newVal) => {
-        if (newVal?.success) {
-            flashMessage.value = { type: 'success', text: newVal.success };
-            setTimeout(() => (flashMessage.value = null), 4000);
-        } else if (newVal?.error) {
-            flashMessage.value = { type: 'error', text: newVal.error };
-            setTimeout(() => (flashMessage.value = null), 4000);
-        }
-    },
-    { deep: true }
 );
 
 const formatDate = (date: string) => {
@@ -198,24 +178,17 @@ const closeImageViewer = () => {
 </script>
 
 <template>
+    <Head title="Resolutions Management" />
     <div class="flex h-screen bg-slate-50">
         <AppSidebar />
         <main class="relative flex-1 overflow-auto">
-            <transition name="fade-slide">
-                <div v-if="flashMessage"
-                    class="fixed top-4 right-4 z-[9999] flex items-center gap-2 rounded-lg bg-emerald-600 px-5 py-3 text-sm font-medium text-white shadow-xl">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" stroke="currentColor" fill="none">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-                    </svg>
-                    {{ flashMessage.text }}
-                </div>
-            </transition>
+            <FlashMessage />
 
             <div class="sticky top-0 z-40 border-b border-slate-200 bg-white shadow-md">
                 <div class="flex items-center justify-between px-8 py-6">
                     <div>
                         <h1 class="text-3xl font-extrabold text-slate-900">Legislative Resolutions</h1>
-                        <p class="mt-1 text-sm text-slate-600">Manage legislative resolutions and decisions efficiently.</p>
+                        <p class="mt-1 text-sm text-slate-600">Manage and track legislative resolutions effectively.</p>
                     </div>
                 </div>
 
@@ -227,7 +200,7 @@ const closeImageViewer = () => {
                                 <input v-model="search"
                                     @keyup.enter="applyFilters"
                                     type="text"
-                                    placeholder="Search by resolution number or title..."
+                                    placeholder="Search by resolution number, title, or author..."
                                     class="w-full rounded-lg border border-slate-300 py-2.5 pr-4 pl-10 shadow-sm transition-all focus:border-transparent focus:ring-2 focus:ring-emerald-500 focus:outline-none"/>
                             </div>
 
@@ -276,14 +249,14 @@ const closeImageViewer = () => {
                 <div class="flex items-center justify-between rounded-lg border-l-4 border-emerald-500 bg-white p-5 shadow-lg">
                     <div>
                         <p class="text-sm font-medium text-slate-500">Total Resolutions</p>
-                        <p class="mt-2 text-3xl font-bold text-slate-900">{{ paginationMeta?.total || resolutions.length }}</p>
+                        <p class="mt-2 text-3xl font-bold text-slate-900">{{ props.totalResolutions }}</p>
                     </div>
-                    <FileText class="h-8 w-8 text-emerald-500 opacity-60"/>
+                    <ClipboardList class="h-8 w-8 text-emerald-500 opacity-60"/>
                 </div>
                 <div class="flex items-center justify-between rounded-lg border-l-4 border-sky-500 bg-white p-5 shadow-lg">
                     <div>
                         <p class="text-sm font-medium text-slate-500">In {{ years[0] || 'N/A' }}</p>
-                        <p class="mt-2 text-3xl font-bold text-slate-900">{{ latestYearResolutionsCount }}</p>
+                        <p class="mt-2 text-3xl font-bold text-slate-900">{{ props.latestYearResolutionsCount }}</p>
                     </div>
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-sky-500 opacity-60" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
@@ -295,14 +268,14 @@ const closeImageViewer = () => {
                 <div class="flex items-center justify-between rounded-lg border-l-4 border-indigo-500 bg-white p-5 shadow-lg">
                     <div>
                         <p class="text-sm font-medium text-slate-500">With Official PDF</p>
-                        <p class="mt-2 text-3xl font-bold text-slate-900">{{ resolutionsWithPdfCount }}</p>
+                        <p class="mt-2 text-3xl font-bold text-slate-900">{{ props.resolutionsWithPdfCount }}</p>
                     </div>
                     <FileText class="h-8 w-8 text-indigo-500 opacity-60"/>
                 </div>
                 <div class="flex items-center justify-between rounded-lg border-l-4 border-purple-500 bg-white p-5 shadow-lg">
                     <div>
                         <p class="text-sm font-medium text-slate-500">With Media Image</p>
-                        <p class="mt-2 text-3xl font-bold text-slate-900">{{ resolutionsWithImageCount }}</p>
+                        <p class="mt-2 text-3xl font-bold text-slate-900">{{ props.resolutionsWithImageCount }}</p>
                     </div>
                     <Image class="h-8 w-8 text-purple-500 opacity-60"/>
                 </div>
@@ -313,7 +286,7 @@ const closeImageViewer = () => {
                     <div v-if="!resolutions || resolutions.length === 0" class="py-16">
                         <div class="flex flex-col items-center">
                             <div class="mb-4 flex h-14 w-14 items-center justify-center rounded-full border border-emerald-200 bg-emerald-50">
-                                <FileText class="h-7 w-7 text-emerald-500"/>
+                                <ClipboardList class="h-7 w-7 text-emerald-500"/>
                             </div>
                             <p class="text-lg font-semibold text-slate-700">No resolutions found</p>
                             <p class="mt-1 text-sm text-slate-500">Try adjusting your filters or create a new resolution.</p>
@@ -324,7 +297,7 @@ const closeImageViewer = () => {
                         <thead class="bg-slate-100/80">
                             <tr>
                                 <th class="px-6 py-4 text-left text-xs font-bold tracking-wider text-slate-700 uppercase">#</th>
-                                <th class="min-w-[160px] px-6 py-4 text-left text-xs font-bold tracking-wider text-slate-700 uppercase">Resolution No.</th>
+                                <th class="min-w-[160px] px-6 py-4 text-left text-xs font-bold tracking-wider text-slate-700 uppercase">Res. No.</th>
                                 <th class="min-w-[280px] px-6 py-4 text-left text-xs font-bold tracking-wider text-slate-700 uppercase">Title</th>
                                 <th class="min-w-[280px] px-6 py-4 text-left text-xs font-bold tracking-wider text-slate-700 uppercase">Description</th>
                                 <th class="min-w-[150px] px-6 py-4 text-left text-xs font-bold tracking-wider text-slate-700 uppercase">Approved</th>
@@ -348,7 +321,7 @@ const closeImageViewer = () => {
                                 </td>
                                 <td class="px-6 py-4 text-sm text-slate-700">
                                     <div class="group relative">
-                                        <p :ref="el => descRefs[resolution.id] = el" :class="showFullDesc === resolution.id ? '' : 'line-clamp-2'">
+                                        <p :ref="el => descRefs[resolution.id] = (el as HTMLElement)" :class="showFullDesc === resolution.id ? '' : 'line-clamp-2'">
                                             {{ resolution.description_resolutions }}
                                         </p>
                                         <button v-if="hasMoreThanTwoLines[resolution.id]" @click="toggleShowMore(resolution.id)" class="mt-1 text-xs font-medium text-blue-600 underline hover:text-blue-800">
@@ -368,6 +341,9 @@ const closeImageViewer = () => {
                                 </td>
                                 <td class="px-6 py-4 text-center">
                                     <div class="flex items-center justify-center gap-2">
+                                        <button @click="openViewModal(resolution)" class="flex h-8 w-8 items-center justify-center rounded-full bg-emerald-50 text-emerald-600 shadow-sm transition-all hover:bg-emerald-100">
+                                            <Eye class="h-4 w-4"/>
+                                        </button>
                                         <button @click="openModal(resolution)" class="flex h-8 w-8 items-center justify-center rounded-full bg-sky-50 text-sky-600 shadow-sm transition-all hover:bg-sky-100">
                                             <Edit class="h-4 w-4"/>
                                         </button>
@@ -406,13 +382,12 @@ const closeImageViewer = () => {
 
             <ResolutionModal v-model:isOpen="isModalOpen" :resolution="editingResolution" @submitted="handleModalSubmit" @close="isModalOpen = false"/>
             <DeleteModal :is-open="isDeleteDialogOpen" :resolution="deletingResolution" @close="isDeleteDialogOpen = false"/>
+            <ViewModal :is-open="isViewOpen" :resolution="selectedResolution" @close="isViewOpen = false" />
 
             <div v-if="isImageViewerOpen" class="fixed inset-0 z-[9999] flex items-center justify-center bg-black/70 backdrop-blur-sm p-4" @click.self="closeImageViewer">
                 <div class="relative max-w-3xl w-full">
                     <button @click="closeImageViewer" class="absolute -top-3 -right-3 z-50 rounded-full bg-white p-2 shadow-lg hover:bg-slate-100">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-slate-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                        </svg>
+                        <X class="h-5 w-5 text-slate-700" />
                     </button>
                     <img :src="viewerImageSrc" class="mx-auto max-h-[80vh] max-w-full rounded-lg shadow-2xl object-contain"/>
                 </div>
@@ -422,7 +397,6 @@ const closeImageViewer = () => {
 </template>
 
 <style>
-/* Utility for single line clamp */
 .line-clamp-1 {
     display: -webkit-box;
     -webkit-line-clamp: 1;
@@ -430,7 +404,6 @@ const closeImageViewer = () => {
     overflow: hidden;
 }
 
-/* Utility for two line clamp */
 .line-clamp-2 {
     display: -webkit-box;
     -webkit-line-clamp: 2;
@@ -438,24 +411,12 @@ const closeImageViewer = () => {
     overflow: hidden;
 }
 
-/* FLASH ANIMATION */
 .fade-slide-enter-active,
 .fade-slide-leave-active {
     transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
-.fade-slide-enter-from {
-    opacity: 0;
-    transform: translateY(-20px);
-}
-
-.fade-slide-enter-to {
-    opacity: 1;
-    transform: translateY(0);
-}
-
-.fade-slide-leave-to {
-    opacity: 0;
-    transform: translateY(-20px);
-}
+.fade-slide-enter-from { opacity: 0; transform: translateY(-20px); }
+.fade-slide-enter-to { opacity: 1; transform: translateY(0); }
+.fade-slide-leave-to { opacity: 0; transform: translateY(-20px); }
 </style>

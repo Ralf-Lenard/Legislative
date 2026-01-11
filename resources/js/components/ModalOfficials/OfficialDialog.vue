@@ -134,20 +134,36 @@
           <!-- Committees -->
           <div>
             <label class="mb-2 block text-sm font-semibold text-slate-900">Committees</label>
-            <div v-for="(c, index) in form.committees" :key="index" class="mb-3 flex gap-2 items-center">
+            <div v-for="(c, index) in form.committees" :key="index" class="mb-4 space-y-2">
+              <div class="flex gap-2 items-center">
+                <input
+                  v-model="c.name"
+                  type="text"
+                  placeholder="Committee Name"
+                  class="w-1/2 rounded-xl border border-slate-300 px-3 py-2 shadow-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+                />
+                <input
+                  v-model="c.role"
+                  type="text"
+                  placeholder="Role"
+                  class="w-1/2 rounded-xl border border-slate-300 px-3 py-2 shadow-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+                />
+                <button
+                  type="button"
+                  @click="removeCommittee(index)"
+                  class="text-red-500 font-bold"
+                >
+                  ×
+                </button>
+              </div>
+
+              <!-- Focus -->
               <input
-                v-model="c.name"
+                v-model="c.focus"
                 type="text"
-                placeholder="Committee Name"
-                class="w-2/3 rounded-xl border border-slate-300 px-3 py-2 shadow-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+                placeholder="Committee Focus (optional)"
+                class="w-full rounded-xl border border-slate-300 px-3 py-2 shadow-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none"
               />
-              <input
-                v-model="c.role"
-                type="text"
-                placeholder="Role"
-                class="w-1/3 rounded-xl border border-slate-300 px-3 py-2 shadow-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none"
-              />
-              <button type="button" @click="removeCommittee(index)" class="text-red-500 font-bold">×</button>
             </div>
             <button type="button" @click="addCommittee" class="mt-2 rounded-xl bg-emerald-600 px-4 py-1 text-white font-semibold hover:bg-emerald-700">
               Add Committee
@@ -210,36 +226,38 @@
     main_committee: '',
     bio: '',
     image: null as File | null,
-    committees: [] as { name: string; role: string }[],
+    committees: [] as { name: string; role: string; focus: string }[],
   });
   
   const oldImage = ref<string | null>(null);
   
-  watchEffect(() => {
-    if (!props.isOpen) return;
-  
-    if (props.official) {
-      form.name = props.official.name || '';
-      form.position = props.official.position || '';
-      form.main_committee = props.official.main_committee || '';
-      form.bio = props.official.bio || '';
-      form.committees = props.official.committees?.map((c: any) => ({
-        name: c.name,
-        role: c.pivot.role,
-      })) || [];
-      form.image = null;
-      oldImage.value = props.official.image ? `/storage/${props.official.image}` : null;
-    } else {
-      form.name = '';
-      form.position = '';
-      form.main_committee = '';
-      form.bio = '';
-      form.committees = [];
-      form.image = null;
-      oldImage.value = null;
-    }
-  });
-  
+    watchEffect(() => {
+      if (!props.isOpen) return;
+
+      if (props.official) {
+        form.name = props.official.name || '';
+        form.position = props.official.position || '';
+        form.main_committee = props.official.main_committee || '';
+        form.bio = props.official.bio || '';
+        form.committees = props.official.committees?.map((c: any) => ({
+          name: c.name,
+          role: c.pivot?.role || '',
+          focus: c.focus || '', // <- use c.focus here
+        })) || [];
+
+        form.image = null;
+        oldImage.value = props.official.image ? `/storage/${props.official.image}` : null;
+      } else {
+        form.name = '';
+        form.position = '';
+        form.main_committee = '';
+        form.bio = '';
+        form.committees = [];
+        form.image = null;
+        oldImage.value = null;
+      }
+    });
+
   const closeModal = () => emit('close');
   
   const handleFileDrop = (e: DragEvent) => {
@@ -265,41 +283,104 @@
   };
   
   // Committee management
-  const addCommittee = () => form.committees.push({ name: '', role: '' });
+  const addCommittee = () => form.committees.push({ name: '', role: '', focus: '' });
+
   const removeCommittee = (index: number) => form.committees.splice(index, 1);
   
+  // const submit = async () => {
+  //   isLoading.value = true;
+  //   const data = new FormData();
+  
+  //   data.append('name', form.name);
+  //   data.append('position', form.position);
+  //   data.append('main_committee', form.main_committee);
+  //   data.append('bio', form.bio);
+  
+  //   if (form.image instanceof File) {
+  //     data.append('image', form.image);
+  //   } else if (!form.image && oldImage.value) {
+  //     data.append('keep_image', '1'); // keep old image
+  //   }
+  
+  //   // Append committees
+  //   form.committees.forEach((c, index) => {
+  //     data.append(`committees[${index}][name]`, c.name);
+  //     data.append(`committees[${index}][role]`, c.role);
+  //     data.append(`committees[${index}][focus]`, c.focus);
+  //   });
+
+  
+  //   const url = props.official?.id ? `/admin-officials/${props.official.id}` : '/admin-officials';
+  
+  //   await router.post(url, data, {
+  //     forceFormData: true,
+  //     onSuccess: () => {
+  //       emit('submitted');
+  //       closeModal();
+  //       router.reload();
+  //     },
+  //     onFinish: () => (isLoading.value = false),
+  //   });
+  // };
+
   const submit = async () => {
-    isLoading.value = true;
-    const data = new FormData();
-  
-    data.append('name', form.name);
-    data.append('position', form.position);
-    data.append('main_committee', form.main_committee);
-    data.append('bio', form.bio);
-  
-    if (form.image instanceof File) {
-      data.append('image', form.image);
-    } else if (!form.image && oldImage.value) {
-      data.append('keep_image', '1'); // keep old image
+  isLoading.value = true
+  const data = new FormData()
+
+  // Append basic fields
+  data.append('name', String(form.name))
+  data.append('position', String(form.position))
+  data.append('main_committee', String(form.main_committee))
+  data.append('bio', String(form.bio))
+
+  // Image handling (same logic as ordinances)
+  if (form.image instanceof File) {
+    data.append('image', form.image)
+  } else if (!form.image && oldImage.value) {
+    data.append('keep_image', '1')
+  }
+
+  // Append committees
+  form.committees.forEach((c, index) => {
+    data.append(`committees[${index}][name]`, c.name)
+    data.append(`committees[${index}][role]`, c.role)
+    data.append(`committees[${index}][focus]`, c.focus)
+  })
+
+  const url = props.official?.id
+    ? `/admin-officials/${props.official.id}`
+    : `/admin-officials`
+
+  // ✅ METHOD SPOOFING FOR UPDATE
+  if (props.official?.id) {
+    data.append('_method', 'PUT')
+  }
+
+  // ✅ SAME AS ORDINANCES
+  router.visit(url, {
+    method: 'post',        // ALWAYS POST
+    data,
+    forceFormData: true,
+    preserveState: false,  // FORCE RELOAD
+    onFinish: () => {
+      isLoading.value = false
+      closeModal()
     }
-  
-    // Append committees
-    form.committees.forEach((c, index) => {
-      data.append(`committees[${index}][name]`, c.name);
-      data.append(`committees[${index}][role]`, c.role);
-    });
-  
-    const url = props.official?.id ? `/officials/${props.official.id}` : '/officials';
-  
-    await router.post(url, data, {
-      forceFormData: true,
-      onSuccess: () => {
-        emit('submitted');
-        closeModal();
-        router.reload();
-      },
-      onFinish: () => (isLoading.value = false),
-    });
-  };
+  })
+}
+
   </script>
+
+  <style scoped>
+    /* Hide scrollbar for Chrome, Safari and Opera */
+    .overflow-y-auto::-webkit-scrollbar {
+        display: none;
+    }
+    
+    /* Hide scrollbar for IE, Edge and Firefox */
+    .overflow-y-auto {
+        -ms-overflow-style: none;  /* IE and Edge */
+        scrollbar-width: none;  /* Firefox */
+    }
+    </style>
   

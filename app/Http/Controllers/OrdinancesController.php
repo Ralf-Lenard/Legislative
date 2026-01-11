@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\OrdinanceDownloadRequestSubmitted;
+use App\Events\OrdinanceDownloadStatusUpdated;
 use App\Models\Ordinance;
 use App\Models\OrdinanceDownloadRequest;
 use Illuminate\Http\Request;
@@ -19,10 +21,10 @@ class OrdinancesController extends Controller
     public function indexUser(Request $request)
     {
         $query = Ordinance::query();
-    
+
         if ($request->filled('search')) {
             $search = $request->search;
-    
+
             $query->where(function ($q) use ($search) {
                 $q->where('ordinance_number', 'like', "%{$search}%")
                     ->orWhere('title_ordinances', 'like', "%{$search}%")
@@ -30,22 +32,24 @@ class OrdinancesController extends Controller
                     ->orWhere('author_ordinances', 'like', "%{$search}%");
             });
         }
-    
+
         if ($request->filled('year')) {
             $query->whereYear('date_approved_ordinances', $request->year);
         }
-    
-        $ordinances = $query->paginate(10)->appends($request->only('search', 'year'));
 
+        $ordinances = $query->paginate(10)->appends($request->only('search', 'year'));
+        // Get all requests of the user, indexed by ordinance_id
+        $userRequests = OrdinanceDownloadRequest::where('user_id', auth()->id())
+            ->get()
+            ->keyBy('ordinance_id');
+
+        // Attach status to every ordinance
         foreach ($ordinances as $ordinance) {
-            $userRequest = OrdinanceDownloadRequest::where('user_id', auth()->id())
-                ->where('ordinance_id', $ordinance->id)
-                ->first();
-        
-            $ordinance->status = $userRequest->status ?? null;
+            $ordinance->status = $userRequests[$ordinance->id]->status ?? null;
         }
-        
-    
+
+
+
         // 🔥 GET YEAR LIST
         $years = Ordinance::selectRaw('YEAR(date_approved_ordinances) as year')
             ->whereNotNull('date_approved_ordinances')
@@ -53,7 +57,7 @@ class OrdinancesController extends Controller
             ->pluck('year')
             ->unique()
             ->values();
-    
+
         return inertia('User/Ordinances', [
             'ordinances' => $ordinances,
             'filters' => $request->only('search', 'year'),
@@ -62,8 +66,91 @@ class OrdinancesController extends Controller
             'canRegister' => Route::has('register'),
         ]);
     }
-    
 
+
+
+    // public function index(Request $request)
+    // {
+    //     $query = Ordinance::query();
+
+    //     // ✅ Search filter
+    //     if ($request->filled('search')) {
+    //         $search = $request->search;
+    //         // Important: wrap these in a closure to avoid mixing with the year filter
+    //         $query->where(function ($q) use ($search) {
+    //             $q->where('ordinance_number', 'like', "%{$search}%")
+    //                 ->orWhere('title_ordinances', 'like', "%{$search}%")
+    //                 ->orWhere('description_ordinances', 'like', "%{$search}%")
+    //                 ->orWhere('author_ordinances', 'like', "%{$search}%");
+    //         });
+    //     }
+
+    //     // ✅ Year filter
+    //     if ($request->filled('year')) {
+    //         $year = $request->year;
+    //         $query->whereYear('date_approved_ordinances', $year);
+    //     }
+
+    //     // ✅ Pagination with appended filters so search & year persist on links
+    //     $ordinances = $query->paginate(10)->appends($request->only('search', 'year'));
+
+    //     // Make sure $years is defined somewhere, e.g., all unique years in your table
+    //     $years = Ordinance::selectRaw('YEAR(date_approved_ordinances) as year')
+    //         ->distinct()
+    //         ->orderBy('year', 'desc')
+    //         ->pluck('year');
+
+    //     return inertia('Admin/Ordinances', [
+    //         'ordinances' => $ordinances,
+    //         'filters' => $request->only('search', 'year'),
+    //         'years' => $years,
+    //         'canRegister' => Route::has('register'),
+
+    //     ]);
+    // }
+
+    // public function index(Request $request)
+    // {
+    //     $query = Ordinance::query();
+
+    //     // ✅ Search filter
+    //     if ($request->filled('search')) {
+    //         $search = $request->search;
+    //         $query->where(function ($q) use ($search) {
+    //             $q->where('ordinance_number', 'like', "%{$search}%")
+    //                 ->orWhere('title_ordinances', 'like', "%{$search}%")
+    //                 ->orWhere('description_ordinances', 'like', "%{$search}%")
+    //                 ->orWhere('author_ordinances', 'like', "%{$search}%");
+    //         });
+    //     }
+
+    //     // ✅ Year filter
+    //     if ($request->filled('year')) {
+    //         $year = $request->year;
+    //         $query->whereYear('date_approved_ordinances', $year);
+    //     }
+
+    //     // ✅ ORDER BY DATE (LATEST → OLDEST)
+    //     $query->orderBy('date_approved_ordinances', 'desc');
+
+    //     // ✅ Pagination with preserved filters
+    //     $ordinances = $query
+    //         ->paginate(10)
+    //         ->appends($request->only('search', 'year'));
+
+    //     // ✅ Year dropdown data
+    //     $years = Ordinance::selectRaw('YEAR(date_approved_ordinances) as year')
+    //         ->distinct()
+    //         ->orderBy('year', 'desc')
+    //         ->pluck('year');
+
+    //     return inertia('Admin/Ordinances', [
+    //         'ordinances' => $ordinances,
+    //         'filters' => $request->only('search', 'year'),
+    //         'years' => $years,
+
+    //     ]);
+    // }
 
     public function index(Request $request)
     {
@@ -72,7 +159,6 @@ class OrdinancesController extends Controller
         // ✅ Search filter
         if ($request->filled('search')) {
             $search = $request->search;
-            // Important: wrap these in a closure to avoid mixing with the year filter
             $query->where(function ($q) use ($search) {
                 $q->where('ordinance_number', 'like', "%{$search}%")
                     ->orWhere('title_ordinances', 'like', "%{$search}%")
@@ -87,23 +173,40 @@ class OrdinancesController extends Controller
             $query->whereYear('date_approved_ordinances', $year);
         }
 
-        // ✅ Pagination with appended filters so search & year persist on links
-        $ordinances = $query->paginate(10)->appends($request->only('search', 'year'));
+        // ✅ ORDER BY DATE (LATEST → OLDEST)
+        $query->orderBy('date_approved_ordinances', 'desc');
 
-        // Make sure $years is defined somewhere, e.g., all unique years in your table
+        // ✅ Pagination with preserved filters
+        $ordinances = $query
+            ->paginate(10)
+            ->appends($request->only('search', 'year'));
+
+        // ✅ Year dropdown data
         $years = Ordinance::selectRaw('YEAR(date_approved_ordinances) as year')
             ->distinct()
             ->orderBy('year', 'desc')
             ->pluck('year');
 
+        // ✅ Dashboard counts
+        $totalOrdinances = Ordinance::count();
+        $latestYearOrdinancesCount = $years->isNotEmpty()
+            ? Ordinance::whereYear('date_approved_ordinances', $years[0])->count()
+            : 0;
+        $ordinancesWithPdfCount = Ordinance::whereNotNull('file_path_ordinances')->count();
+        $ordinancesWithImageCount = Ordinance::whereNotNull('image_ordinances')->count();
+
         return inertia('Admin/Ordinances', [
             'ordinances' => $ordinances,
             'filters' => $request->only('search', 'year'),
             'years' => $years,
-            'canRegister' => Route::has('register'),
-            
+            'totalOrdinances' => $totalOrdinances,
+            'latestYearOrdinancesCount' => $latestYearOrdinancesCount,
+            'ordinancesWithPdfCount' => $ordinancesWithPdfCount,
+            'ordinancesWithImageCount' => $ordinancesWithImageCount,
         ]);
     }
+
+
 
 
 
@@ -121,7 +224,7 @@ class OrdinancesController extends Controller
             'date_approved_ordinances' => 'nullable|date',
 
             'file_path_ordinances' => 'nullable|file|mimes:pdf',
-            'image_ordinances' => 'nullable|image|mimes:jpg,png,jpeg,webp',
+            'image_ordinances' => 'nullable|image|mimes:jpg,png,jpeg,webp|max:51200',
 
             'author_ordinances' => 'nullable',
         ]);
@@ -140,7 +243,9 @@ class OrdinancesController extends Controller
 
         Ordinance::create($validated);
 
-        return back()->with('success', 'Ordinance created successfully.');
+        return redirect()
+            ->route('ordinances.index')
+            ->with('success', 'Ordinance saved successfully.');
     }
 
     // ==========================
@@ -157,7 +262,7 @@ class OrdinancesController extends Controller
             'date_approved_ordinances' => 'nullable|date',
 
             'file_path_ordinances' => 'nullable|file|mimes:pdf',
-            'image_ordinances' => 'nullable|image|mimes:jpg,png,jpeg,webp',
+            'image_ordinances' => 'nullable|image|mimes:jpg,png,jpeg,webp|max:51200',
 
             'author_ordinances' => 'nullable',
         ]);
@@ -182,7 +287,9 @@ class OrdinancesController extends Controller
 
         $ordinance->update($validated);
 
-        return back()->with('success', 'Ordinance updated successfully.');
+        return redirect()
+            ->route('ordinances.index')
+            ->with('success', 'Ordinance updated successfully.');
     }
 
     // ==========================
@@ -203,25 +310,24 @@ class OrdinancesController extends Controller
 
         $ordinance->delete();
 
-        return back()->with('success', 'Ordinance deleted successfully.');
+        return redirect()
+            ->route('ordinances.index') // 👈 reload list
+            ->with('success', 'Ordinance deleted successfully!');
     }
 
     // requesting 
 
     public function indexRequest(Request $request)
     {
-        // Ensure only authorized users (e.g., admin) can access this route
-        // Gate::authorize('view-ordinance-requests'); 
-
+        // Base query for filtering
         $query = OrdinanceDownloadRequest::with(['user', 'ordinance']);
-        
+
         // Capture both search and status filters from the request
         $filters = $request->only('search', 'status');
 
-        // 1. Search Filter (Filtering by user name, ordinance title/number, or purpose)
+        // 1. Search Filter
         if ($request->filled('search')) {
             $search = $request->search;
-
             $query->where(function ($q) use ($search) {
                 $q->where('purpose', 'like', "%{$search}%")
                     ->orWhereHas('user', function ($u) use ($search) {
@@ -234,23 +340,31 @@ class OrdinancesController extends Controller
             });
         }
 
-        // 2. Status Filter (New: Filtering by pending, approved, or rejected)
+        // 2. Status Filter
         if ($request->filled('status') && in_array($request->status, ['pending', 'approved', 'rejected'])) {
             $query->where('status', $request->status);
         }
 
-        $requests = $query
-            ->latest()
-            ->paginate(10)
-            // Append all active filters to the pagination links
-            ->appends($filters);
+        // Paginate filtered requests
+        $requests = $query->latest()->paginate(10)->appends($filters);
+
+        // Counts for all requests
+        $totalRequests = OrdinanceDownloadRequest::count();
+        $pendingCount = OrdinanceDownloadRequest::where('status', 'pending')->count();
+        $approvedCount = OrdinanceDownloadRequest::where('status', 'approved')->count();
+        $rejectedCount = OrdinanceDownloadRequest::where('status', 'rejected')->count();
 
         return inertia('Admin/OrdinanceDownloadRequests', [
             'requests' => $requests,
-            'filters' => $filters, // Pass all active filters back to the front-end
+            'filters' => $filters,
+            'counts' => [
+                'total' => $totalRequests,
+                'pending' => $pendingCount,
+                'approved' => $approvedCount,
+                'rejected' => $rejectedCount,
+            ],
         ]);
     }
-
 
 
     public function submitRequest(Request $request, $id)
@@ -258,19 +372,27 @@ class OrdinancesController extends Controller
         $request->validate([
             'purpose' => 'required|string|max:500',
         ]);
-
-        // Fetch the ordinance first
+    
         $ordinance = Ordinance::findOrFail($id);
-
-        OrdinanceDownloadRequest::create([
+    
+        $downloadRequest = OrdinanceDownloadRequest::create([
             'user_id' => auth()->id(),
             'ordinance_id' => $id,
             'purpose' => $request->purpose,
             'status' => 'pending',
         ]);
-
-        return redirect()->back()->with('success', 'Request for Ordinance No. ... submitted successfully.');
+    
+        // 🔔 Notify admins & super admins
+        event(new OrdinanceDownloadRequestSubmitted($downloadRequest));
+    
+        return redirect()
+            ->back()
+            ->with(
+                'success',
+                'Request for Ordinance No. ' . $ordinance->ordinance_number . ' submitted successfully.'
+            );
     }
+    
 
 
     public function approveDownloadRequest($id)
@@ -279,7 +401,12 @@ class OrdinancesController extends Controller
         $request->status = 'approved';
         $request->save();
 
-        return back()->with('success', 'Request approved.');
+        // Dispatch event
+        event(new OrdinanceDownloadStatusUpdated($request));
+
+        return redirect()
+            ->route('ordinances.indexRequest')
+            ->with('success', 'Request approved.');
     }
 
     public function rejectDownloadRequest(Request $request, $id)
@@ -293,54 +420,59 @@ class OrdinancesController extends Controller
         $downloadRequest->rejection_reason = $request->reason;
         $downloadRequest->save();
 
-        return back()->with('success', 'Request rejected.');
+        // Dispatch event
+        event(new OrdinanceDownloadStatusUpdated($downloadRequest));
+
+        return redirect()
+            ->route('ordinances.indexRequest')
+            ->with('success', 'Request rejected.');
     }
 
     public function download($id)
     {
         $ordinance = Ordinance::findOrFail($id);
-    
+
         // Find ANY request by the user for this ordinance
         $request = OrdinanceDownloadRequest::where('user_id', auth()->id())
             ->where('ordinance_id', $id)
             ->first();
-    
+
         // 1. Check if a request exists at all
         if (!$request) {
             // If the frontend didn't check for 'no request', redirect with error.
             return redirect()->back()->with('error', 'You must request access to this ordinance first.');
         }
-        
+
         // 2. Check if the request is still PENDING
         if ($request->status === 'pending') {
             // Flash Error: Request is pending
             return redirect()->back()->with('warning', 'Your download request is still pending approval. Please wait for an update.');
         }
-    
+
         // 3. Check if the request was DENIED (or any status other than 'approved')
         if ($request->status !== 'approved') {
             // Flash Error: Request was not approved
             return redirect()->back()->with('error', 'Your request has not been approved yet. Current status: ' . ucfirst($request->status));
         }
-        
+
         // 4. Check if already downloaded (This logic is fine)
         if ($request->is_downloaded) {
             // Flash Error: Already downloaded
             return redirect()->back()->with('error', 'You have already downloaded this ordinance. Please submit a new request.');
         }
-    
+
         // 5. Check for file existence (This logic is fine)
         if (!$ordinance->file_path_ordinances || !Storage::disk('public')->exists($ordinance->file_path_ordinances)) {
             abort(404, 'File not found.');
         }
-    
+
         // 6. Mark as downloaded and save
         $request->is_downloaded = true;
         $request->save();
-    
+
         // 7. Set SUCCESS FLASH MESSAGE
         session()->flash('success', "Download successful! Ordinance No. {$ordinance->ordinance_number} is now downloading.");
-    
+
         // 8. Trigger file download
         return Storage::disk('public')->download($ordinance->file_path_ordinances);
     }

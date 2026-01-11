@@ -18,8 +18,10 @@ return new class extends Migration
             $table->timestamp('email_verified_at')->nullable();
             $table->string('usertype')->default('user');
             $table->string('address')->nullable();
-            $table->date('birthday')->nullable();
+            $table->date('birthdate')->nullable();
             $table->string('contact_number')->nullable();
+            $table->string('profile_photo')->nullable();
+            $table->string('status')->default('active');
             $table->string('password');
             $table->rememberToken();
             $table->timestamps();
