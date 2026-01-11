@@ -187,34 +187,43 @@
           v-if="ordinances.data.length"
           class="mt-16 flex justify-center"
         >
-          <nav class="flex gap-2">
-            <template
-              v-for="(link, i) in ordinances.links"
-              :key="i"
+        <nav class="flex items-center gap-4">
+          <template v-if="ordinances.links[0]">
+            <a
+              v-if="ordinances.links[0].url"
+              :href="ordinances.links[0].url"
+              class="h-10 px-4 py-2 rounded-lg text-sm font-semibold border border-gray-300 text-gray-700 hover:bg-yellow-400 hover:text-green-900 transition-colors flex items-center justify-center"
             >
-              <a
-                v-if="link.url"
-                :href="link.url"
-                :class="[
-                  'h-10 w-10 sm:w-auto px-4 py-2 rounded-lg text-sm font-semibold border transition-colors duration-200 flex items-center justify-center',
-                  link.active
-                    ? 'bg-green-800 text-white border-green-800 shadow-md'
-                    : 'border-gray-300 text-gray-700 hover:bg-yellow-400 hover:text-green-900'
-                ]"
-                v-html="link.label.replace('Previous', '← Prev').replace('Next', 'Next →')"
-              ></a>
-              
-              <span
-                v-else
-                :class="[
-                  'h-10 w-10 sm:w-auto px-4 py-2 rounded-lg text-sm font-semibold border border-gray-300 cursor-default flex items-center justify-center',
-                  link.active ? 'bg-green-800 text-white border-green-800' : 'bg-white text-gray-400'
-                ]"
-                v-html="link.label.replace('Previous', '← Prev').replace('Next', 'Next →')"
-              ></span>
+              ← Prev
+            </a>
+            <span
+              v-else
+              class="h-10 px-4 py-2 rounded-lg text-sm font-semibold border border-gray-300 bg-white text-gray-400 cursor-default flex items-center justify-center"
+            >
+              ← Prev
+            </span>
+          </template>
 
-            </template>
-          </nav>
+          <div class="text-sm font-bold text-gray-700">
+            {{ ordinances.current_page }} of {{ ordinances.last_page }}
+          </div>
+
+          <template v-if="ordinances.links[ordinances.links.length - 1]">
+            <a
+              v-if="ordinances.links[ordinances.links.length - 1].url"
+              :href="ordinances.links[ordinances.links.length - 1].url"
+              class="h-10 px-4 py-2 rounded-lg text-sm font-semibold border border-gray-300 text-gray-700 hover:bg-yellow-400 hover:text-green-900 transition-colors flex items-center justify-center"
+            >
+              Next →
+            </a>
+            <span
+              v-else
+              class="h-10 px-4 py-2 rounded-lg text-sm font-semibold border border-gray-300 bg-white text-gray-400 cursor-default flex items-center justify-center"
+            >
+              Next →
+            </span>
+          </template>
+        </nav>
         </div>
       </div>
     </section>

@@ -118,7 +118,7 @@ Route::middleware(['auth', 'admin_or_super'])->group(function () {
     Route::delete('/admin-officials/{id}', [OfficialController::class, 'destroy'])->name('officials.destroy');
 
     // Profile settings
-    Route::get('/admin/profile', [ProfileController::class, 'editAdmin'])->name('admin.profile');
+    Route::get('/profile-settings', [ProfileController::class, 'editAdmin'])->name('admin.profile-settings');
     // Update Admin Profile
     Route::post('/admin/profile/update', [ProfileController::class, 'updateAdmin'])->name('admin.profile.update');
     // Admin Password (optional: same as user password route)

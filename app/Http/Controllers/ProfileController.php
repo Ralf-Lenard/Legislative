@@ -92,10 +92,6 @@ class ProfileController extends Controller
     {
         $admin = Auth::user();
 
-        if ($admin->usertype !== 'admin') {
-            abort(403, 'Unauthorized');
-        }
-
         return Inertia::render('Admin/Profile', [
             'admin' => $admin,
         ]);
@@ -107,10 +103,6 @@ class ProfileController extends Controller
     public function updateAdmin(Request $request)
     {
         $admin = Auth::user();
-
-        if ($admin->usertype !== 'admin') {
-            abort(403, 'Unauthorized');
-        }
 
         $request->validate(
             [

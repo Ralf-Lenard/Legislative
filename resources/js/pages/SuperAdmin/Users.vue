@@ -26,7 +26,7 @@ interface User {
     usertype: string;
     status: string;
     created_at: string;
-    profile_photo_path: string | null;
+    profile_photo: string | null;
 }
 
 interface PaginatedUsers {
@@ -400,8 +400,8 @@ watch(
                                     <div class="flex items-center">
                                         <div class="h-10 w-10 flex-shrink-0">
                                             <img
-                                                v-if="user.profile_photo_path"
-                                                :src="user.profile_photo_path"
+                                                v-if="user.profile_photo"
+                                                :src="`/storage/${user.profile_photo}`"
                                                 class="h-10 w-10 rounded-full border border-slate-200 object-cover"
                                             />
                                             <div
@@ -585,8 +585,8 @@ watch(
                             class="h-16 w-16 overflow-hidden rounded-full border-2 border-emerald-100 shadow-sm"
                         >
                             <img
-                                v-if="selectedUser.profile_photo_path"
-                                :src="selectedUser.profile_photo_path"
+                                v-if="selectedUser.profile_photo"
+                                :src="`/storage/${selectedUser.profile_photo}`"
                                 class="h-full w-full object-cover"
                             />
                             <div

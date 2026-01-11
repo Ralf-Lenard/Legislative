@@ -148,22 +148,43 @@
 
         <!-- PAGINATION -->
         <div class="mt-16 flex justify-center">
-          <nav class="flex gap-2 flex-wrap">
-            <button
-              v-for="link in sessions.links"
-              :key="link.label"
-              v-html="link.label"
-              :disabled="!link.url"
-              @click="link.url && goTo(link.url)"
-              class="h-10 px-4 rounded-lg text-sm font-semibold border transition"
-              :class="[
-                link.active
-                  ? 'bg-green-800 text-white border-green-800 shadow-md'
-                  : 'border-gray-300 text-gray-700 hover:bg-yellow-400 hover:text-green-900',
-                !link.url && 'opacity-50 cursor-not-allowed'
-              ]"
-            />
-          </nav>
+          <nav class="flex items-center gap-4">
+          <template v-if="sessions.links[0]">
+            <a
+              v-if="sessions.links[0].url"
+              :href="sessions.links[0].url"
+              class="h-10 px-4 py-2 rounded-lg text-sm font-semibold border border-gray-300 text-gray-700 hover:bg-yellow-400 hover:text-green-900 transition-colors flex items-center justify-center"
+            >
+              ← Prev
+            </a>
+            <span
+              v-else
+              class="h-10 px-4 py-2 rounded-lg text-sm font-semibold border border-gray-300 bg-white text-gray-400 cursor-default flex items-center justify-center"
+            >
+              ← Prev
+            </span>
+          </template>
+
+          <div class="text-sm font-bold text-gray-700">
+            {{ sessions.current_page }} of {{ sessions.last_page }}
+          </div>
+
+          <template v-if="sessions.links[sessions.links.length - 1]">
+            <a
+              v-if="sessions.links[sessions.links.length - 1].url"
+              :href="sessions.links[sessions.links.length - 1].url"
+              class="h-10 px-4 py-2 rounded-lg text-sm font-semibold border border-gray-300 text-gray-700 hover:bg-yellow-400 hover:text-green-900 transition-colors flex items-center justify-center"
+            >
+              Next →
+            </a>
+            <span
+              v-else
+              class="h-10 px-4 py-2 rounded-lg text-sm font-semibold border border-gray-300 bg-white text-gray-400 cursor-default flex items-center justify-center"
+            >
+              Next →
+            </span>
+          </template>
+        </nav>
         </div>
       </div>
     </section>
