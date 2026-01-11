@@ -134,10 +134,11 @@
 
                                 <p
                                     class="relative z-10 line-clamp-6 text-xl leading-relaxed text-green-50/90 italic"
+                                    v-html="pageContent?.vice_mayor_message?.replace(/\n/g, '<br>')"
                                 >
-                                    "{{ pageContent?.vice_mayor_message }}"
                                 </p>
                             </div>
+
 
                             <div
                                 class="flex flex-col items-start justify-between gap-6 border-t border-white/10 pt-8 sm:flex-row sm:items-center"
@@ -459,11 +460,9 @@
 
                         <div
                             class="prose prose-green max-w-none space-y-6 font-serif text-lg leading-relaxed text-gray-700 italic"
-                        >
-                            <p>
-                                {{ pageContent?.vice_mayor_message }}
-                            </p>
-                        </div>
+                            v-html="pageContent?.vice_mayor_message?.replace(/\n/g, '<br>')"
+                        ></div>
+
 
                         <div
                             v-if="props.viceMayor"
