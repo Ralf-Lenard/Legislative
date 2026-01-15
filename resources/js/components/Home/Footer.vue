@@ -72,7 +72,7 @@
       <div class="flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-white text-opacity-70">
         <p>© 2025 Sangguniang Bayan, Concepcion, Tarlac. All rights reserved.</p>
         <div class="flex gap-6">
-          <a href="#" class="hover:text-[#ffc107] transition">Privacy Policy</a>
+          <a href="/privacy-policy" class="hover:text-[#ffc107] transition">Privacy Policy</a>
           <a href="#" class="hover:text-[#ffc107] transition">Disclaimer</a>
           <a href="#" class="hover:text-[#ffc107] transition">Sitemap</a>
         </div>

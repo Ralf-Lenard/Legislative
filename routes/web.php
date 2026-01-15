@@ -30,9 +30,13 @@ Route::get('/', [HomeController::class, 'welcome'])->name('home');
 Route::get('/dashboard', [HomeController::class, 'indexAdmin'])->middleware(['auth', 'admin_or_super'])->name('dashboard');
 
 
-// Route::get('/homes', function () {
-//     return Inertia::render('Home');
-// })->middleware(['auth', 'verified'])->name('home.user');
+Route::get('/terms-of-service', function () {
+    return Inertia::render('TermsOfService');
+});
+
+Route::get('/privacy-policy', function () {
+    return Inertia::render('PrivacyPolicy');
+});
 
 // Route::get('/dashboard', function () {
 //         return Inertia::render('Dashboard');
