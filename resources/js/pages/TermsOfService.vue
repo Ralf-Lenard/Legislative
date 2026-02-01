@@ -20,7 +20,7 @@
                         class="flex items-center text-[#0A3D1B] font-semibold hover:text-[#D49A20] transition-colors"
                     >
                         <ArrowLeft class="w-5 h-5 mr-2" />
-                        Back to Registration
+                        Back
                     </button>
                     <div class="text-sm text-gray-500 font-medium">Last Updated: January 2026</div>
                 </div>
