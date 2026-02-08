@@ -1,8 +1,17 @@
 <script setup lang="ts">
 import FlashMessage from '@/components/Admin/FlashMessage.vue';
 import AppSidebar from '@/components/AppSidebar.vue';
-import {Head, router, usePage } from '@inertiajs/vue3';
-import { Eye, Search, X } from 'lucide-vue-next';
+import { Head, router, usePage } from '@inertiajs/vue3';
+import {
+    CheckCircle,
+    Eye,
+    FileText,
+    IdCard,
+    Maximize2,
+    MessageSquare,
+    Search,
+    X,
+} from 'lucide-vue-next';
 import { computed, ref, watch } from 'vue';
 
 interface User {
@@ -25,8 +34,15 @@ interface Ordinance {
 interface OrdinanceDownloadRequest {
     id: number;
     purpose: string;
-    status: string;
+    status: 'pending' | 'approved' | 'rejected';
     created_at: string;
+
+    // ✅ Valid ID fields
+    valid_id_type: string;
+    valid_id_path: string;
+    valid_id_url?: string; // if you added the accessor
+
+    // Relations
     user: User;
     ordinance: Ordinance;
 }
@@ -46,7 +62,8 @@ interface PaginatedRequests {
 const { props } = usePage<{
     requests: PaginatedRequests;
     filters: { search?: string; status?: string };
-    counts: { // Added this
+    counts: {
+        // Added this
         total: number;
         pending: number;
         approved: number;
@@ -187,6 +204,20 @@ const getInitials = (name: string) => {
         .toUpperCase()
         .substring(0, 2);
 };
+
+const isImage = (url) => {
+    return /\.(jpg|jpeg|png)$/i.test(url);
+};
+
+const isPreviewModalOpen = ref(false);
+
+// Optional: Prevent background scrolling when image preview is open
+watch(isPreviewModalOpen, (val) => {
+    document.body.style.overflow = val ? 'hidden' : 'auto';
+});
+
+// In your data() or ref()
+const isIdModalOpen = ref(false);
 </script>
 
 <template>
@@ -264,43 +295,63 @@ const getInitials = (name: string) => {
                     </div>
                 </div>
             </div>
-            
-            
-          <!-- Dashboard Cards -->
-          <div class="grid grid-cols-1 gap-6 px-8 pt-8 sm:grid-cols-2 lg:grid-cols-4">
-              <div class="flex items-center justify-between rounded-lg border-l-4 border-emerald-500 bg-white p-5 shadow-lg">
-                  <div>
-                      <p class="text-sm font-medium text-slate-500">Total Requests</p>
-                      <p class="mt-2 text-3xl font-bold text-slate-900">{{ stats.total }}</p>
-                  </div>
-                 
-              </div>
 
-              <div class="flex items-center justify-between rounded-lg border-l-4 border-sky-500 bg-white p-5 shadow-lg">
-                  <div>
-                      <p class="text-sm font-medium text-slate-500">Pending</p>
-                      <p class="mt-2 text-3xl font-bold text-slate-900">{{ stats.pending }}</p>
-                  </div>
-                  
-              </div>
+            <!-- Dashboard Cards -->
+            <div
+                class="grid grid-cols-1 gap-6 px-8 pt-8 sm:grid-cols-2 lg:grid-cols-4"
+            >
+                <div
+                    class="flex items-center justify-between rounded-lg border-l-4 border-emerald-500 bg-white p-5 shadow-lg"
+                >
+                    <div>
+                        <p class="text-sm font-medium text-slate-500">
+                            Total Requests
+                        </p>
+                        <p class="mt-2 text-3xl font-bold text-slate-900">
+                            {{ stats.total }}
+                        </p>
+                    </div>
+                </div>
 
-              <div class="flex items-center justify-between rounded-lg border-l-4 border-indigo-500 bg-white p-5 shadow-lg">
-                  <div>
-                      <p class="text-sm font-medium text-slate-500">Approved</p>
-                      <p class="mt-2 text-3xl font-bold text-slate-900">{{ stats.approved }}</p>
-                  </div>
-                 
-              </div>
+                <div
+                    class="flex items-center justify-between rounded-lg border-l-4 border-sky-500 bg-white p-5 shadow-lg"
+                >
+                    <div>
+                        <p class="text-sm font-medium text-slate-500">
+                            Pending
+                        </p>
+                        <p class="mt-2 text-3xl font-bold text-slate-900">
+                            {{ stats.pending }}
+                        </p>
+                    </div>
+                </div>
 
-              <div class="flex items-center justify-between rounded-lg border-l-4 border-purple-500 bg-white p-5 shadow-lg">
-                  <div>
-                      <p class="text-sm font-medium text-slate-500">Rejected</p>
-                      <p class="mt-2 text-3xl font-bold text-slate-900">{{ stats.rejected }}</p>
-                  </div>
-                
-              </div>
-          </div>
+                <div
+                    class="flex items-center justify-between rounded-lg border-l-4 border-indigo-500 bg-white p-5 shadow-lg"
+                >
+                    <div>
+                        <p class="text-sm font-medium text-slate-500">
+                            Approved
+                        </p>
+                        <p class="mt-2 text-3xl font-bold text-slate-900">
+                            {{ stats.approved }}
+                        </p>
+                    </div>
+                </div>
 
+                <div
+                    class="flex items-center justify-between rounded-lg border-l-4 border-purple-500 bg-white p-5 shadow-lg"
+                >
+                    <div>
+                        <p class="text-sm font-medium text-slate-500">
+                            Rejected
+                        </p>
+                        <p class="mt-2 text-3xl font-bold text-slate-900">
+                            {{ stats.rejected }}
+                        </p>
+                    </div>
+                </div>
+            </div>
 
             <div class="p-8">
                 <div
@@ -575,137 +626,316 @@ const getInitials = (name: string) => {
     </div>
 
     <div
-    v-if="isDetailsModalOpen"
-    @click.self="isDetailsModalOpen = false"
-    class="fixed inset-0 z-[9998] flex items-center justify-center bg-slate-900/60 p-4 backdrop-blur-sm"
->
-    <div class="relative flex h-auto max-h-[90vh] w-full max-w-4xl flex-col overflow-hidden rounded-2xl bg-white shadow-2xl">
-        <div class="flex items-center justify-between border-b border-slate-100 px-8 py-5">
-            <div>
-                <h2 class="text-xl font-bold text-slate-900">Request Details</h2>
-                <p class="text-sm text-slate-500">Reference ID: #{{ viewingRequest?.id }}</p>
-            </div>
-            <button @click="isDetailsModalOpen = false" class="rounded-full p-2 text-slate-400 transition hover:bg-slate-100 hover:text-slate-600">
-                <X class="h-6 w-6" />
-            </button>
-        </div>
-
-        <div v-if="viewingRequest" class="flex flex-1 flex-col overflow-y-auto md:flex-row">
-            
-            <div class="w-full border-r border-slate-100 bg-slate-50/50 p-8 md:w-72">
-                <div class="flex flex-col items-center text-center">
-                  <div class="relative mb-4">
-                    <img
-                        v-if="viewingRequest.user.profile_photo"
-                        :src="`/storage/${viewingRequest.user.profile_photo}`"
-                        class="h-32 w-32 rounded-2xl border-4 border-white object-cover shadow-md"
-                    />
-                    
-                    <div 
-                        v-else 
-                        class="flex h-32 w-32 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 text-3xl font-bold text-white shadow-md border-4 border-white"
-                    >
-                        {{ getInitials(viewingRequest.user.name) }}
-                    </div>
-
-                    <span :class="[
-                        'absolute -bottom-2 -right-2 rounded-lg px-2 py-1 text-[10px] font-bold uppercase tracking-wider shadow-sm',
-                        viewingRequest.user.usertype === 'admin' ? 'bg-purple-600 text-white' : 'bg-blue-600 text-white'
-                    ]">
-                        {{ viewingRequest.user.usertype }}
-                    </span>
-                </div>
-                                    <h3 class="text-lg font-bold text-slate-900 leading-tight">{{ viewingRequest.user.name }}</h3>
-                    <p class="text-sm text-slate-500">{{ viewingRequest.user.email }}</p>
-                </div>
-
-                <div class="mt-8 space-y-4">
-                    <div class="flex flex-col">
-                        <span class="text-[11px] font-bold uppercase tracking-widest text-slate-400">Contact</span>
-                        <span class="text-sm font-medium text-slate-700">{{ viewingRequest.user.contact_number || 'None' }}</span>
-                    </div>
-                    <div class="flex flex-col">
-                        <span class="text-[11px] font-bold uppercase tracking-widest text-slate-400">Age / Birthdate</span>
-                        <span class="text-sm font-medium text-slate-700">
-                            {{ computeAge(viewingRequest.user.birthdate) }} yrs old ({{ viewingRequest.user.birthdate || 'N/A' }})
-                        </span>
-                    </div>
-                    <div class="flex flex-col">
-                        <span class="text-[11px] font-bold uppercase tracking-widest text-slate-400">Address</span>
-                        <span class="text-sm font-medium text-slate-700 leading-relaxed">{{ viewingRequest.user.address || 'No address provided' }}</span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="flex-1 p-8">
-                <div :class="[
-                    'mb-8 flex items-center justify-between rounded-xl px-6 py-4 border-l-4',
-                    viewingRequest.status === 'pending' ? 'bg-yellow-50 border-yellow-400 text-yellow-800' :
-                    viewingRequest.status === 'approved' ? 'bg-emerald-50 border-emerald-400 text-emerald-800' :
-                    'bg-red-50 border-red-400 text-red-800'
-                ]">
-                    <div>
-                        <p class="text-[11px] font-bold uppercase tracking-widest opacity-70">Current Status</p>
-                        <p class="text-lg font-bold capitalize">{{ viewingRequest.status }}</p>
-                    </div>
-                    <div class="text-right">
-                        <p class="text-[11px] font-bold uppercase tracking-widest opacity-70">Requested Date</p>
-                        <p class="font-semibold">{{ formatDate(viewingRequest.created_at) }}</p>
-                    </div>
-                </div>
-
-                <div class="mb-8">
-                    <h4 class="mb-4 flex items-center gap-2 text-sm font-bold uppercase tracking-widest text-slate-400">
-                        <FileText class="h-4 w-4" />
-                        Target Ordinance
-                    </h4>
-                    <div class="rounded-xl border border-slate-200 p-5 transition hover:border-emerald-200 hover:bg-emerald-50/30">
-                        <p class="mb-1 text-xs font-bold text-emerald-600 uppercase">{{ viewingRequest.ordinance.ordinance_number }}</p>
-                        <h5 class="text-lg font-bold text-slate-800 leading-snug">
-                            {{ viewingRequest.ordinance.title_ordinances }}
-                        </h5>
-                    </div>
-                </div>
-
+        v-if="isDetailsModalOpen"
+        @click.self="isDetailsModalOpen = false"
+        class="fixed inset-0 z-[9998] flex items-center justify-center bg-slate-900/60 p-4 backdrop-blur-sm transition-opacity"
+    >
+        <div
+            class="relative flex h-auto max-h-[90vh] w-full max-w-5xl flex-col overflow-hidden rounded-2xl bg-white shadow-2xl"
+        >
+            <div
+                class="flex items-center justify-between border-b border-slate-100 px-8 py-5"
+            >
                 <div>
-                    <h4 class="mb-4 flex items-center gap-2 text-sm font-bold uppercase tracking-widest text-slate-400">
-                        <MessageSquare class="h-4 w-4" />
-                        Reason for Request
-                    </h4>
-                    <div class="relative rounded-xl bg-slate-100 p-6 italic text-slate-700">
-                        <span class="absolute top-2 left-2 text-4xl text-slate-200 select-none">“</span>
-                        <p class="relative z-10 text-sm leading-relaxed whitespace-pre-line">
-                            {{ viewingRequest.purpose }}
+                    <h2 class="text-xl font-bold text-slate-900">
+                        Request Details
+                    </h2>
+                    <p class="text-sm text-slate-500">
+                        Reference ID: #{{ viewingRequest?.id }}
+                    </p>
+                </div>
+                <button
+                    @click="isDetailsModalOpen = false"
+                    class="rounded-full p-2 text-slate-400 transition hover:bg-slate-100 hover:text-slate-600"
+                >
+                    <X class="h-6 w-6" />
+                </button>
+            </div>
+
+            <div
+                v-if="viewingRequest"
+                class="flex flex-1 flex-col overflow-y-auto md:flex-row"
+            >
+                <div
+                    class="w-full border-r border-slate-100 bg-slate-50/50 p-8 md:w-80"
+                >
+                    <div class="flex flex-col items-center text-center">
+                        <div class="relative mb-4">
+                            <img
+                                v-if="viewingRequest.user.profile_photo"
+                                :src="`/storage/${viewingRequest.user.profile_photo}`"
+                                class="h-32 w-32 rounded-2xl border-4 border-white object-cover shadow-md"
+                            />
+                            <div
+                                v-else
+                                class="flex h-32 w-32 items-center justify-center rounded-2xl border-4 border-white bg-gradient-to-br from-emerald-500 to-teal-600 text-3xl font-bold text-white shadow-md"
+                            >
+                                {{ getInitials(viewingRequest.user.name) }}
+                            </div>
+
+                            <span
+                                :class="[
+                                    'absolute -right-2 -bottom-2 rounded-lg px-2 py-1 text-[10px] font-bold tracking-wider uppercase shadow-sm',
+                                    viewingRequest.user.usertype === 'admin'
+                                        ? 'bg-purple-600 text-white'
+                                        : 'bg-blue-600 text-white',
+                                ]"
+                            >
+                                {{ viewingRequest.user.usertype }}
+                            </span>
+                        </div>
+
+                        <h3
+                            class="text-lg leading-tight font-bold text-slate-900"
+                        >
+                            {{ viewingRequest.user.name }}
+                        </h3>
+                        <p class="text-sm text-slate-500">
+                            {{ viewingRequest.user.email }}
                         </p>
                     </div>
+
+                    <div class="mt-8 space-y-5">
+                        <div class="flex flex-col">
+                            <span
+                                class="text-[11px] font-bold tracking-widest text-slate-400 uppercase"
+                                >Contact</span
+                            >
+                            <span class="text-sm font-medium text-slate-700">{{
+                                viewingRequest.user.contact_number || 'None'
+                            }}</span>
+                        </div>
+                        <div class="flex flex-col">
+                            <span
+                                class="text-[11px] font-bold tracking-widest text-slate-400 uppercase"
+                                >Age / Birthdate</span
+                            >
+                            <span class="text-sm font-medium text-slate-700">
+                                {{
+                                    computeAge(viewingRequest.user.birthdate)
+                                }}
+                                yrs old ({{
+                                    viewingRequest.user.birthdate || 'N/A'
+                                }})
+                            </span>
+                        </div>
+                        <div class="flex flex-col">
+                            <span
+                                class="text-[11px] font-bold tracking-widest text-slate-400 uppercase"
+                                >Address</span
+                            >
+                            <span
+                                class="text-sm leading-relaxed font-medium text-slate-700"
+                                >{{
+                                    viewingRequest.user.address ||
+                                    'No address provided'
+                                }}</span
+                            >
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex-1 p-8">
+                    <div
+                        :class="[
+                            'mb-8 flex items-center justify-between rounded-xl border-l-4 px-6 py-4',
+                            viewingRequest.status === 'pending'
+                                ? 'border-yellow-400 bg-yellow-50 text-yellow-800'
+                                : viewingRequest.status === 'approved'
+                                  ? 'border-emerald-400 bg-emerald-50 text-emerald-800'
+                                  : 'border-red-400 bg-red-50 text-red-800',
+                        ]"
+                    >
+                        <div>
+                            <p
+                                class="text-[11px] font-bold tracking-widest uppercase opacity-70"
+                            >
+                                Current Status
+                            </p>
+                            <p class="text-lg font-bold capitalize">
+                                {{ viewingRequest.status }}
+                            </p>
+                        </div>
+                        <div class="text-right">
+                            <p
+                                class="text-[11px] font-bold tracking-widest uppercase opacity-70"
+                            >
+                                Requested Date
+                            </p>
+                            <p class="font-semibold">
+                                {{ formatDate(viewingRequest.created_at) }}
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 gap-6 xl:grid-cols-2">
+                        <div>
+                            <h4
+                                class="mb-3 flex items-center gap-2 text-sm font-bold tracking-widest text-slate-400 uppercase"
+                            >
+                                <FileText class="h-4 w-4" /> Target Ordinance
+                            </h4>
+                            <div
+                                class="rounded-xl border border-slate-200 bg-white p-5 transition hover:border-emerald-200 hover:bg-emerald-50/30"
+                            >
+                                <p
+                                    class="mb-1 text-xs font-bold text-emerald-600 uppercase"
+                                >
+                                    {{
+                                        viewingRequest.ordinance
+                                            .ordinance_number
+                                    }}
+                                </p>
+                                <h5
+                                    class="text-base leading-snug font-bold text-slate-800"
+                                >
+                                    {{
+                                        viewingRequest.ordinance
+                                            .title_ordinances
+                                    }}
+                                </h5>
+                            </div>
+
+                            <h4
+                                class="mt-6 mb-3 flex items-center gap-2 text-sm font-bold tracking-widest text-slate-400 uppercase"
+                            >
+                                <MessageSquare class="h-4 w-4" /> Reason
+                            </h4>
+                            <div
+                                class="relative rounded-xl bg-slate-100 p-5 text-slate-700 italic"
+                            >
+                                <p
+                                    class="text-sm leading-relaxed whitespace-pre-line"
+                                >
+                                    {{ viewingRequest.purpose }}
+                                </p>
+                            </div>
+                        </div>
+
+                        <div>
+                            <h4
+                                class="mb-3 flex items-center gap-2 text-sm font-bold tracking-widest text-slate-400 uppercase"
+                            >
+                                <IdCard class="h-4 w-4" /> Submitted Valid ID
+                            </h4>
+                            <div
+                                class="rounded-xl border border-slate-200 bg-slate-50 p-4"
+                            >
+                                <p
+                                    class="mb-3 text-sm font-semibold text-slate-700"
+                                >
+                                    ID Type:
+                                    <span class="font-bold text-emerald-600">{{
+                                        viewingRequest.valid_id_type
+                                    }}</span>
+                                </p>
+
+                                <div
+                                    v-if="
+                                        viewingRequest.valid_id_url &&
+                                        isImage(viewingRequest.valid_id_url)
+                                    "
+                                    class="group relative cursor-pointer overflow-hidden rounded-lg border border-slate-300 bg-white shadow-sm"
+                                    @click="isIdModalOpen = true"
+                                >
+                                    <img
+                                        :src="viewingRequest.valid_id_url"
+                                        class="h-40 w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                                    />
+                                    <div
+                                        class="absolute inset-0 flex items-center justify-center bg-slate-900/40 opacity-0 transition-opacity group-hover:opacity-100"
+                                    >
+                                        <div
+                                            class="flex items-center gap-2 rounded-full bg-white px-4 py-2 text-xs font-bold text-slate-900 shadow-lg"
+                                        >
+                                            <Maximize2 class="h-3 w-3" /> Click
+                                            to view full
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div
+                                    v-else-if="viewingRequest.valid_id_url"
+                                    class="flex h-40 flex-col items-center justify-center rounded-lg border border-dashed border-slate-300 bg-white p-6 text-center text-sm text-slate-600"
+                                >
+                                    <FileText
+                                        class="mb-2 h-8 w-8 text-slate-300"
+                                    />
+                                    <span
+                                        >PDF file submitted. Preview not
+                                        available.</span
+                                    >
+                                </div>
+
+                                <div
+                                    v-else
+                                    class="flex h-40 items-center justify-center rounded-lg border border-dashed border-slate-300 bg-white p-6 text-center text-sm text-slate-400"
+                                >
+                                    No valid ID uploaded.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <div class="flex items-center justify-end gap-3 border-t border-slate-100 bg-slate-50 px-8 py-5">
-            <button
-                @click="isDetailsModalOpen = false"
-                class="rounded-lg px-6 py-2.5 text-sm font-bold text-slate-600 transition hover:bg-slate-200"
+            <div
+                class="flex items-center justify-end gap-3 border-t border-slate-100 bg-slate-50 px-8 py-5"
             >
-                Close
-            </button>
-            
-            <template v-if="viewingRequest?.status === 'pending'">
                 <button
-                    @click="openRejectModal(viewingRequest); isDetailsModalOpen = false;"
-                    class="rounded-lg bg-red-50 px-6 py-2.5 text-sm font-bold text-red-600 transition hover:bg-red-100"
+                    @click="isDetailsModalOpen = false"
+                    class="rounded-lg px-6 py-2.5 text-sm font-bold text-slate-600 transition hover:bg-slate-200"
                 >
-                    Deny Access
+                    Close
                 </button>
-                <button
-                    @click="openApproveModal(viewingRequest); isDetailsModalOpen = false;"
-                    class="flex items-center gap-2 rounded-lg bg-emerald-600 px-6 py-2.5 text-sm font-bold text-white shadow-lg shadow-emerald-200 transition hover:bg-emerald-700 active:scale-95"
-                >
-                    <CheckCircle class="h-4 w-4" />
-                    Approve Request
-                </button>
-            </template>
+                <template v-if="viewingRequest?.status === 'pending'">
+                    <button
+                        @click="
+                            openRejectModal(viewingRequest);
+                            isDetailsModalOpen = false;
+                        "
+                        class="rounded-lg bg-red-50 px-6 py-2.5 text-sm font-bold text-red-600 transition hover:bg-red-100"
+                    >
+                        Deny Access
+                    </button>
+                    <button
+                        @click="
+                            openApproveModal(viewingRequest);
+                            isDetailsModalOpen = false;
+                        "
+                        class="flex items-center gap-2 rounded-lg bg-emerald-600 px-6 py-2.5 text-sm font-bold text-white shadow-lg shadow-emerald-200 transition hover:bg-emerald-700 active:scale-95"
+                    >
+                        <CheckCircle class="h-4 w-4" /> Approve Request
+                    </button>
+                </template>
+            </div>
         </div>
     </div>
-</div>
+
+    <div
+        v-if="isIdModalOpen"
+        @click.self="isIdModalOpen = false"
+        class="fixed inset-0 z-[9999] flex items-center justify-center bg-slate-900/90 p-4 backdrop-blur-sm"
+    >
+        <div class="relative max-h-[90vh] max-w-[90vw]">
+            <button
+                @click="isIdModalOpen = false"
+                class="absolute -top-12 -right-4 rounded-full p-2 text-white hover:bg-white/10"
+            >
+                <X class="h-8 w-8" />
+            </button>
+            <img
+                :src="viewingRequest?.valid_id_url"
+                alt="Full ID Preview"
+                class="h-auto max-h-[80vh] w-auto rounded-xl shadow-2xl ring-4 ring-white/10"
+            />
+            <div class="mt-4 text-center">
+                <p
+                    class="text-lg font-bold tracking-widest text-white uppercase"
+                >
+                    {{ viewingRequest?.valid_id_type }}
+                </p>
+            </div>
+        </div>
+    </div>
 </template>

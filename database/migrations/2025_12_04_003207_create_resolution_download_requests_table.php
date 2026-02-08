@@ -19,6 +19,10 @@ return new class extends Migration
             $table->string('rejection_reason')->nullable();
             $table->enum('status', ['pending', 'approved', 'rejected'])->default('pending');
             $table->boolean('is_downloaded')->default(false);
+
+            // ✅ Valid ID fields
+            $table->string('valid_id_type')->nullable();   // e.g. Passport, Driver’s License
+            $table->string('valid_id_path')->nullable();   // stored file path
             $table->timestamps();
         });
     }

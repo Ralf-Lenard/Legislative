@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Official;
 use App\Models\Committee;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
@@ -18,6 +19,14 @@ class OfficialController extends Controller
 
     public function indexUser()
     {
+
+        if (Auth::check() && Auth::user()->status === 'banned' && Auth::user()->usertype === 'user') {
+            Auth::logout();
+            return redirect('/login')->withErrors([
+                'email' => 'Your account has been banned.'
+            ]);
+        }
+
         $officials = Official::with([
             'committees' => function ($q) {
                 $q->withPivot('role');

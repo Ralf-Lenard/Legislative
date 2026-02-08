@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\LegislativeSession;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Storage;
@@ -13,6 +14,14 @@ class SessionController extends Controller
 
     public function indexUser(Request $request)
     {
+
+        if (Auth::check() && Auth::user()->status === 'banned' && Auth::user()->usertype === 'user') {
+            Auth::logout();
+            return redirect('/login')->withErrors([
+                'email' => 'Your account has been banned.'
+            ]);
+        }
+
         $query = LegislativeSession::query();
 
         // ✅ Search filter

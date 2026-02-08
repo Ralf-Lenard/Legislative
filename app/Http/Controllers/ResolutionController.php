@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\Rule;
 
 class ResolutionController extends Controller
 {
@@ -17,6 +18,14 @@ class ResolutionController extends Controller
     // index user
     public function indexUser(Request $request)
     {
+
+        if (Auth::check() && Auth::user()->status === 'banned' && Auth::user()->usertype === 'user') {
+            Auth::logout();
+            return redirect('/login')->withErrors([
+                'email' => 'Your account has been banned.'
+            ]);
+        }
+        
         $query = Resolution::query();
 
         // 🔍 Search filter
@@ -324,18 +333,45 @@ class ResolutionController extends Controller
 
     public function submitResolutionRequest(Request $request, $id)
     {
+        $validIdTypes = [
+            'PhilSys National ID',
+            'Passport',
+            'Driver’s License',
+            'UMID',
+            'Voter’s ID',
+            'Postal ID',
+            'PRC ID',
+            'Senior Citizen ID',
+            'PWD ID',
+            'SSS ID',
+            'GSIS ID',
+            'TIN ID',
+            'PhilHealth ID',
+        ];
+
         $request->validate([
             'purpose' => 'required|string|max:500',
+            'valid_id_type' => ['required', Rule::in($validIdTypes)],
+            'valid_id' => 'required|file|mimes:jpg,jpeg,png,pdf|max:20480', // 20MB
         ]);
+        
     
         // Fetch the resolution first
         $resolution = Resolution::findOrFail($id);
+
+        // 📁 Store Valid ID
+        $validIdPath = $request->file('valid_id')
+            ->store('valid_ids/ordinance_requests', 'public');
     
         // Create the download request
         $downloadRequest = ResolutionDownloadRequest::create([
             'user_id' => auth()->id(),
             'resolution_id' => $id,
-            'purpose' => $request->purpose,
+            'purpose' => $request->purpose,  
+            // ✅ Save ID data
+            'valid_id_type' => $request->valid_id_type,
+            'valid_id_path' => $validIdPath,
+
             'status' => 'pending',
         ]);
     
@@ -349,7 +385,7 @@ class ResolutionController extends Controller
                 'Request for Resolution No. ' . $resolution->resolutions_number . ' submitted successfully.'
             );
     }
-    
+
 
     /**
      * Approve resolution download request (ADMIN)

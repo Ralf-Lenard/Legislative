@@ -22,7 +22,7 @@
 
                     <h1 class="text-4xl sm:text-5xl md:text-6xl leading-tight font-black text-gray-900">
                         Sangguniang Bayan
-                        <span class="text-green-800">Concepcion</span>
+                        <span class="text-green-800">Concepcion, Tarlac</span>
                     </h1>
 
                     <p class="text-lg md:text-xl font-medium text-gray-600">
@@ -552,7 +552,7 @@ const contactDetails = [
     {
         icon: '📍',
         title: 'Address',
-        detail: 'Municipal Hall, Concepcion, Tarlac',
+        detail: 'Legislative, Concepcion, Tarlac',
     },
     { icon: '📞', title: 'Phone', detail: '(045) 923-4567' },
     {

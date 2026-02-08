@@ -108,7 +108,7 @@
                     </Button>
 
                     <div v-if="canRegister" class="text-center text-xs md:text-sm text-gray-600 mt-4 md:mt-6">
-                        Need access to the portal?
+                        Need access?
                         <TextLink :href="register()" class="text-green-900 font-black hover:underline ml-1">Create Account</TextLink>
                     </div>
                 </Form>

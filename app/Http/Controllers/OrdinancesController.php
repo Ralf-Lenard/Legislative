@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
+use Illuminate\Validation\Rule;
 
 class OrdinancesController extends Controller
 {
@@ -20,6 +21,14 @@ class OrdinancesController extends Controller
 
     public function indexUser(Request $request)
     {
+
+        if (Auth::check() && Auth::user()->status === 'banned' && Auth::user()->usertype === 'user') {
+            Auth::logout();
+            return redirect('/login')->withErrors([
+                'email' => 'Your account has been banned.'
+            ]);
+        }
+
         $query = Ordinance::query();
 
         if ($request->filled('search')) {
@@ -367,24 +376,80 @@ class OrdinancesController extends Controller
     }
 
 
+    // public function submitRequest(Request $request, $id)
+    // {
+    //     $request->validate([
+    //         'purpose' => 'required|string|max:500',
+    //     ]);
+
+    //     $ordinance = Ordinance::findOrFail($id);
+
+    //     $downloadRequest = OrdinanceDownloadRequest::create([
+    //         'user_id' => auth()->id(),
+    //         'ordinance_id' => $id,
+    //         'purpose' => $request->purpose,
+    //         'status' => 'pending',
+    //     ]);
+
+    //     // 🔔 Notify admins & super admins
+    //     event(new OrdinanceDownloadRequestSubmitted($downloadRequest));
+
+    //     return redirect()
+    //         ->back()
+    //         ->with(
+    //             'success',
+    //             'Request for Ordinance No. ' . $ordinance->ordinance_number . ' submitted successfully.'
+    //         );
+    // }\
+
+
     public function submitRequest(Request $request, $id)
     {
+        $validIdTypes = [
+            'PhilSys National ID',
+            'Passport',
+            'Driver’s License',
+            'UMID',
+            'Voter’s ID',
+            'Postal ID',
+            'PRC ID',
+            'Senior Citizen ID',
+            'PWD ID',
+            'SSS ID',
+            'GSIS ID',
+            'TIN ID',
+            'PhilHealth ID',
+        ];
+
         $request->validate([
             'purpose' => 'required|string|max:500',
+
+            // ✅ Valid ID validation
+            'valid_id_type' => ['required', Rule::in($validIdTypes)],
+            'valid_id' => 'required|file|mimes:jpg,jpeg,png,pdf|max:20480', // 2MB max
         ]);
-    
+
         $ordinance = Ordinance::findOrFail($id);
-    
+
+        // 📁 Store Valid ID
+        $validIdPath = $request->file('valid_id')
+            ->store('valid_ids/ordinance_requests', 'public');
+
         $downloadRequest = OrdinanceDownloadRequest::create([
             'user_id' => auth()->id(),
             'ordinance_id' => $id,
             'purpose' => $request->purpose,
+
+            // ✅ Save ID data
+            'valid_id_type' => $request->valid_id_type,
+            'valid_id_path' => $validIdPath,
+
             'status' => 'pending',
         ]);
-    
+
         // 🔔 Notify admins & super admins
         event(new OrdinanceDownloadRequestSubmitted($downloadRequest));
-    
+
         return redirect()
             ->back()
             ->with(
@@ -392,7 +457,7 @@ class OrdinancesController extends Controller
                 'Request for Ordinance No. ' . $ordinance->ordinance_number . ' submitted successfully.'
             );
     }
-    
+
 
 
     public function approveDownloadRequest($id)

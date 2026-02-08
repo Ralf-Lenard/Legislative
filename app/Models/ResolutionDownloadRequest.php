@@ -15,8 +15,18 @@ class ResolutionDownloadRequest extends Model
         'purpose',
         'status',
         'is_downloaded',
-        'rejection_reason'
+        'rejection_reason',
+        'valid_id_type',
+        'valid_id_path',
     ];
+
+    protected $appends = ['valid_id_url'];
+
+    // ✅ This creates the URL for the browser
+    public function getValidIdUrlAttribute()
+    {
+        return $this->valid_id_path ? asset('storage/' . $this->valid_id_path) : null;
+    }
 
     // Relationship: Each request belongs to a user
     public function user()

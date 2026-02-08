@@ -14,69 +14,72 @@ use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Laravel\Fortify\Features;
 
-// Route::get('/', function () {
-//     return Inertia::render('Welcome', [
-//         'canRegister' => Features::enabled(Features::registration()),
-//     ]);
-// })->name('home');
-
-// Route::get('/', function () {
-//     return Inertia::render('Welcome', [
-//         'canRegister' => Features::enabled(Features::registration()),
-//     ]);
-// })->name('home');
-
-Route::get('/', [HomeController::class, 'welcome'])->name('home');
-Route::get('/dashboard', [HomeController::class, 'indexAdmin'])->middleware(['auth', 'admin_or_super'])->name('dashboard');
-
-
+// welcome page
 Route::get('/terms-of-service', function () {
     return Inertia::render('TermsOfService');
 });
-
 Route::get('/privacy-policy', function () {
     return Inertia::render('PrivacyPolicy');
 });
 
-// Route::get('/dashboard', function () {
-//         return Inertia::render('Dashboard');
-//     })->middleware(['auth', 'verified'])->name('admin.dashboard');
 
+Route::get('/dashboard', [HomeController::class, 'indexAdmin'])->middleware(['auth', 'admin_or_super'])->name('dashboard');
 
+Route::get('/', [HomeController::class, 'welcome'])->name('home');
+
+// organizational chart
 Route::get('/sanguniang-bayan-members', [OfficialController::class, 'indexUser']);
 
 // ordinances
-Route::get('/ordinances', [OrdinancesController::class, 'indexUser'])->name('ordinances.indexUser');
-Route::middleware('auth')->group(function () {
+Route::get('/ordinances', [OrdinancesController::class, 'indexUser'])
+    ->name('ordinances.indexUser');
 
-    Route::post('/ordinances/{id}/request-access', [OrdinancesController::class, 'submitRequest'])->name('ordinances.request-access');
-    // Protected download
-    Route::get('/ordinance/download/{id}', [OrdinancesController::class, 'download'])->name('ordinance.download');
-});
-
-// resolution
-Route::get('/resolutions', [ResolutionController::class, 'indexUser'])->name('resolutions.indexUser');
-
-Route::middleware('auth')->group(function () {
-
-    Route::post('/resolutions/{id}/request-access', [ResolutionController::class, 'submitResolutionRequest'])->name('resolutions.request-access');
-    // Protected download
-    Route::get('/resolution/download/{id}', [ResolutionController::class, 'download'])->name('resolution.download');
-});
+// resolutions
+Route::get('/resolutions', [ResolutionController::class, 'indexUser'])
+    ->name('resolutions.indexUser');
 
 // sessions
-Route::get('/sessions', [SessionController::class, 'indexUser'])->name('sessions.indexUser');
-Route::get('/session-details/{id}', [SessionController::class, 'showUser'])->name('sessions.showUser');
+Route::get('/sessions', [SessionController::class, 'indexUser'])
+    ->name('sessions.indexUser');
 
+Route::get('/session-details/{id}', [SessionController::class, 'showUser'])
+    ->name('sessions.showUser');
+
+// announcements
 Route::get('/announcement-&-news', function () {
     return Inertia::render('User/Announcement', [
         'canRegister' => Route::has('register'),
     ]);
 });
 
-// profile 
-// profile
-Route::middleware('auth')->group(function () {
+
+// =======================
+// PROTECTED ROUTES
+// LOGIN + NOT BANNED
+// =======================
+Route::middleware(['auth', 'check.banned'])->group(function () {
+
+    // ordinances
+    Route::post('/ordinances/{id}/request-access',
+        [OrdinancesController::class, 'submitRequest']
+    )->name('ordinances.request-access');
+
+    Route::get('/ordinance/download/{id}',
+        [OrdinancesController::class, 'download']
+    )->name('ordinance.download');
+
+
+    // resolutions
+    Route::post('/resolutions/{id}/request-access',
+        [ResolutionController::class, 'submitResolutionRequest']
+    )->name('resolutions.request-access');
+
+    Route::get('/resolution/download/{id}',
+        [ResolutionController::class, 'download']
+    )->name('resolution.download');
+
+
+    // profile
     Route::get('/profile', [ProfileController::class, 'edit'])
         ->name('user.profile.edit');
 
@@ -89,7 +92,7 @@ Route::middleware('auth')->group(function () {
 
 
 // ADMIN
-Route::middleware(['auth', 'admin_or_super'])->group(function () {
+Route::middleware(['auth', 'admin_or_super', 'check.banned'])->group(function () {
 
     // ordinances
     Route::get('/admin-ordinances', [OrdinancesController::class, 'index'])->name('ordinances.index');

@@ -116,7 +116,7 @@ const promoteToAdmin = (user: User) => {
         `Are you sure you want to grant Administrative privileges to ${user.name}?`,
         () =>
             router.post(
-                `/super-admin-users/promote/${user.id}`,
+                `/super-admin/promote/${user.id}`,
                 {},
                 { preserveScroll: true },
             ),
@@ -130,7 +130,7 @@ const promoteToUser = (user: User) => {
         `Are you sure you want to demote ${user.name} to a regular User? They will lose admin access.`,
         () =>
             router.post(
-                `/super-admin-users/demote/${user.id}`,
+                `/super-admin/demote/${user.id}`,
                 {},
                 { preserveScroll: true },
             ), // Added missing slash from your original code

@@ -320,48 +320,104 @@
     </transition>
 
     <transition name="modal">
-      <div
-        v-if="showRequestModal"
-        class="fixed inset-0 flex items-center justify-center bg-black/40 backdrop-blur-sm z-50"
-        @click.self="closeRequestModal"
+  <div
+    v-if="showRequestModal"
+    class="fixed inset-0 flex items-center justify-center bg-black/40 backdrop-blur-sm z-50"
+    @click.self="closeRequestModal"
+  >
+    <div
+      class="bg-white w-full max-w-lg p-8 rounded-xl shadow-xl relative border border-gray-200"
+    >
+      <button
+        class="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
+        @click="closeRequestModal"
       >
-        <div
-          class="bg-white w-full max-w-lg p-8 rounded-xl shadow-xl relative border border-gray-200"
-        >
-          <button
-            class="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
-            @click="closeRequestModal"
-          >
-            ✕
-          </button>
+        ✕
+      </button>
 
-          <h2 class="text-2xl font-bold text-green-900">Request Access</h2>
+      <h2 class="text-2xl font-bold text-green-900">Request Access</h2>
 
-          <p class="mt-2 text-gray-700">
-            State your purpose for requesting this ordinance.
-          </p>
+      <p class="mt-2 text-gray-700">
+        State your purpose and upload a valid government-issued ID.
+      </p>
 
-          <form @submit.prevent="submitRequestForm" class="mt-6 space-y-4">
-            <label class="font-semibold">Purpose of Request:</label>
+      <form @submit.prevent="submitRequestForm" class="mt-6 space-y-5">
+        <!-- PURPOSE -->
+        <div>
+          <label class="font-semibold block mb-1">
+            Purpose of Request
+          </label>
 
-            <textarea
-              v-model="requestForm.purpose"
-              maxlength="500"
-              required
-              class="w-full h-32 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-800"
-              placeholder="Explain why you need this ordinance..."
-            ></textarea>
-
-            <button
-              type="submit"
-              class="w-full bg-green-800 text-white py-3 rounded-lg font-bold hover:bg-green-900 transition"
-            >
-              Submit Request
-            </button>
-          </form>
+          <textarea
+            v-model="requestForm.purpose"
+            maxlength="500"
+            required
+            class="w-full h-32 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-800"
+            placeholder="Explain why you need this ordinance..."
+          ></textarea>
         </div>
-      </div>
-    </transition>
+
+        <!-- VALID ID TYPE -->
+        <div>
+          <label class="font-semibold block mb-1">
+            Valid ID Type
+          </label>
+
+          <select
+            v-model="requestForm.valid_id_type"
+            required
+            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-800"
+          >
+            <option value="" disabled>Select a valid ID</option>
+            <option>PhilSys National ID</option>
+            <option>Passport</option>
+            <option>Driver’s License</option>
+            <option>UMID</option>
+            <option>Voter’s ID</option>
+            <option>Postal ID</option>
+            <option>PRC ID</option>
+            <option>Senior Citizen ID</option>
+            <option>PWD ID</option>
+            <option>SSS ID</option>
+            <option>GSIS ID</option>
+            <option>TIN ID</option>
+            <option>PhilHealth ID</option>
+          </select>
+        </div>
+
+        <!-- VALID ID FILE -->
+        <div>
+          <label class="font-semibold block mb-1">
+            Upload Valid ID
+          </label>
+
+          <input
+            type="file"
+            @change="handleValidIdUpload"
+            accept=".jpg,.jpeg,.png,.pdf"
+            required
+            class="w-full px-3 py-2 border border-gray-300 rounded-lg file:mr-4 file:py-2 file:px-4
+                   file:rounded-lg file:border-0 file:bg-green-800 file:text-white
+                   hover:file:bg-green-900 transition"
+          />
+
+          <p class="text-sm text-gray-500 mt-1">
+            Accepted formats: JPG, PNG, PDF (Max 20MB)
+          </p>
+        </div>
+
+        <!-- SUBMIT -->
+        <button
+          type="submit"
+          class="w-full bg-green-800 text-white py-3 rounded-lg font-bold hover:bg-green-900 transition"
+        >
+          Submit Request
+        </button>
+      </form>
+    </div>
+  </div>
+</transition>
+
 
     <Footer />
   </div>
@@ -434,36 +490,55 @@ const closeRequestModal = () => {
     showRequestModal.value = false; 
 };
 
-const requestForm = reactive({ purpose: "" });
+const requestForm = reactive({
+    purpose: '',
+    valid_id_type: '',
+    valid_id: null,
+})
 
-// -------------------------
-// SUBMIT REQUEST FORM
-// -------------------------
 const submitRequestForm = async () => {
-    if (!selectedOrdinance.value) return;
+    if (!selectedOrdinance.value) return
 
-    const currentOrdinanceId = selectedOrdinance.value.id;
+    const currentOrdinanceId = selectedOrdinance.value.id
+
+    const formData = new FormData()
+    formData.append('purpose', requestForm.purpose)
+    formData.append('valid_id_type', requestForm.valid_id_type)
+    formData.append('valid_id', requestForm.valid_id)
 
     router.post(
         `/ordinances/${currentOrdinanceId}/request-access`,
-        { purpose: requestForm.purpose },
+        formData,
         {
-            onFinish: () => {
-                requestForm.purpose = '';
-                showRequestModal.value = false;
+            forceFormData: true, // ✅ IMPORTANT for file upload
+            preserveScroll: true,
 
-                // Optimistically update the status in the UI
+            onFinish: () => {
+                // Reset form
+                requestForm.purpose = ''
+                requestForm.valid_id_type = ''
+                requestForm.valid_id = null
+
+                showRequestModal.value = false
+
+                // Optimistic UI update
                 const ordinanceInList = props.ordinances.data.find(
                     (o) => o.id === currentOrdinanceId
-                );
+                )
+
                 if (ordinanceInList) {
-                    ordinanceInList.status = 'pending';
+                    ordinanceInList.status = 'pending'
                 }
             },
-            preserveScroll: true,
         }
-    );
-};
+    )
+}
+
+
+const handleValidIdUpload = (event) => {
+    requestForm.valid_id = event.target.files[0]
+}
+
 
 // -------------------------
 // DATE FORMAT UTILITY

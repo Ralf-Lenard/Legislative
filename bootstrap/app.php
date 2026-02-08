@@ -2,6 +2,7 @@
 
 use App\Http\Middleware\AdminMiddleware;
 use App\Http\Middleware\AdminOrSuperAdmin;
+use App\Http\Middleware\CheckUserStatus;
 use App\Http\Middleware\HandleAppearance;
 use App\Http\Middleware\HandleInertiaFlash;
 use App\Http\Middleware\HandleInertiaRequests;
@@ -34,6 +35,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'admin' => AdminMiddleware::class,
             'super_admin' => SuperAdmin::class,
             'admin_or_super' => AdminOrSuperAdmin::class,
+            'check.banned' => CheckUserStatus::class,
 
         ]);
     })

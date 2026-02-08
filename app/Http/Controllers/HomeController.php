@@ -163,6 +163,14 @@ class HomeController extends Controller
 
     public function welcome()
     {
+
+         // 🔥 Auto-logout banned users
+        if (Auth::check() && Auth::user()->status === 'banned' && Auth::user()->usertype === 'user') {
+            Auth::logout();
+            return redirect('/login')->withErrors([
+                'email' => 'Your account has been banned.'
+            ]);
+        }
         // Fetch Vice Mayor
         $viceMayor = Official::where('position', 'LIKE', '%Vice Mayor%')->first();
 
@@ -266,6 +274,11 @@ class HomeController extends Controller
             'about_us' => 'nullable|string',
             'mission' => 'nullable|string',
             'vision' => 'nullable|string',
+    
+            // delete flags
+            'delete_welcome_image' => 'nullable|boolean',
+            'delete_about_us_image' => 'nullable|boolean',
+            'delete_gallery_images' => 'nullable|array',
         ]);
     
         $data = $request->only([
@@ -275,7 +288,24 @@ class HomeController extends Controller
             'vision',
         ]);
     
-        // Replace single images if uploaded (without vice_mayor_image)
+        /* =============================
+         | DELETE SINGLE IMAGES
+         ============================= */
+    
+        if ($request->boolean('delete_welcome_image') && $content->welcome_image) {
+            Storage::disk('public')->delete($content->welcome_image);
+            $data['welcome_image'] = null;
+        }
+    
+        if ($request->boolean('delete_about_us_image') && $content->about_us_image) {
+            Storage::disk('public')->delete($content->about_us_image);
+            $data['about_us_image'] = null;
+        }
+    
+        /* =============================
+         | REPLACE SINGLE IMAGES
+         ============================= */
+    
         foreach (['welcome_image', 'about_us_image'] as $image) {
             if ($request->hasFile($image)) {
                 if ($content->$image) {
@@ -285,15 +315,36 @@ class HomeController extends Controller
             }
         }
     
-        // Append gallery images
-        if ($request->hasFile('gallery_images')) {
-            $existingGallery = $content->gallery_images ?? [];
-            $newGallery = [];
-            foreach ($request->file('gallery_images') as $image) {
-                $newGallery[] = $image->store('page/gallery', 'public');
+        /* =============================
+         | DELETE SELECTED GALLERY IMAGES
+         ============================= */
+    
+        // Inside your Controller Update method
+        $gallery = $content->gallery_images ?? [];
+
+        if ($request->filled('delete_gallery_images')) {
+            foreach ($request->delete_gallery_images as $img) {
+                // 1. Delete the physical file
+                Storage::disk('public')->delete($img);
+                
+                // 2. Remove from the local array variable
+                $gallery = array_values(array_filter($gallery, fn($item) => $item !== $img));
             }
-            $data['gallery_images'] = array_merge($existingGallery, $newGallery);
         }
+
+        // 3. Update the data array before saving
+        $data['gallery_images'] = $gallery;
+        /* =============================
+         | APPEND NEW GALLERY IMAGES
+         ============================= */
+    
+        if ($request->hasFile('gallery_images')) {
+            foreach ($request->file('gallery_images') as $image) {
+                $gallery[] = $image->store('page/gallery', 'public');
+            }
+        }
+    
+        $data['gallery_images'] = $gallery;
     
         $content->update($data);
     
@@ -301,6 +352,7 @@ class HomeController extends Controller
             ->route('admin.IndexAdminPageContent')
             ->with('success', 'Page content updated successfully.');
     }
+    
     
     public function IndexAdminPageContent()
     {
