@@ -5,22 +5,33 @@
 
     <FlashMessage />
 
-    <section
-      class="pt-28 pb-20 bg-gradient-to-br from-green-900 to-green-700 relative overflow-hidden"
-    >
-      <div
-        class="absolute top-0 right-0 w-96 h-96 bg-yellow-300/10 rounded-full blur-3xl"
-      ></div>
+    <section class="pt-28 pb-20 bg-gradient-to-br from-green-900 to-green-700 relative overflow-hidden">
+      <div class="absolute top-0 right-0 w-96 h-96 bg-yellow-300/10 rounded-full blur-3xl z-0"></div>
 
-      <div
-        class="max-w-7xl mx-auto px-4 flex flex-col md:flex-row items-center gap-10"
-      >
-        <div class="flex-1 text-white relative z-10">
-          <span
-            class="text-xs tracking-widest uppercase bg-yellow-400 text-green-900 px-4 py-1 rounded-full font-bold"
+      <div class="max-w-7xl mx-auto px-4 flex flex-col md:flex-row items-center gap-10 relative z-10">
+        <div class="flex-1 text-white">
+          
+          <Link 
+            href="/citizens-charter" 
+            class="relative z-20 inline-flex items-center text-yellow-400 hover:text-white mb-8 transition-colors font-bold text-xs uppercase tracking-[0.2em] cursor-pointer"
           >
-            Official Website
-          </span>
+            <svg 
+              xmlns="http://www.w3.org/2000/svg" 
+              class="h-5 w-5 mr-2" 
+              fill="none" 
+              viewBox="0 0 24 24" 
+              stroke="currentColor"
+            >
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15 19l-7-7 7-7" />
+            </svg>
+            Back to Citizen Charter
+          </Link>
+
+          <div class="block">
+            <span class="text-xs tracking-widest uppercase bg-yellow-400 text-green-900 px-4 py-1 rounded-full font-bold">
+              Official Website
+            </span>
+          </div>
 
           <h1 class="text-5xl md:text-6xl font-extrabold mt-4 leading-tight">
             Municipal Ordinances
@@ -30,22 +41,8 @@
             Crafting laws for a better future.
           </p>
         </div>
-
-          <div class="hidden lg:block">
-           <div class="relative w-full h-96 rounded-2xl overflow-hidden shadow-2xl">
-             <picture>
-               <source media="(min-width:1024px)" srcset="https://upload.wikimedia.org/wikipedia/commons/7/78/Concepcion_Municipal_Hall%2C_Tarlac%2C_Oct_2023.jpg">
-               <source media="(min-width:640px)" srcset="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f4/Concepcion_Tarlac_Municipal_Hall_plaza_view_%28Timbol%2C_Concepcion%2C_Tarlac%3B_07-23-2023%29.jpg/1024px-Concepcion_Tarlac_Municipal_Hall_plaza_view_%28Timbol%2C_Concepcion%2C_Tarlac%3B_07-23-2023%29.jpg">
-               <img src="https://upload.wikimedia.org/wikipedia/commons/c/c0/Concepcion_Tarlac_Municipal_Hall_%28Timbol%2C_Concepcion%2C_Tarlac%3B_07-23-2023%29.jpg" 
-                 alt="Concepcion Municipal Hall" 
-                 class="w-full h-full object-cover">
-             </picture>
-             <div class="absolute bottom-4 right-4 bg-white/90 backdrop-blur-sm px-4 py-2 rounded-lg text-sm font-semibold">
-               Concepcion, Tarlac
-             </div>
-           </div>
-         </div>
-      </div>
+        
+        </div>
     </section>
 
     <section class="py-14 px-4 bg-gray-50">
@@ -425,7 +422,7 @@
 
 <script setup>
 import { computed, ref, reactive, watch, nextTick, onMounted, onUnmounted } from 'vue';
-import { Head, router, usePage } from '@inertiajs/vue3';
+import { Head, router, usePage, Link } from '@inertiajs/vue3';
 
 import Navbar from '@/components/Home/Navbar.vue';
 import Footer from '@/components/Home/Footer.vue';

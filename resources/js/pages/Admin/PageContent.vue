@@ -20,6 +20,7 @@ const isLoading = ref(false);
 interface PageContent {
     id: number;
     welcome_image: string | null;
+    organizational_chart: string | null;
     about_us_image: string | null;
     vice_mayor_message: string;
     about_us: string;
@@ -36,7 +37,6 @@ const resolveImagePath = (path: string | null) => {
     return `/storage/${path}`;
 };
 
-// Helper to strip the URL and just get the relative path for the DB
 const cleanPath = (url: string) => {
     return url
         .replace(`${window.location.origin}/storage/`, '')
@@ -46,6 +46,7 @@ const cleanPath = (url: string) => {
 const form = ref({
     welcome_image: null as File | null,
     about_us_image: null as File | null,
+    organizational_chart: null as File | null,
     gallery_images: [] as File[],
     vice_mayor_message: props.pageContent?.vice_mayor_message || '',
     about_us: props.pageContent?.about_us || '',
@@ -53,23 +54,28 @@ const form = ref({
     vision: props.pageContent?.vision || '',
     delete_welcome_image: false,
     delete_about_us_image: false,
+    delete_organizational_chart: false,
     delete_gallery_images: [] as string[],
 });
 
 const previews = ref({
     welcome: resolveImagePath(props.pageContent?.welcome_image),
     about: resolveImagePath(props.pageContent?.about_us_image),
+    organizational: resolveImagePath(props.pageContent?.organizational_chart),
 });
 
 const getFilePreview = (file: File) => URL.createObjectURL(file);
 
-const handleFileChange = (e: Event, type: 'welcome' | 'about') => {
+const handleFileChange = (e: Event, type: 'welcome' | 'about' | 'organizational') => {
     const file = (e.target as HTMLInputElement).files?.[0];
     if (file) {
         if (type === 'about') {
             form.value.about_us_image = file;
             form.value.delete_about_us_image = false;
-        } else {
+        } else if (type === 'organizational') {
+            form.value.organizational_chart = file;
+            form.value.delete_organizational_chart = false;
+        } else if (type === 'welcome') {
             form.value.welcome_image = file;
             form.value.delete_welcome_image = false;
         }
@@ -110,16 +116,13 @@ const submit = async () => {
         data.append('welcome_image', form.value.welcome_image);
     if (form.value.about_us_image)
         data.append('about_us_image', form.value.about_us_image);
+    if (form.value.organizational_chart)
+        data.append('organizational_chart', form.value.organizational_chart);
 
     // Delete flags
-    data.append(
-        'delete_welcome_image',
-        form.value.delete_welcome_image ? '1' : '0',
-    );
-    data.append(
-        'delete_about_us_image',
-        form.value.delete_about_us_image ? '1' : '0',
-    );
+    data.append('delete_welcome_image', form.value.delete_welcome_image ? '1' : '0');
+    data.append('delete_about_us_image', form.value.delete_about_us_image ? '1' : '0');
+    data.append('delete_organizational_chart', form.value.delete_organizational_chart ? '1' : '0');
 
     // New Gallery uploads
     form.value.gallery_images.forEach((file) => {
@@ -141,14 +144,11 @@ const submit = async () => {
 
     router.post(url, data, {
         forceFormData: true,
-        // These two settings ensure the page "refreshes" its data
         preserveScroll: false,
         preserveState: false,
         onSuccess: () => {
-            // Manually reset local state just in case
             form.value.delete_gallery_images = [];
             form.value.gallery_images = [];
-            console.log('Content updated and state refreshed.');
         },
         onFinish: () => {
             isLoading.value = false;
@@ -164,17 +164,14 @@ const submit = async () => {
         <main class="relative flex-1 overflow-auto">
             <FlashMessage />
 
-            <div
-                class="sticky top-0 z-20 border-b border-slate-200 bg-white shadow-md"
-            >
+            <div class="sticky top-0 z-20 border-b border-slate-200 bg-white shadow-md">
                 <div class="flex items-center justify-between px-8 py-6">
                     <div>
                         <h1 class="text-3xl font-extrabold text-slate-900">
                             Page Content Management
                         </h1>
                         <p class="mt-1 text-sm text-slate-600">
-                            Update your website's landing page images and text
-                            content.
+                            Update your website's landing page images and text content.
                         </p>
                     </div>
                     <button
@@ -187,70 +184,47 @@ const submit = async () => {
                             v-else
                             class="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent"
                         ></div>
-                        {{
-                            props.pageContent
-                                ? 'Update Changes'
-                                : 'Save Content'
-                        }}
+                        {{ props.pageContent ? 'Update Changes' : 'Save Content' }}
                     </button>
                 </div>
             </div>
 
             <div class="w-full p-8">
                 <form @submit.prevent="submit" class="space-y-8">
-                    <div
-                        class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm"
-                    >
-                        <div
-                            class="flex items-center gap-2 border-b border-slate-100 bg-slate-50/50 px-6 py-4"
-                        >
+                    <div class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+                        <div class="flex items-center gap-2 border-b border-slate-100 bg-slate-50/50 px-6 py-4">
                             <ImageIcon class="h-5 w-5 text-emerald-600" />
-                            <h2 class="font-bold text-slate-800">
-                                Primary Images
-                            </h2>
+                            <h2 class="font-bold text-slate-800">Primary Images</h2>
                         </div>
-                        <div class="grid grid-cols-1 gap-6 p-6 md:grid-cols-2">
+                        <div class="grid grid-cols-1 gap-6 p-6 md:grid-cols-3">
                             <div
-                                v-for="type in ['welcome', 'about'] as const"
+                                v-for="type in ['welcome', 'about', 'organizational'] as const"
                                 :key="type"
                                 class="group"
                             >
-                                <label
-                                    class="mb-3 block text-xs font-black tracking-widest text-slate-400 uppercase"
-                                    >{{ type.replace('_', ' ') }} Image</label
-                                >
-                                <div
-                                    class="relative aspect-video overflow-hidden rounded-xl border-2 border-dashed border-slate-200 bg-slate-50 transition-all group-hover:border-emerald-300"
-                                >
+                                <label class="mb-3 block text-xs font-black tracking-widest text-slate-400 uppercase">
+                                    {{ type.replace('_', ' ') }} Image
+                                </label>
+                                <div class="relative aspect-video overflow-hidden rounded-xl border-2 border-dashed border-slate-200 bg-slate-50 transition-all group-hover:border-emerald-300">
                                     <img
                                         v-if="previews[type]"
                                         :src="previews[type]!"
                                         class="h-full w-full object-cover"
                                     />
-                                    <div
-                                        v-else
-                                        class="flex h-full flex-col items-center justify-center text-slate-400"
-                                    >
+                                    <div v-else class="flex h-full flex-col items-center justify-center text-slate-400">
                                         <UploadCloud class="mb-2 h-8 w-8" />
-                                        <span class="text-xs"
-                                            >No image selected</span
-                                        >
+                                        <span class="text-xs">No image selected</span>
                                     </div>
-                                    <label
-                                        class="absolute inset-0 flex cursor-pointer items-center justify-center bg-black/40 opacity-0 transition-opacity group-hover:opacity-100"
-                                    >
+                                    <label class="absolute inset-0 flex cursor-pointer items-center justify-center bg-black/40 opacity-0 transition-opacity group-hover:opacity-100">
                                         <input
                                             type="file"
                                             class="hidden"
-                                            @change="
-                                                (e) => handleFileChange(e, type)
-                                            "
+                                            @change="(e) => handleFileChange(e, type)"
                                             accept="image/*"
                                         />
-                                        <span
-                                            class="rounded-lg bg-white px-4 py-2 text-sm font-bold text-slate-900 shadow-xl"
-                                            >Change Photo</span
-                                        >
+                                        <span class="rounded-lg bg-white px-4 py-2 text-sm font-bold text-slate-900 shadow-xl">
+                                            Change Photo
+                                        </span>
                                     </label>
                                 </div>
                             </div>
@@ -258,23 +232,14 @@ const submit = async () => {
                     </div>
 
                     <div class="grid grid-cols-1 gap-8 md:grid-cols-2">
-                        <div
-                            class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm"
-                        >
+                        <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
                             <div class="mb-6 flex items-center gap-2">
-                                <span class="h-5 w-5 text-sky-600"
-                                    ><Info
-                                /></span>
-                                <h2 class="font-bold text-slate-800">
-                                    General Information
-                                </h2>
+                                <span class="h-5 w-5 text-sky-600"><Info /></span>
+                                <h2 class="font-bold text-slate-800">General Information</h2>
                             </div>
                             <div class="space-y-4">
                                 <div>
-                                    <label
-                                        class="text-sm font-bold text-slate-700"
-                                        >About Us Content</label
-                                    >
+                                    <label class="text-sm font-bold text-slate-700">About Us Content</label>
                                     <textarea
                                         v-model="form.about_us"
                                         rows="6"
@@ -283,10 +248,7 @@ const submit = async () => {
                                     ></textarea>
                                 </div>
                                 <div>
-                                    <label
-                                        class="text-sm font-bold text-slate-700"
-                                        >Vice Mayor's Message</label
-                                    >
+                                    <label class="text-sm font-bold text-slate-700">Vice Mayor's Message</label>
                                     <textarea
                                         v-model="form.vice_mayor_message"
                                         rows="6"
@@ -297,23 +259,14 @@ const submit = async () => {
                             </div>
                         </div>
 
-                        <div
-                            class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm"
-                        >
+                        <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
                             <div class="mb-6 flex items-center gap-2">
-                                <span class="h-5 w-5 text-indigo-600"
-                                    ><Layout
-                                /></span>
-                                <h2 class="font-bold text-slate-800">
-                                    Mandate & Core Values
-                                </h2>
+                                <span class="h-5 w-5 text-indigo-600"><Layout /></span>
+                                <h2 class="font-bold text-slate-800">Mandate & Core Values</h2>
                             </div>
                             <div class="space-y-4">
                                 <div>
-                                    <label
-                                        class="text-sm font-bold text-slate-700"
-                                        >Our Mission</label
-                                    >
+                                    <label class="text-sm font-bold text-slate-700">Our Mission</label>
                                     <textarea
                                         v-model="form.mission"
                                         rows="6"
@@ -322,10 +275,7 @@ const submit = async () => {
                                     ></textarea>
                                 </div>
                                 <div>
-                                    <label
-                                        class="text-sm font-bold text-slate-700"
-                                        >Our Vision</label
-                                    >
+                                    <label class="text-sm font-bold text-slate-700">Our Vision</label>
                                     <textarea
                                         v-model="form.vision"
                                         rows="6"
@@ -337,47 +287,26 @@ const submit = async () => {
                         </div>
                     </div>
 
-                    <div
-                        class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm"
-                    >
+                    <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
                         <div class="mb-6 flex items-center justify-between">
                             <div class="flex items-center gap-2">
                                 <ImageIcon class="h-5 w-5 text-purple-600" />
-                                <h2 class="font-bold text-slate-800">
-                                    Image Gallery
-                                </h2>
+                                <h2 class="font-bold text-slate-800">Image Gallery</h2>
                             </div>
-                            <label
-                                class="flex cursor-pointer items-center gap-2 rounded-lg bg-slate-100 px-4 py-2 transition-colors hover:bg-slate-200"
-                            >
+                            <label class="flex cursor-pointer items-center gap-2 rounded-lg bg-slate-100 px-4 py-2 transition-colors hover:bg-slate-200">
                                 <Plus class="h-4 w-4" />
-                                <span class="text-sm font-bold"
-                                    >Add Images</span
-                                >
-                                <input
-                                    type="file"
-                                    multiple
-                                    class="hidden"
-                                    @change="handleGalleryChange"
-                                />
+                                <span class="text-sm font-bold">Add Images</span>
+                                <input type="file" multiple class="hidden" @change="handleGalleryChange" />
                             </label>
                         </div>
 
-                        <div
-                            class="grid grid-cols-2 gap-4 sm:grid-cols-4 md:grid-cols-6"
-                        >
-                            <!-- NEW IMAGES -->
+                        <div class="grid grid-cols-2 gap-4 sm:grid-cols-4 md:grid-cols-6">
                             <div
                                 v-for="(file, idx) in form.gallery_images"
                                 :key="'new-' + idx"
                                 class="group relative aspect-square overflow-hidden rounded-xl border-2 border-emerald-400"
                             >
-                                <img
-                                    :src="getFilePreview(file)"
-                                    class="h-full w-full object-cover"
-                                />
-
-                                <!-- Delete button (hover only) -->
+                                <img :src="getFilePreview(file)" class="h-full w-full object-cover" />
                                 <button
                                     type="button"
                                     @click="removeNewGalleryItem(idx)"
@@ -385,74 +314,37 @@ const submit = async () => {
                                 >
                                     <X class="h-3 w-3" />
                                 </button>
-
-                                <!-- New badge (optional: always visible) -->
-                                <div
-                                    class="absolute inset-x-0 bottom-0 bg-emerald-500 py-0.5 text-center text-[8px] font-bold text-white uppercase"
-                                >
+                                <div class="absolute inset-x-0 bottom-0 bg-emerald-500 py-0.5 text-center text-[8px] font-bold text-white uppercase">
                                     New
                                 </div>
                             </div>
 
-                            <!-- EXISTING IMAGES -->
                             <div
-                                v-for="(img, idx) in props.pageContent
-                                    ?.gallery_images"
+                                v-for="(img, idx) in props.pageContent?.gallery_images"
                                 :key="'old-' + idx"
                                 class="group relative aspect-square overflow-hidden rounded-xl border bg-slate-100 transition-all"
-                                :class="
-                                    form.delete_gallery_images.includes(img)
-                                        ? 'border-red-500 opacity-60 grayscale'
-                                        : 'border-slate-200'
-                                "
+                                :class="form.delete_gallery_images.includes(img) ? 'border-red-500 opacity-60 grayscale' : 'border-slate-200'"
                             >
                                 <img
-                                    :src="
-                                        img.startsWith('http')
-                                            ? img
-                                            : '/storage/' + img
-                                    "
+                                    :src="img.startsWith('http') ? img : '/storage/' + img"
                                     class="h-full w-full object-cover"
                                 />
-
-                                <!-- Delete / Restore toggle (hover only) -->
                                 <button
                                     type="button"
                                     @click="toggleDeleteExistingGallery(img)"
                                     class="absolute top-1 right-1 scale-75 rounded-full bg-white p-1 opacity-0 shadow-md transition-all duration-200 group-hover:scale-100 group-hover:opacity-100"
-                                    :class="
-                                        form.delete_gallery_images.includes(img)
-                                            ? 'text-emerald-500'
-                                            : 'text-slate-400 hover:text-red-500'
-                                    "
+                                    :class="form.delete_gallery_images.includes(img) ? 'text-emerald-500' : 'text-slate-400 hover:text-red-500'"
                                 >
-                                    <Trash2
-                                        v-if="
-                                            !form.delete_gallery_images.includes(
-                                                img,
-                                            )
-                                        "
-                                        class="h-3 w-3"
-                                    />
+                                    <Trash2 v-if="!form.delete_gallery_images.includes(img)" class="h-3 w-3" />
                                     <Plus v-else class="h-3 w-3 rotate-45" />
                                 </button>
-
-                                <!-- Status badge (only show on hover) -->
                                 <div
-                                    v-if="
-                                        !form.delete_gallery_images.includes(
-                                            img,
-                                        )
-                                    "
+                                    v-if="!form.delete_gallery_images.includes(img)"
                                     class="absolute top-1 left-1 rounded-full bg-emerald-500 p-0.5 text-white opacity-0 shadow-lg transition-opacity group-hover:opacity-100"
                                 >
                                     <CheckCircle2 class="h-3 w-3" />
                                 </div>
-
-                                <div
-                                    v-else
-                                    class="absolute inset-x-0 bottom-0 bg-red-500 py-0.5 text-center text-[8px] font-bold text-white uppercase"
-                                >
+                                <div v-else class="absolute inset-x-0 bottom-0 bg-red-500 py-0.5 text-center text-[8px] font-bold text-white uppercase">
                                     To Delete
                                 </div>
                             </div>

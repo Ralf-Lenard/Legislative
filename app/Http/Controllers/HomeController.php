@@ -186,6 +186,10 @@ class HomeController extends Controller
                 ? asset('storage/' . $pageContent->about_us_image)
                 : null,
 
+            'organizational_chart' => $pageContent->organizational_chart
+                ? asset('storage/' . $pageContent->organizational_chart)
+                : null,
+
             'vice_mayor_image' => $pageContent->vice_mayor_image
                 ? asset('storage/' . $pageContent->vice_mayor_image)
                 : null,
@@ -223,6 +227,7 @@ class HomeController extends Controller
         $request->validate([
             'welcome_image' => 'nullable|image|mimes:jpg,jpeg,png|max:51200',
             'about_us_image' => 'nullable|image|mimes:jpg,jpeg,png|max:51200',
+            'organizational_chart' => 'nullable|image|mimes:jpg,jpeg,png|max:51200', // added
             'gallery_images.*' => 'nullable|image|mimes:jpg,jpeg,png|max:51200',
     
             'vice_mayor_message' => 'nullable|string',
@@ -238,8 +243,8 @@ class HomeController extends Controller
             'vision',
         ]);
     
-        // Upload single images (without vice_mayor_image)
-        foreach (['welcome_image', 'about_us_image'] as $image) {
+        // Upload single images (including organizational chart)
+        foreach (['welcome_image', 'about_us_image', 'organizational_chart'] as $image) {
             if ($request->hasFile($image)) {
                 $data[$image] = $request->file($image)->store('page', 'public');
             }
@@ -261,52 +266,152 @@ class HomeController extends Controller
             ->with('success', 'Page content saved successfully.');
     }
     
+    
+    // public function update(Request $request, $id)
+    // {
+    //     $content = PageContent::findOrFail($id);
+    
+    //     $request->validate([
+    //         'welcome_image' => 'nullable|image|mimes:jpg,jpeg,png|max:51200',
+    //         'about_us_image' => 'nullable|image|mimes:jpg,jpeg,png|max:51200',
+    //         'gallery_images.*' => 'nullable|image|mimes:jpg,jpeg,png|max:51200',
+    
+    //         'vice_mayor_message' => 'nullable|string',
+    //         'about_us' => 'nullable|string',
+    //         'mission' => 'nullable|string',
+    //         'vision' => 'nullable|string',
+    
+    //         // delete flags
+    //         'delete_welcome_image' => 'nullable|boolean',
+    //         'delete_about_us_image' => 'nullable|boolean',
+    //         'delete_gallery_images' => 'nullable|array',
+    //     ]);
+    
+    //     $data = $request->only([
+    //         'vice_mayor_message',
+    //         'about_us',
+    //         'mission',
+    //         'vision',
+    //     ]);
+    
+    //     /* =============================
+    //      | DELETE SINGLE IMAGES
+    //      ============================= */
+    
+    //     if ($request->boolean('delete_welcome_image') && $content->welcome_image) {
+    //         Storage::disk('public')->delete($content->welcome_image);
+    //         $data['welcome_image'] = null;
+    //     }
+    
+    //     if ($request->boolean('delete_about_us_image') && $content->about_us_image) {
+    //         Storage::disk('public')->delete($content->about_us_image);
+    //         $data['about_us_image'] = null;
+    //     }
+    
+    //     /* =============================
+    //      | REPLACE SINGLE IMAGES
+    //      ============================= */
+    
+    //     foreach (['welcome_image', 'about_us_image'] as $image) {
+    //         if ($request->hasFile($image)) {
+    //             if ($content->$image) {
+    //                 Storage::disk('public')->delete($content->$image);
+    //             }
+    //             $data[$image] = $request->file($image)->store('page', 'public');
+    //         }
+    //     }
+    
+    //     /* =============================
+    //      | DELETE SELECTED GALLERY IMAGES
+    //      ============================= */
+    
+    //     // Inside your Controller Update method
+    //     $gallery = $content->gallery_images ?? [];
+
+    //     if ($request->filled('delete_gallery_images')) {
+    //         foreach ($request->delete_gallery_images as $img) {
+    //             // 1. Delete the physical file
+    //             Storage::disk('public')->delete($img);
+                
+    //             // 2. Remove from the local array variable
+    //             $gallery = array_values(array_filter($gallery, fn($item) => $item !== $img));
+    //         }
+    //     }
+
+    //     // 3. Update the data array before saving
+    //     $data['gallery_images'] = $gallery;
+    //     /* =============================
+    //      | APPEND NEW GALLERY IMAGES
+    //      ============================= */
+    
+    //     if ($request->hasFile('gallery_images')) {
+    //         foreach ($request->file('gallery_images') as $image) {
+    //             $gallery[] = $image->store('page/gallery', 'public');
+    //         }
+    //     }
+    
+    //     $data['gallery_images'] = $gallery;
+    
+    //     $content->update($data);
+    
+    //     return redirect()
+    //         ->route('admin.IndexAdminPageContent')
+    //         ->with('success', 'Page content updated successfully.');
+    // }
+
     public function update(Request $request, $id)
     {
         $content = PageContent::findOrFail($id);
-    
+
         $request->validate([
             'welcome_image' => 'nullable|image|mimes:jpg,jpeg,png|max:51200',
             'about_us_image' => 'nullable|image|mimes:jpg,jpeg,png|max:51200',
+            'organizational_chart' => 'nullable|image|mimes:jpg,jpeg,png|max:51200', // added
             'gallery_images.*' => 'nullable|image|mimes:jpg,jpeg,png|max:51200',
-    
+
             'vice_mayor_message' => 'nullable|string',
             'about_us' => 'nullable|string',
             'mission' => 'nullable|string',
             'vision' => 'nullable|string',
-    
+
             // delete flags
             'delete_welcome_image' => 'nullable|boolean',
             'delete_about_us_image' => 'nullable|boolean',
+            'delete_organizational_chart' => 'nullable|boolean', // added
             'delete_gallery_images' => 'nullable|array',
         ]);
-    
+
         $data = $request->only([
             'vice_mayor_message',
             'about_us',
             'mission',
             'vision',
         ]);
-    
+
         /* =============================
-         | DELETE SINGLE IMAGES
-         ============================= */
-    
+        | DELETE SINGLE IMAGES
+        ============================= */
+
         if ($request->boolean('delete_welcome_image') && $content->welcome_image) {
             Storage::disk('public')->delete($content->welcome_image);
             $data['welcome_image'] = null;
         }
-    
+
         if ($request->boolean('delete_about_us_image') && $content->about_us_image) {
             Storage::disk('public')->delete($content->about_us_image);
             $data['about_us_image'] = null;
         }
-    
+
+        if ($request->boolean('delete_organizational_chart') && $content->organizational_chart) {
+            Storage::disk('public')->delete($content->organizational_chart);
+            $data['organizational_chart'] = null;
+        }
+
         /* =============================
-         | REPLACE SINGLE IMAGES
-         ============================= */
-    
-        foreach (['welcome_image', 'about_us_image'] as $image) {
+        | REPLACE SINGLE IMAGES
+        ============================= */
+
+        foreach (['welcome_image', 'about_us_image', 'organizational_chart'] as $image) {
             if ($request->hasFile($image)) {
                 if ($content->$image) {
                     Storage::disk('public')->delete($content->$image);
@@ -314,44 +419,45 @@ class HomeController extends Controller
                 $data[$image] = $request->file($image)->store('page', 'public');
             }
         }
-    
+
         /* =============================
-         | DELETE SELECTED GALLERY IMAGES
-         ============================= */
-    
-        // Inside your Controller Update method
+        | DELETE SELECTED GALLERY IMAGES
+        ============================= */
+
         $gallery = $content->gallery_images ?? [];
 
         if ($request->filled('delete_gallery_images')) {
             foreach ($request->delete_gallery_images as $img) {
                 // 1. Delete the physical file
                 Storage::disk('public')->delete($img);
-                
-                // 2. Remove from the local array variable
+
+                // 2. Remove from the local array
                 $gallery = array_values(array_filter($gallery, fn($item) => $item !== $img));
             }
         }
 
-        // 3. Update the data array before saving
-        $data['gallery_images'] = $gallery;
         /* =============================
-         | APPEND NEW GALLERY IMAGES
-         ============================= */
-    
+        | APPEND NEW GALLERY IMAGES
+        ============================= */
+
         if ($request->hasFile('gallery_images')) {
             foreach ($request->file('gallery_images') as $image) {
                 $gallery[] = $image->store('page/gallery', 'public');
             }
         }
-    
+
         $data['gallery_images'] = $gallery;
-    
+
+        /* =============================
+        | UPDATE THE CONTENT
+        ============================= */
         $content->update($data);
-    
+
         return redirect()
             ->route('admin.IndexAdminPageContent')
             ->with('success', 'Page content updated successfully.');
     }
+
     
     
     public function IndexAdminPageContent()
@@ -373,6 +479,10 @@ class HomeController extends Controller
 
                 'vice_mayor_image' => $pageContent->vice_mayor_image
                     ? asset('storage/' . $pageContent->vice_mayor_image)
+                    : null,
+
+                'organizational_chart' => $pageContent->organizational_chart
+                    ? asset('storage/' . $pageContent->organizational_chart)
                     : null,
 
                 'vice_mayor_message' => $pageContent->vice_mayor_message,

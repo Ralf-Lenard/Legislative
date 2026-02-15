@@ -15,6 +15,7 @@ class PageContent extends Model
         'mission',
         'vision',
         'gallery_images',
+        'organizational_chart'
     ];
 
     protected $casts = [

@@ -15,6 +15,8 @@ class Official extends Model
         'main_committee',
         'image',
         'bio',
+        'division',
+        'type'
     ];
 
     /**

@@ -204,10 +204,12 @@ const canRegister = pageProps.canRegister ?? false
 
 const navLinks = [
   { label: 'Home', path: '/' },
-  { label: 'Members', path: '/sanguniang-bayan-members' },
-  { label: 'Ordinances', path: '/ordinances' },
-  { label: 'Resolutions', path: '/resolutions' },
+  { label: 'Organizational Chart', path: '/organizational-chart' },
+  // { label: 'Ordinances', path: '/ordinances' },
+  // { label: 'Resolutions', path: '/resolutions' },
+  { label: 'Citizen\'s Charter', path: '/citizens-charter' },
   { label: 'Sessions', path: '/sessions' },
+  { label: 'Library', path: '/library' },
 ]
 
 const profilePhotoUrl = computed(() => {

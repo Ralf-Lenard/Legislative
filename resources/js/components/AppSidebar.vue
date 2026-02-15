@@ -14,6 +14,7 @@
         Users,
         Bell,
         Settings,
+        BookIcon
     } from 'lucide-vue-next';
     import { computed, onMounted, ref, onUnmounted } from 'vue';
     import AppLogo from './AppLogo.vue';
@@ -33,8 +34,9 @@
                 : []),
             { title: 'Ordinances', href: '/admin-ordinances', icon: Library },
             { title: 'Resolutions', href: '/admin-resolutions', icon: FileText },
-            { title: 'SB Members', href: '/admin-officials', icon: Users },
+            { title: 'Organizational Chart', href: '/admin-organizational-chart', icon: Users },
             { title: 'Sessions', href: '/admin-sessions', icon: BookOpen },
+            { title: 'Library', href: '/admin-library', icon: BookIcon },
         ];
     
         return [

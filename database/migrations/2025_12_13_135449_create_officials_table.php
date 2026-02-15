@@ -14,6 +14,8 @@ return new class extends Migration {
             $table->string('main_committee')->nullable();
             $table->string('image')->nullable();
             $table->text('bio')->nullable();
+            $table->string('division')->nullable();
+            $table->string('type')->default('official');
             $table->timestamps();
         });
     }

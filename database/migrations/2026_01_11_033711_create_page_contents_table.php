@@ -15,6 +15,9 @@ return new class extends Migration
             $table->string('welcome_image')->nullable();
             $table->string('about_us_image')->nullable();
 
+            //organizational chart image
+            $table->string('organizational_chart')->nullable();
+
             // Text contents
             $table->text('vice_mayor_message')->nullable();
             $table->text('about_us')->nullable();

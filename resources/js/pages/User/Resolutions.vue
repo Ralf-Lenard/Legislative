@@ -5,7 +5,7 @@
 
     <FlashMessage />
 
-    <section
+    <!-- <section
       class="pt-28 pb-20 bg-gradient-to-br from-green-900 to-green-700 relative overflow-hidden"
     >
       <div
@@ -46,6 +46,46 @@
             </div>
           </div>
       </div>
+    </section> -->
+
+    <section class="pt-28 pb-20 bg-gradient-to-br from-green-900 to-green-700 relative overflow-hidden">
+      <div class="absolute top-0 right-0 w-96 h-96 bg-yellow-300/10 rounded-full blur-3xl z-0"></div>
+
+      <div class="max-w-7xl mx-auto px-4 flex flex-col md:flex-row items-center gap-10 relative z-10">
+        <div class="flex-1 text-white">
+          
+          <Link 
+            href="/citizens-charter" 
+            class="relative z-20 inline-flex items-center text-yellow-400 hover:text-white mb-8 transition-colors font-bold text-xs uppercase tracking-[0.2em] cursor-pointer"
+          >
+            <svg 
+              xmlns="http://www.w3.org/2000/svg" 
+              class="h-5 w-5 mr-2" 
+              fill="none" 
+              viewBox="0 0 24 24" 
+              stroke="currentColor"
+            >
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15 19l-7-7 7-7" />
+            </svg>
+            Back to Citizen Charter
+          </Link>
+
+          <div class="block">
+            <span class="text-xs tracking-widest uppercase bg-yellow-400 text-green-900 px-4 py-1 rounded-full font-bold">
+              Official Website
+            </span>
+          </div>
+
+          <h1 class="text-5xl md:text-6xl font-extrabold mt-4 leading-tight">
+            Municipal Resolutions
+          </h1>
+
+          <p class="text-lg mt-3 text-gray-100">
+            Formal expressions of the will and opinion of the municipality.
+          </p>
+        </div>
+        
+        </div>
     </section>
 
     <section class="py-14 px-4 bg-gray-50">
@@ -405,7 +445,7 @@
 
 <script setup>
 import { reactive, ref } from 'vue';
-import { Head, router } from '@inertiajs/vue3';
+import { Head, router, usePage, Link } from '@inertiajs/vue3';
 
 import Navbar from '@/components/Home/Navbar.vue';
 import Footer from '@/components/Home/Footer.vue';

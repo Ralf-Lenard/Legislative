@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\BookController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\OfficialController;
@@ -7,6 +8,7 @@ use App\Http\Controllers\OrdinancesController;
 use App\Http\Controllers\ResolutionController;
 use App\Http\Controllers\SessionController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ScholarController;
 use App\Http\Controllers\SuperAdminController;
 use App\Models\Notification;
 
@@ -28,14 +30,14 @@ Route::get('/dashboard', [HomeController::class, 'indexAdmin'])->middleware(['au
 Route::get('/', [HomeController::class, 'welcome'])->name('home');
 
 // organizational chart
-Route::get('/sanguniang-bayan-members', [OfficialController::class, 'indexUser']);
+Route::get('/organizational-chart', [OfficialController::class, 'indexUser']);
 
 // ordinances
-Route::get('/ordinances', [OrdinancesController::class, 'indexUser'])
+Route::get('/citizens-charter/ordinances', [OrdinancesController::class, 'indexUser'])
     ->name('ordinances.indexUser');
 
 // resolutions
-Route::get('/resolutions', [ResolutionController::class, 'indexUser'])
+Route::get('/citizens-charter/resolutions', [ResolutionController::class, 'indexUser'])
     ->name('resolutions.indexUser');
 
 // sessions
@@ -45,12 +47,15 @@ Route::get('/sessions', [SessionController::class, 'indexUser'])
 Route::get('/session-details/{id}', [SessionController::class, 'showUser'])
     ->name('sessions.showUser');
 
+Route::get('/library', [BookController::class, 'indexUser']);
+
 // announcements
-Route::get('/announcement-&-news', function () {
-    return Inertia::render('User/Announcement', [
+Route::get('/citizens-charter', function () {
+    return Inertia::render('User/CitizenChart', [
         'canRegister' => Route::has('register'),
     ]);
 });
+
 
 
 // =======================
@@ -119,10 +124,24 @@ Route::middleware(['auth', 'admin_or_super', 'check.banned'])->group(function ()
     Route::delete('/admin-sessions/{session}', [SessionController::class, 'destroy'])->name('sessions.destroy');
 
     //officials
-    Route::get('/admin-officials', [OfficialController::class, 'index'])->name('officials.index');
+    Route::get('/admin-organizational-chart', [OfficialController::class, 'index'])->name('officials.index');
     Route::post('/admin-officials', [OfficialController::class, 'store'])->name('officials.store');
     Route::put('/admin-officials/{id}', [OfficialController::class, 'update'])->name('officials.update');
     Route::delete('/admin-officials/{id}', [OfficialController::class, 'destroy'])->name('officials.destroy');
+
+    //library
+    Route::get('/admin-library', [BookController::class, 'index'])->name('books.index');
+    Route::post('/admin-library', [BookController::class, 'store'])->name('books.store');
+    Route::put('/admin-library/{id}', [BookController::class, 'update'])->name('books.update');
+    Route::delete('/books/{book}', [BookController::class, 'destroy'])->name('books.destroy');
+
+    //scholar
+    Route::get('/scholars', [ScholarController::class, 'index'])->name('scholars.index');
+    Route::post('/scholars', [ScholarController::class, 'store'])->name('scholars.store');
+    Route::put('/scholars/{id}', [ScholarController::class, 'update'])->name('scholars.update');
+    Route::delete('/scholars/{id}', [ScholarController::class, 'destroy'])->name('scholars.destroy');
+
+
 
     // Profile settings
     Route::get('/profile-settings', [ProfileController::class, 'editAdmin'])->name('admin.profile-settings');
