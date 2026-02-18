@@ -56,6 +56,13 @@ Route::get('/citizens-charter', function () {
     ]);
 });
 
+Route::get('/citizens-charter/public-assistance', function () {
+    return Inertia::render('User/Assisstance', [
+        'canRegister' => Route::has('register'),
+    ]);
+});
+
+
 
 
 // =======================
@@ -159,7 +166,6 @@ Route::middleware(['auth', 'admin_or_super', 'check.banned'])->group(function ()
     });
 
 // super admin
-
 Route::middleware(['auth', 'super_admin'])->group(function () {
     Route::get('/super-admin-users', [SuperAdminController::class, 'index'])->name('superadmin.users');
     Route::post('/super-admin/promote/{id}', [SuperAdminController::class, 'promoteToAdmin'])->name('superadmin.promoteToAdmin');
