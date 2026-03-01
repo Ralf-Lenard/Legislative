@@ -11,6 +11,8 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
+use Illuminate\Validation\Rule;
+
 
 class OfficialController extends Controller
 {
@@ -312,42 +314,39 @@ class OfficialController extends Controller
      * Store a new official
      */
     // Inside OfficialController.php
-    public function store(Request $request)
+   public function store(Request $request)
 {
-    $request->validate([
-        'name' => 'required|string|max:255',
-        'position' => 'required|string|max:255',
-        'type' => 'required|in:official,employee',
-        'division' => [
-            'required_if:type,employee',
-            'nullable',
-            'string',
-            // Updated the validation list here
-            'in:Public Library Service,Legislative Research, Records & Archives,Support Services,Office of the SB Secretary,N/A'
-        ],
-        'image' => 'nullable|image|max:51200', // 5MB limit
-    ]);
-
-    // Update this array to match the new allowed divisions
     $validDivisions = [
         'Public Library Service',
         'Legislative Research, Records & Archives',
         'Support Services',
-        'Office of the SB Secretary', // Added this
-        'N/A'                          // Added this
+        'Office of the SB Secretary',
+        'N/A'
     ];
 
-    // This was the part blocking your request!
-    if ($request->type === 'employee' && !in_array($request->division, $validDivisions)) {
-        return back()->withErrors(['division' => 'Please select a valid division.']);
-    }
+    $request->validate([
+        'name' => ['required', 'string', 'max:255'],
+        'position' => ['required', 'string', 'max:255'],
+        'type' => ['required', Rule::in(['official', 'employee'])],
+
+        'division' => [
+            'required_if:type,employee',
+            'nullable',
+            'string',
+            Rule::in($validDivisions), // ✅ FIXED HERE
+        ],
+
+        'image' => ['nullable', 'image', 'max:51200'], // 50MB
+    ]);
 
     DB::transaction(function () use ($request) {
+
         $imagePath = $request->hasFile('image')
             ? $request->file('image')->store('officials', 'public')
             : null;
 
         if ($request->type === 'employee') {
+
             Official::create([
                 'type' => 'employee',
                 'name' => $request->name,
@@ -357,7 +356,9 @@ class OfficialController extends Controller
                 'main_committee' => null,
                 'bio' => null,
             ]);
+
         } else {
+
             $official = Official::create([
                 'type' => 'official',
                 'name' => $request->name,
@@ -370,100 +371,164 @@ class OfficialController extends Controller
 
             if ($request->filled('committees')) {
                 foreach ($request->committees as $committeeData) {
-                    $committee = Committee::firstOrCreate(['name' => $committeeData['name']]);
-                    $official->committees()->attach($committee->id, ['role' => $committeeData['role']]);
+
+                    $committee = Committee::firstOrCreate([
+                        'name' => $committeeData['name']
+                    ]);
+
+                    $official->committees()->attach(
+                        $committee->id,
+                        ['role' => $committeeData['role']]
+                    );
                 }
             }
         }
     });
 
-    return redirect()->route('officials.index')->with('success', 'Record created successfully');
+    return redirect()
+        ->route('officials.index')
+        ->with('success', 'Record created successfully');
 }
 
-    public function update(Request $request, $id)
-    {
-        $official = Official::findOrFail($id);
+ public function update(Request $request, $id)
+{
+    $official = Official::findOrFail($id);
 
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'position' => 'required|string|max:255',
-            'type' => 'required|in:official,employee',
-            'main_committee' => 'nullable|string|max:255',
-            'division' => [
-                'required_if:type,employee',
-                'nullable',
-                'string',
-                // Add 'Office of the SB Secretary' and 'N/A' to this list
-                'in:Public Library Service,Legislative Research, Records & Archives,Support Services,Office of the SB Secretary,N/A'
-            ],
-            'image' => 'nullable|file|image|max:51200',
-            'keep_image' => 'nullable',
-            'bio' => 'nullable|string',
-            'committees' => 'nullable|array',
-            'committees.*.name' => 'required_if:type,official|string|max:255',
-            'committees.*.role' => 'required_if:type,official|string|max:255',
-        ]);
+    $validDivisions = [
+        'Public Library Service',
+        'Legislative Research, Records & Archives',
+        'Support Services',
+        'Office of the SB Secretary',
+        'N/A'
+    ];
 
-        // Validation limits for officials
-        if ($request->type === 'official') {
-            $existing = Official::where('position', $request->position)->where('id', '!=', $official->id);
-            if ($request->position === 'Vice Mayor' && $existing->exists()) {
-                return back()->withErrors(['position' => 'Only one Vice Mayor is allowed.']);
-            }
-            if ($request->position === 'Sangguniang Bayan Member' && $existing->count() >= 8) {
-                return back()->withErrors(['position' => 'Only 8 Sangguniang Bayan Members are allowed.']);
-            }
+    $request->validate([
+        'name' => ['required', 'string', 'max:255'],
+        'position' => ['required', 'string', 'max:255'],
+        'type' => ['required', Rule::in(['official', 'employee'])],
+        'main_committee' => ['nullable', 'string', 'max:255'],
+
+        'division' => [
+            'required_if:type,employee',
+            'nullable',
+            'string',
+            Rule::in($validDivisions), // ✅ FIXED HERE
+        ],
+
+        'image' => ['nullable', 'image', 'max:51200'],
+        'keep_image' => ['nullable'],
+        'bio' => ['nullable', 'string'],
+
+        'committees' => ['nullable', 'array'],
+        'committees.*.name' => ['required_if:type,official', 'string', 'max:255'],
+        'committees.*.role' => ['required_if:type,official', 'string', 'max:255'],
+    ]);
+
+    // =========================
+    // POSITION LIMIT VALIDATION
+    // =========================
+    if ($request->type === 'official') {
+
+        $existing = Official::where('position', $request->position)
+            ->where('id', '!=', $official->id);
+
+        if ($request->position === 'Vice Mayor' && $existing->exists()) {
+            return back()->withErrors([
+                'position' => 'Only one Vice Mayor is allowed.'
+            ]);
         }
 
-        DB::transaction(function () use ($request, $official) {
-            // Image handling
-            if ($request->hasFile('image')) {
-                if ($official->image) Storage::disk('public')->delete($official->image);
-                $imagePath = $request->file('image')->store('officials', 'public');
-            } elseif ($request->keep_image == '1') {
-                $imagePath = $official->image;
-            } else {
-                if ($official->image) Storage::disk('public')->delete($official->image);
-                $imagePath = null;
-            }
-
-            if ($request->type === 'employee') {
-                // Update as Employee
-                $official->update([
-                    'type' => 'employee',
-                    'name' => $request->name,
-                    'position' => $request->position,
-                    'division' => $request->division,
-                    'image' => $imagePath,
-                    'main_committee' => null,
-                    'bio' => null,
-                ]);
-                $official->committees()->detach(); // Employees don't have committees
-            } else {
-                // Update as Official
-                $official->update([
-                    'type' => 'official',
-                    'name' => $request->name,
-                    'position' => $request->position,
-                    'main_committee' => $request->main_committee,
-                    'division' => null,
-                    'image' => $imagePath,
-                    'bio' => $request->bio,
-                ]);
-
-                $syncData = [];
-                if ($request->has('committees')) {
-                    foreach ($request->committees as $committeeData) {
-                        $committee = Committee::firstOrCreate(['name' => $committeeData['name']]);
-                        $syncData[$committee->id] = ['role' => $committeeData['role']];
-                    }
-                }
-                $official->committees()->sync($syncData);
-            }
-        });
-
-        return redirect()->route('officials.index')->with('success', 'Record updated successfully');
+        if ($request->position === 'Sangguniang Bayan Member' && $existing->count() >= 8) {
+            return back()->withErrors([
+                'position' => 'Only 8 Sangguniang Bayan Members are allowed.'
+            ]);
+        }
     }
+
+    // =========================
+    // DATABASE TRANSACTION
+    // =========================
+    DB::transaction(function () use ($request, $official) {
+
+        // IMAGE HANDLING
+        if ($request->hasFile('image')) {
+
+            if ($official->image) {
+                Storage::disk('public')->delete($official->image);
+            }
+
+            $imagePath = $request->file('image')->store('officials', 'public');
+
+        } elseif ($request->keep_image == '1') {
+
+            $imagePath = $official->image;
+
+        } else {
+
+            if ($official->image) {
+                Storage::disk('public')->delete($official->image);
+            }
+
+            $imagePath = null;
+        }
+
+        // =========================
+        // UPDATE EMPLOYEE
+        // =========================
+        if ($request->type === 'employee') {
+
+            $official->update([
+                'type' => 'employee',
+                'name' => $request->name,
+                'position' => $request->position,
+                'division' => $request->division,
+                'image' => $imagePath,
+                'main_committee' => null,
+                'bio' => null,
+            ]);
+
+            $official->committees()->detach();
+
+        } 
+        // =========================
+        // UPDATE OFFICIAL
+        // =========================
+        else {
+
+            $official->update([
+                'type' => 'official',
+                'name' => $request->name,
+                'position' => $request->position,
+                'main_committee' => $request->main_committee,
+                'division' => null,
+                'image' => $imagePath,
+                'bio' => $request->bio,
+            ]);
+
+            $syncData = [];
+
+            if ($request->has('committees')) {
+
+                foreach ($request->committees as $committeeData) {
+
+                    $committee = Committee::firstOrCreate([
+                        'name' => $committeeData['name']
+                    ]);
+
+                    $syncData[$committee->id] = [
+                        'role' => $committeeData['role']
+                    ];
+                }
+            }
+
+            $official->committees()->sync($syncData);
+        }
+    });
+
+    return redirect()
+        ->route('officials.index')
+        ->with('success', 'Record updated successfully');
+}
 
     /**
      * Delete an official
