@@ -3,7 +3,6 @@
   <div class="bg-white min-h-screen">
     <Navbar />
 
-    <!-- HERO -->
     <section
       class="pt-28 pb-20 bg-gradient-to-br from-green-900 to-green-700 relative overflow-hidden"
     >
@@ -47,14 +46,12 @@
       </div>
     </section>
 
-    <!-- FILTERS -->
     <section class="py-14 px-4 bg-gray-50">
       <div class="max-w-7xl mx-auto">
         <div class="bg-white p-6 rounded-xl shadow-lg border border-gray-200">
           <div
             class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 items-end"
           >
-            <!-- SEARCH -->
             <div class="lg:col-span-2">
               <label class="text-sm font-semibold text-gray-700 mb-2 block">
                 Search
@@ -62,18 +59,19 @@
               <input
                 v-model="filters.search"
                 type="text"
+                @keyup.enter="applyFilters"
                 class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-800 focus:border-green-800 transition"
                 placeholder="Session No., Title, Keyword..."
               />
             </div>
 
-            <!-- YEAR -->
             <div>
               <label class="text-sm font-semibold text-gray-700 mb-2 block">
                 Year
               </label>
               <select
                 v-model="filters.year"
+                @change="applyFilters"
                 class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-800 focus:border-green-800 appearance-none custom-select transition"
               >
                 <option value="">All Years</option>
@@ -87,7 +85,6 @@
               </select>
             </div>
 
-            <!-- APPLY -->
             <button
               @click="applyFilters"
               class="w-full h-11 bg-green-800 text-white font-bold rounded-lg shadow hover:bg-green-900 transition mt-4 sm:mt-0"
@@ -97,7 +94,6 @@
           </div>
         </div>
 
-        <!-- SESSION LIST -->
         <div
           v-if="sessions.data.length"
           class="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-12"
@@ -138,7 +134,6 @@
           </div>
         </div>
 
-        <!-- EMPTY STATE -->
         <div
           v-else
           class="mt-20 text-center text-gray-500 font-semibold"
@@ -146,7 +141,6 @@
           No legislative sessions found.
         </div>
 
-        <!-- PAGINATION -->
         <div class="mt-16 flex justify-center">
           <nav class="flex items-center gap-4">
           <template v-if="sessions.links[0]">
@@ -211,7 +205,7 @@ const filters = reactive({
 });
 
 const applyFilters = () => {
-  router.get(route("sessions.user"), filters, {
+  router.get('/sessions', filters, {
     preserveScroll: true,
     preserveState: true,
   });

@@ -12,52 +12,43 @@ class SuperAdminController extends Controller
     /**
      * Show all users for management with filters and stats
      */
-    public function index(Request $request)
+   public function index(Request $request)
     {
-        // 1. Start query (include BOTH users and admins)
+        // 1. Start query
         $query = User::whereIn('usertype', ['user', 'admin']);
-    
+
         // 2. Apply Search Filter (Name or Email)
         if ($request->filled('search')) {
             $query->where(function ($q) use ($request) {
                 $q->where('name', 'like', '%' . $request->search . '%')
-                  ->orWhere('email', 'like', '%' . $request->search . '%');
+                ->orWhere('email', 'like', '%' . $request->search . '%');
             });
         }
-    
-        // 3. Apply Status Filter (active / banned)
+
+        // 3. Apply Role Filter (admin / user)
         if ($request->filled('role')) {
-            $query->where('status', $request->role);
+            $query->where('usertype', $request->role);
         }
-    
+
         // 4. Get Paginated Results
         $users = $query
             ->latest()
             ->paginate(10)
             ->withQueryString();
-    
-        // 5. Stats for Dashboard Cards
+
+        // 5. Return to Inertia
         return Inertia::render('SuperAdmin/Users', [
             'users' => $users,
-    
             'filters' => $request->only(['search', 'role']),
-    
-            // USER COUNTS
+            
+            // Stats
             'totalUsers' => User::where('usertype', 'user')->count(),
-            'activeUsersCount' => User::where('usertype', 'user')
-                ->where('status', 'active')
-                ->count(),
-    
-            // ADMIN COUNT
+            'activeUsersCount' => User::where('status', 'active')->count(),
             'adminUsersCount' => User::where('usertype', 'admin')->count(),
-    
-            // NEW USERS THIS MONTH
-            'newUsersThisMonth' => User::where('usertype', 'user')
-                ->whereMonth('created_at', Carbon::now()->month)
-                ->count(),
-    
-            // STATUS FILTER OPTIONS
-            'roles' => ['active', 'banned'],
+            'newUsersThisMonth' => User::whereMonth('created_at', Carbon::now()->month)->count(),
+
+            // These are the actual ROLES for the dropdown
+            'roles' => ['admin', 'user'], 
         ]);
     }
 

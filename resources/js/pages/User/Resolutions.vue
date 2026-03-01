@@ -465,7 +465,7 @@ const form = reactive({
 });
 
 const applyFilters = () => {
-    router.get("/resolutions", form, { 
+    router.get("/citizens-charter/resolutions", form, { 
         preserveState: true, 
         replace: true, 
     });

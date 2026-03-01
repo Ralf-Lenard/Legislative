@@ -409,33 +409,7 @@ const handleFileChange = (e: Event, type: 'pdf' | 'image') => {
     }
 };
 
-// const submit = async () => {
-//     isLoading.value = true;
-//     const data = new FormData();
 
-//     Object.entries(form).forEach(([k, v]) => {
-//         if (v instanceof File) data.append(k, v);
-//         else if (v !== null) data.append(k, v as string);
-//     });
-
-//     if (!form.file_path_ordinances && oldPdf.value) data.append('keep_pdf', '1');
-//     if (!form.image_ordinances && oldImage.value) data.append('keep_image', '1');
-
-//     const url = props.ordinance?.id
-//         ? `/admin-ordinances/${props.ordinance.id}`
-//         : '/admin-ordinances';
-
-//     // ✅ Instead of router.post, use router.visit for full reload
-//     router.visit(url, {
-//         method: props.ordinance?.id ? 'put' : 'post',
-//         data: data,
-//         forceFormData: true,
-//         onFinish: () => {
-//             isLoading.value = false;
-//             closeModal(); // optional
-//         }
-//     });
-// };
 const submit = async () => {
     isLoading.value = true;
     const data = new FormData();

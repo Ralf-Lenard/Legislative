@@ -34,7 +34,8 @@ class OrdinanceDownloadRequest extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function ordinance() {
-        return $this->belongsTo(Ordinance::class);
-    }
+    public function ordinance()
+{
+    return $this->belongsTo(Ordinance::class);
+}
 }

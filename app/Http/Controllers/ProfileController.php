@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Models\OrdinanceDownloadRequest;
+use App\Models\ResolutionDownloadRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -142,5 +144,57 @@ class ProfileController extends Controller
         return redirect()
             ->route('admin.profile')
             ->with('success', 'Profile updated successfully.');
+    }
+
+
+      public function documentRequest()
+    {
+        $user = Auth::user();
+
+        // =========================
+        // ORDINANCE REQUESTS
+        // =========================
+        $ordinanceRequests = OrdinanceDownloadRequest::with('ordinance:id,title_ordinances')
+            ->where('user_id', $user->id)
+            ->latest()
+            ->get()
+            ->map(function ($request) {
+                return [
+                    'type'        => 'Ordinance',
+                    'title'       => optional($request->ordinance)->title_ordinances ?? 'Unknown',
+                    'status'      => $request->status,
+                    'purpose'     => $request->purpose,
+                    'created_at'  => $request->created_at->format('M d, Y h:i A'),
+                ];
+            });
+
+        // =========================
+        // RESOLUTION REQUESTS
+        // =========================
+        $resolutionRequests = ResolutionDownloadRequest::with('resolution:id,title_resolutions')
+            ->where('user_id', $user->id)
+            ->latest()
+            ->get()
+            ->map(function ($request) {
+                return [
+                    'type'        => 'Resolution',
+                    'title'       => optional($request->resolution)->title_resolutions ?? 'Unknown',
+                    'status'      => $request->status,
+                    'purpose'     => $request->purpose,
+                    'created_at'  => $request->created_at->format('M d, Y h:i A'),
+                ];
+            });
+
+        // =========================
+        // MERGE BOTH
+        // =========================
+        $allRequests = $ordinanceRequests
+            ->merge($resolutionRequests)
+            ->sortByDesc('created_at')
+            ->values();
+
+        return Inertia::render('User/DocumentRequests', [
+            'requests' => $allRequests,
+        ]);
     }
 }

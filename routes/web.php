@@ -11,6 +11,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ScholarController;
 use App\Http\Controllers\SuperAdminController;
 use App\Models\Notification;
+use App\Http\Controllers\AssistanceController;
 
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -50,18 +51,14 @@ Route::get('/session-details/{id}', [SessionController::class, 'showUser'])
 Route::get('/library', [BookController::class, 'indexUser']);
 
 // announcements
-Route::get('/citizens-charter', function () {
-    return Inertia::render('User/CitizenChart', [
-        'canRegister' => Route::has('register'),
-    ]);
-});
+// Route::get('/citizens-charter', function () {
+//     return Inertia::render('User/CitizenChart', [
+//         'canRegister' => Route::has('register'),
+//     ]);
+// });
 
-Route::get('/citizens-charter/public-assistance', function () {
-    return Inertia::render('User/Assisstance', [
-        'canRegister' => Route::has('register'),
-    ]);
-});
-
+Route::get('/citizens-charter/public-assistance', [AssistanceController::class, 'indexUser'])->name('assistances.public');
+Route::get('/citizens-charter', [AssistanceController::class, 'citizenCharter']);
 
 
 
@@ -100,6 +97,8 @@ Route::middleware(['auth', 'check.banned'])->group(function () {
 
     Route::put('/profile/password', [ProfileController::class, 'updatePassword'])
         ->name('user.profile.password');
+
+    Route::get('/document-requests', [ProfileController::class, 'documentRequest'])->name('document.requests');
 });
 
 
@@ -142,11 +141,11 @@ Route::middleware(['auth', 'admin_or_super', 'check.banned'])->group(function ()
     Route::put('/admin-library/{id}', [BookController::class, 'update'])->name('books.update');
     Route::delete('/books/{book}', [BookController::class, 'destroy'])->name('books.destroy');
 
-    //scholar
-    Route::get('/scholars', [ScholarController::class, 'index'])->name('scholars.index');
-    Route::post('/scholars', [ScholarController::class, 'store'])->name('scholars.store');
-    Route::put('/scholars/{id}', [ScholarController::class, 'update'])->name('scholars.update');
-    Route::delete('/scholars/{id}', [ScholarController::class, 'destroy'])->name('scholars.destroy');
+    // assisstance
+    Route::get('/admin-assistances', [AssistanceController::class, 'index'])->name('assistances.index');
+    Route::post('/admin-assistance', [AssistanceController::class, 'store'])->name('assistances.store');
+    Route::put('/admin-assistance/{id}', [AssistanceController::class, 'update'])->name('assistances.update');
+    Route::delete('/admin-assistance/{id}', [AssistanceController::class, 'destroy'])->name('assistances.destroy');
 
 
 

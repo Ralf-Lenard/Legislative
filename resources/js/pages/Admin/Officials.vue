@@ -6,7 +6,11 @@ import FlashMessage from '@/components/Admin/FlashMessage.vue';
 import { Head, router, usePage } from '@inertiajs/vue3';
 import { computed, ref, watch, onMounted } from 'vue';
 
-import { Eye, Edit, Plus, Search, Trash2, X, User, Users, Image, Zap, Briefcase } from 'lucide-vue-next';
+import { Eye, Edit, Plus, Search, Trash2, X, User, Users, Image, Zap, Briefcase,
+ ChevronRight,
+    ChevronLeft,
+    MoreHorizontal
+ } from 'lucide-vue-next';
 import ViewOfficialModal from '@/components/ModalOfficials/ViewOfficialDialog.vue';
 
 // Interfaces matching your controller's mapped data
@@ -34,16 +38,15 @@ interface Official {
 
 interface PaginatedOfficials {
     data: Official[];
-    links: { url: string | null; label: string; active: boolean }[];
-    meta: {
-        current_page: number;
-        from: number;
-        last_page: number;
-        per_page: number;
-        to: number;
-        total: number;
-    };
+    links: { url: string | null; label: string; active: boolean; }[];
+    current_page: number;
+    from: number;
+    last_page: number;
+    per_page: number;
+    to: number;
+    total: number;
 }
+
 
 // Accessing Inertia props
 const page = usePage<{
@@ -53,6 +56,43 @@ const page = usePage<{
     divisionOptions: string[];
     flash?: { success?: string };
 }>();
+
+const filteredLinks = computed(() => {
+    const links = page.props.officials.links;
+    if (links.length <= 10) return links;
+
+    const total = links.length;
+    const current = links.findIndex(l => l.active);
+    const result = [];
+
+    // Always include Previous (index 0)
+    result.push(links[0]);
+
+    // Logic for pages and ellipsis
+    for (let i = 1; i < total - 1; i++) {
+        // Always show first and last page
+        if (i === 1 || i === total - 2) {
+            result.push(links[i]);
+            continue;
+        }
+
+        // Show range around active page
+        if (i >= current - 1 && i <= current + 1) {
+            result.push(links[i]);
+            continue;
+        }
+
+        // Add ellipsis if we haven't just added one
+        if (result[result.length - 1].label !== '...') {
+            result.push({ url: null, label: '...', active: false });
+        }
+    }
+
+    // Always include Next (last index)
+    result.push(links[total - 1]);
+
+    return result;
+});
 
 const officials = ref<Official[]>([...(page.props.officials?.data || [])]);
 const search = ref(page.props.filters?.search || '');
@@ -69,11 +109,7 @@ const isViewModalOpen = ref(false);
 const viewingOfficial = ref<Official | null>(null);
 
 // Computed stats based on current paginated data
-const paginationMeta = computed(() => page.props.officials?.meta || null);
-const paginationLinks = computed(() => page.props.officials?.links || []);
 const uniqueCommittees = computed(() => page.props.committeesList || []);
-
-const officialsWithImageCount = computed(() => officials.value.filter(o => o.image).length);
 const employeesCount = computed(() => officials.value.filter(o => o.type === 'employee').length);
 
 // --- Filter and Pagination Logic ---
@@ -293,7 +329,7 @@ onMounted(() => {
                     <table v-else class="min-w-full divide-y divide-slate-200">
                         <thead class="bg-slate-100/80">
                             <tr>
-                                <th class="px-6 py-4 text-left text-xs font-bold tracking-wider text-slate-700 uppercase">#</th>
+                                
                                 <th class="px-6 py-4 text-left text-xs font-bold tracking-wider text-slate-700 uppercase">Photo</th>
                                 <th class="px-6 py-4 text-left text-xs font-bold tracking-wider text-slate-700 uppercase">Name & Type</th>
                                 <th class="px-6 py-4 text-left text-xs font-bold tracking-wider text-slate-700 uppercase">Position / Division</th>
@@ -303,9 +339,7 @@ onMounted(() => {
                         </thead>
                         <tbody class="divide-y divide-slate-200">
                             <tr v-for="(official, index) in officials" :key="official.id" class="transition-colors hover:bg-emerald-50/50">
-                                <td class="px-6 py-4 text-sm text-slate-600">
-                                    {{ (paginationMeta?.from || 1) + index }}
-                                </td>
+                               
                                 <td class="px-6 py-4">
                                     <img v-if="official.image" :src="`/storage/${official.image}`" class="h-10 w-10 rounded-full object-cover border border-slate-200" />
                                     <div v-else class="flex h-10 w-10 items-center justify-center rounded-full bg-slate-200 text-slate-400">
@@ -340,19 +374,42 @@ onMounted(() => {
                         </tbody>
                     </table>
 
-                    <div v-if="paginationLinks.length > 3" class="flex items-center justify-between border-t border-slate-200 bg-slate-50 px-6 py-4">
-                        <div class="text-sm text-slate-600">
-                            Showing <span class="font-semibold">{{ paginationMeta?.from }}</span> to <span class="font-semibold">{{ paginationMeta?.to }}</span> of <span class="font-semibold">{{ paginationMeta?.total }}</span>
+                     <div v-if="page.props.officials.links.length > 3" 
+                         class="flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-slate-200 bg-slate-50 px-6 py-4">
+                        
+                        <div class="text-sm text-slate-500">
+                            Showing <span class="font-bold text-slate-900">{{ page.props.officials.from }}</span> to 
+                            <span class="font-bold text-slate-900">{{ page.props.officials.to }}</span> of 
+                            <span class="font-bold text-slate-900">{{ page.props.officials.total }}</span>
                         </div>
-                        <nav class="isolate inline-flex -space-x-px rounded-xl shadow-sm">
-                            <button v-for="(link, key) in paginationLinks" :key="key"
-                                @click="link.url ? paginate(link.url) : null"
-                                :disabled="!link.url"
-                                :class="['px-4 py-2 text-sm font-semibold ring-1 ring-inset ring-slate-300 transition-all', 
-                                    key === 0 ? 'rounded-l-xl' : '', 
-                                    key === paginationLinks.length - 1 ? 'rounded-r-xl' : '',
-                                    link.active ? 'bg-emerald-600 text-white z-10' : link.url ? 'text-slate-900 hover:bg-slate-100' : 'text-slate-400 bg-slate-50 cursor-not-allowed']"
-                                v-html="link.label" />
+
+                        <nav class="inline-flex -space-x-px rounded-lg bg-white shadow-sm border border-slate-200" aria-label="Pagination">
+                            <template v-for="(link, key) in filteredLinks" :key="key">
+                                
+                                <div v-if="link.label === '...'" 
+                                     class="relative inline-flex items-center px-3 py-2 text-slate-400">
+                                    <MoreHorizontal class="h-4 w-4" />
+                                </div>
+
+                                <button
+                                    v-else
+                                    :disabled="!link.url || link.active"
+                                    @click="paginate(link.url)"
+                                    class="relative inline-flex items-center justify-center min-w-[40px] h-10 px-3 text-sm font-semibold transition-all first:rounded-l-lg last:rounded-r-lg"
+                                    :class="[
+                                        link.active 
+                                            ? 'z-10 bg-emerald-600 text-white' 
+                                            : 'text-slate-500 hover:bg-slate-50 hover:text-emerald-600',
+                                        !link.url ? 'opacity-30 cursor-not-allowed' : 'cursor-pointer',
+                                        key !== 0 ? 'border-l border-slate-200' : ''
+                                    ]"
+                                >
+                                    <ChevronLeft v-if="link.label.includes('Previous')" class="h-4 w-4" />
+                                    <ChevronRight v-else-if="link.label.includes('Next')" class="h-4 w-4" />
+                                    <span v-else>{{ link.label }}</span>
+                                </button>
+
+                            </template>
                         </nav>
                     </div>
                 </div>

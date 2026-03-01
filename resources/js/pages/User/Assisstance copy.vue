@@ -1,133 +1,161 @@
 <template>
-  <Head title="Public Assistance Programs" />
-  <div class="bg-slate-50 min-h-screen">
+  <Head title="Public Assistance & Records" />
+  <div class="bg-slate-50 min-h-screen selection:bg-yellow-200 overflow-x-hidden">
     <Navbar />
 
-    <section class="pt-32 pb-20 bg-gradient-to-br from-green-900 to-green-800 relative overflow-hidden text-white">
-      <div class="absolute top-0 right-0 w-80 h-80 bg-yellow-400/10 rounded-full blur-[100px]"></div>
-      <div class="max-w-7xl mx-auto px-6 relative z-10">
-        <nav class="flex mb-8 text-sm font-medium text-green-200/80 gap-2">
-          <a href="/citizens-charter" class="hover:text-yellow-400 font-bold transition-colors">Citizen's Charter</a>
-          <span>/</span>
-          <span class="text-white">Public Assistance</span>
-        </nav>
-        <h1 class="text-4xl md:text-6xl font-black mb-6 leading-tight">
-          Public Assistance <br /><span class="text-yellow-400">& Welfare Programs</span>
+    <!-- <section class="relative pt-28 pb-16 md:pt-48 md:pb-32 bg-[#064e3b] overflow-hidden text-white">
+      <div class="absolute top-0 right-0 w-64 h-64 md:w-96 md:h-96 bg-yellow-400/10 rounded-full blur-[80px] md:blur-[120px]"></div>
+      <div class="max-w-7xl mx-auto px-4 md:px-6 relative z-10 text-center md:text-left">
+        <h1 class="text-3xl sm:text-4xl md:text-7xl font-black mb-4 md:mb-6 leading-none uppercase tracking-tighter">
+          Public Assistance <br class="hidden md:block"/><span class="text-yellow-400 italic font-serif text-2xl sm:text-4xl md:text-6xl">Registry & Records</span>
         </h1>
-        <p class="text-lg md:text-xl text-green-50/80 max-w-2xl leading-relaxed">
-          We are committed to providing accessible social services. Explore our educational, medical, and emergency support programs designed to uplift every member of our community.
+        <p class="text-sm md:text-lg text-green-50/80 max-w-2xl mx-auto md:mx-0 leading-relaxed font-medium">
+          Real-time transparency for municipal assistance programs. Browse verified beneficiaries for the current quarter.
         </p>
       </div>
-    </section>
+    </section> -->
 
-    <section class="py-20 px-6">
-      <div class="max-w-7xl mx-auto">
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 -mt-32 relative z-20">
-          <div v-for="program in mainPrograms" :key="program.title" 
-               class="bg-white p-8 rounded-[2.5rem] shadow-xl border border-gray-100 hover:scale-[1.02] transition-all duration-300">
-            <div :class="[`w-14 h-14 rounded-2xl flex items-center justify-center mb-6 text-white shadow-lg`, program.bgClass]">
-              <component :is="program.icon" class="w-8 h-8" />
-            </div>
-            <h3 class="text-2xl font-bold text-green-900 mb-4">{{ program.title }}</h3>
-            <p class="text-gray-500 mb-6 leading-relaxed text-sm">{{ program.description }}</p>
-            <ul class="space-y-3">
-              <li v-for="benefit in program.benefits" :key="benefit" class="flex items-center gap-2 text-sm font-bold text-gray-700">
-                <CheckCircleIcon class="w-5 h-5 text-green-600 shrink-0" />
-                {{ benefit }}
-              </li>
-            </ul>
-          </div>
-        </div>
-      </div>
-    </section>
+     <section class="pt-28 pb-20 bg-gradient-to-br from-green-900 to-green-700 relative overflow-hidden">
+      <div class="absolute top-0 right-0 w-96 h-96 bg-yellow-300/10 rounded-full blur-3xl z-0"></div>
 
-    <section class="py-16 px-6 bg-white">
-      <div class="max-w-7xl mx-auto">
-        <div class="text-center mb-16">
-          <h2 class="text-3xl md:text-4xl font-black text-green-900 uppercase tracking-tight">Application Process</h2>
-          <div class="w-20 h-2 bg-yellow-400 mx-auto mt-4 rounded-full"></div>
-        </div>
-
-        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-12">
-          <div v-for="(step, index) in steps" :key="index" class="relative text-center group">
-            <div class="w-16 h-16 bg-green-900 text-yellow-400 rounded-2xl flex items-center justify-center text-2xl font-black mx-auto mb-6 shadow-lg shadow-green-900/20 group-hover:rotate-6 transition-transform">
-              {{ index + 1 }}
-            </div>
-            <h4 class="font-bold text-lg text-green-900 mb-2">{{ step.title }}</h4>
-            <p class="text-sm text-gray-500 leading-relaxed">{{ step.desc }}</p>
-            <div v-if="index < 3" class="hidden md:block absolute top-8 left-[calc(50%+40px)] w-[calc(100%-80px)] h-[2px] bg-gray-100"></div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section class="py-24 px-6 bg-slate-50">
-      <div class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-        <div>
-          <h2 class="text-3xl md:text-4xl font-black text-green-900 uppercase leading-tight mb-6">
-            Basic <span class="text-yellow-600">Requirements</span> <br />for Assistance
-          </h2>
-          <p class="text-gray-600 mb-10 text-lg">Ensure you have the following documents ready to expedite your application process during People's Day or walk-in visits.</p>
+      <div class="max-w-7xl mx-auto px-4 flex flex-col md:flex-row items-center gap-10 relative z-10">
+        <div class="flex-1 text-white">
           
-          <div class="space-y-4">
-            <div v-for="req in requirements" :key="req.title" class="flex items-start gap-4 p-5 bg-white rounded-3xl shadow-sm border border-gray-100 hover:border-green-200 transition-colors">
-              <div class="p-3 bg-yellow-100 rounded-xl shrink-0">
-                <DocumentIcon class="w-6 h-6 text-yellow-700" />
-              </div>
-              <div>
-                <p class="font-bold text-green-900">{{ req.title }}</p>
-                <p class="text-xs text-gray-400 font-medium mt-1">{{ req.note }}</p>
-              </div>
-            </div>
-          </div>
-        </div>
+          <Link 
+            href="/citizens-charter" 
+            class="relative z-20 inline-flex items-center text-yellow-400 hover:text-white mb-8 transition-colors font-bold text-xs uppercase tracking-[0.2em] cursor-pointer"
+          >
+            <svg 
+              xmlns="http://www.w3.org/2000/svg" 
+              class="h-5 w-5 mr-2" 
+              fill="none" 
+              viewBox="0 0 24 24" 
+              stroke="currentColor"
+            >
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15 19l-7-7 7-7" />
+            </svg>
+            Back to Citizen Charter
+          </Link>
 
-        <div class="bg-green-900 rounded-[3rem] p-10 text-white relative overflow-hidden shadow-2xl">
-          <div class="absolute -bottom-10 -right-10 w-64 h-64 bg-yellow-400 opacity-10 rounded-full"></div>
-          <h3 class="text-2xl font-black mb-6">Need Immediate Assistance?</h3>
-          <p class="text-green-100 mb-8 leading-relaxed">For emergency cases such as urgent medical procedures or burial assistance, please visit the Social Welfare Office directly at the Municipal Hall.</p>
-          
-          <div class="space-y-6">
-            <div class="flex items-center gap-4">
-              <div class="w-12 h-12 bg-white/10 rounded-xl flex items-center justify-center">
-                <PhoneIcon class="w-6 h-6 text-yellow-400" />
-              </div>
-              <div>
-                <p class="text-[10px] uppercase tracking-widest text-green-300 font-bold">Hotline</p>
-                <p class="font-bold text-lg">(044) 123-4567</p>
-              </div>
-            </div>
-            <div class="flex items-center gap-4">
-              <div class="w-12 h-12 bg-white/10 rounded-xl flex items-center justify-center">
-                <MapPinIcon class="w-6 h-6 text-yellow-400" />
-              </div>
-              <div>
-                <p class="text-[10px] uppercase tracking-widest text-green-300 font-bold">Office Location</p>
-                <p class="font-bold text-lg">1st Floor, Municipal Hall Building</p>
-              </div>
-            </div>
+          <div class="block">
+            <span class="text-xs tracking-widest uppercase bg-yellow-400 text-green-900 px-4 py-1 rounded-full font-bold">
+              Official Website
+            </span>
           </div>
 
-          <button class="w-full mt-10 py-4 bg-yellow-400 text-green-950 font-black rounded-2xl uppercase tracking-widest hover:bg-white transition-all shadow-xl shadow-yellow-950/20 active:scale-95">
-            Contact Support Office
-          </button>
+           <h1 class="text-3xl sm:text-4xl md:text-7xl font-black mb-4 md:mb-6 leading-none uppercase tracking-tighter">
+          Public Assistance <br class="hidden md:block"/><span class="text-yellow-400 italic font-serif text-2xl sm:text-4xl md:text-6xl">Registry & Records</span>
+            </h1>
+
+          <p class="text-lg mt-3 text-gray-100">
+             Real-time transparency for municipal assistance programs. Browse verified beneficiaries for the current quarter.
+          </p>
         </div>
-      </div>
+        
+        </div>
     </section>
 
-    <section class="py-20 px-6 bg-white">
-      <div class="max-w-3xl mx-auto">
-        <h2 class="text-center text-3xl font-black text-green-900 mb-12 uppercase tracking-wide">Frequently Asked Questions</h2>
-        <div class="space-y-4">
-          <details v-for="faq in faqs" :key="faq.q" class="group border border-gray-100 rounded-3xl overflow-hidden transition-all">
-            <summary class="flex justify-between items-center p-6 cursor-pointer bg-gray-50 group-open:bg-green-900 group-open:text-white list-none">
-              <span class="font-bold pr-4">{{ faq.q }}</span>
-              <PlusIcon class="w-5 h-5 group-open:rotate-45 transition-transform duration-300 shrink-0" />
-            </summary>
-            <div class="p-6 text-gray-600 leading-relaxed border-t border-gray-50 text-sm">
-              {{ faq.a }}
+    <section class="py-8 md:py-16 px-4 md:px-6">
+      <div class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 md:gap-12">
+        
+        <div class="lg:col-span-4 space-y-6 order-2 lg:order-1">
+          <div class="bg-white rounded-[2rem] shadow-xl border border-gray-100 overflow-hidden lg:sticky lg:top-24">
+            <div class="bg-yellow-400 p-6 text-green-950">
+              <div class="flex items-center gap-3">
+                <UserGroupIcon class="w-7 h-7 md:w-8 md:h-8" />
+                <h3 class="text-lg md:text-xl font-black uppercase tracking-tight">Catered Today</h3>
+              </div>
+              <p class="text-[9px] md:text-[10px] font-black mt-1 uppercase tracking-widest opacity-70">Live Assistance Counter</p>
             </div>
-          </details>
+            
+            <div class="p-4 md:p-6 space-y-3 md:space-y-4">
+              <div v-for="item in assistanceItems" :key="item.category" 
+                   class="flex items-center justify-between p-3 md:p-4 bg-gray-50 rounded-2xl border border-transparent hover:border-yellow-200 transition-all">
+                <div class="flex items-center gap-3 md:gap-4">
+                  <div class="w-9 h-9 md:w-10 md:h-10 bg-white rounded-xl flex items-center justify-center shadow-sm">
+                    <component :is="item.icon" class="w-4 h-4 md:w-5 md:h-5 text-green-800" />
+                  </div>
+                  <span class="font-bold text-green-900 text-xs md:text-sm uppercase tracking-tight">{{ item.category }}</span>
+                </div>
+                <div class="text-right leading-none">
+                  <span class="text-base md:text-lg font-black text-green-900 block">{{ item.count }}</span>
+                  <span class="text-[8px] md:text-[9px] font-black text-gray-400 uppercase">Total</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="lg:col-span-8 space-y-6 order-1 lg:order-2">
+          
+          <div class="flex bg-white p-1.5 rounded-2xl border border-gray-100 shadow-sm gap-1 overflow-x-auto no-scrollbar">
+            <button 
+              v-for="tab in ['Scholars', 'Medical Aid', 'Legal Aid']" 
+              :key="tab"
+              @click="activeTab = tab"
+              :class="[
+                'flex-1 min-w-[100px] py-3 px-2 md:px-6 rounded-xl text-[9px] md:text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap',
+                activeTab === tab ? 'bg-green-950 text-white shadow-lg' : 'text-gray-400 hover:bg-green-50'
+              ]"
+            >
+              {{ tab }}
+            </button>
+          </div>
+
+          <div class="bg-white rounded-[2rem] md:rounded-[2.5rem] shadow-xl border border-gray-100 p-5 md:p-8 min-h-[400px]">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-6 md:mb-8 gap-4">
+              <div>
+                <h2 class="text-xl md:text-2xl font-black text-green-900 uppercase tracking-tight">{{ activeTab }} Registry</h2>
+                <p class="text-[9px] md:text-[10px] text-gray-400 font-bold uppercase mt-1 tracking-wider">Official Beneficiaries</p>
+              </div>
+              
+              <div class="relative w-full sm:w-64 group">
+                <MagnifyingGlassIcon class="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-300" />
+                <input 
+                  v-model="searchQuery" 
+                  type="text" 
+                  placeholder="Search names..." 
+                  class="w-full pl-11 pr-4 py-2.5 bg-gray-50 border-none rounded-xl text-xs md:text-sm focus:ring-2 focus:ring-yellow-400 font-medium" 
+                />
+              </div>
+            </div>
+
+            <div class="overflow-x-auto -mx-5 md:mx-0">
+              <div class="inline-block min-w-full align-middle px-5 md:px-0">
+                <table class="w-full text-left">
+                  <thead>
+                    <tr class="text-green-900 text-[8px] md:text-[10px] font-black uppercase tracking-widest border-b border-gray-100">
+                      <th class="px-2 md:px-4 py-4">Full Name</th>
+                      <th class="px-2 md:px-4 py-4">{{ activeTab === 'Scholars' ? 'Institution' : 'Barangay' }}</th>
+                      <th class="px-2 md:px-4 py-4 text-center">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody class="divide-y divide-gray-50">
+                    <tr v-for="person in filteredData" :key="person.name" class="hover:bg-green-50/50 transition-colors">
+                      <td class="px-2 md:px-4 py-4 md:py-5">
+                          <p class="font-bold text-green-950 text-xs md:text-sm uppercase leading-tight">{{ person.name }}</p>
+                          <p class="text-[8px] md:text-[9px] text-gray-400 font-black tracking-widest mt-0.5">{{ person.id }}</p>
+                      </td>
+                      <td class="px-2 md:px-4 py-4 md:py-5 text-[11px] md:text-sm text-gray-500 font-medium whitespace-nowrap">
+                          {{ activeTab === 'Scholars' ? person.school : person.barangay }}
+                      </td>
+                      <td class="px-2 md:px-4 py-4 md:py-5 text-center">
+                        <span :class="[
+                          'px-2 md:px-3 py-1 text-[8px] md:text-[9px] font-black rounded-full uppercase inline-block',
+                          person.status === 'Released' ? 'bg-green-100 text-green-700' : 'bg-blue-100 text-blue-700'
+                        ]">
+                          {{ person.status }}
+                        </span>
+                      </td>
+                    </tr>
+                    <tr v-if="filteredData.length === 0">
+                      <td colspan="3" class="py-16 text-center text-gray-400 text-xs italic">No records found.</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </section>
@@ -137,69 +165,66 @@
 </template>
 
 <script setup>
-import { Head } from '@inertiajs/vue3';
+import { ref, computed } from 'vue';
+import { Head, Link } from '@inertiajs/vue3';
 import Navbar from "@/components/Home/Navbar.vue";
 import Footer from "@/components/Home/Footer.vue";
 import { 
-  AcademicCapIcon, 
-  HeartIcon, 
-  ScaleIcon, 
-  CheckCircleIcon,
-  DocumentIcon,
-  PhoneIcon,
-  MapPinIcon,
-  PlusIcon
+  UserGroupIcon, HeartIcon, AcademicCapIcon, ScaleIcon, 
+  MagnifyingGlassIcon 
 } from '@heroicons/vue/24/outline';
 
-const mainPrograms = [
-  {
-    title: 'Educational Support',
-    description: 'Scholarships and financial aid for deserving students in public and private institutions.',
-    bgClass: 'bg-blue-600',
-    icon: AcademicCapIcon,
-    benefits: ['Tuition Subsidies', 'Book Allowances', 'Merit Incentives']
-  },
-  {
-    title: 'Medical Assistance',
-    description: 'Support for hospital bills, laboratory fees, and essential medicine for indigent patients.',
-    bgClass: 'bg-red-500',
-    icon: HeartIcon,
-    benefits: ['Hospital Bill Support', 'Medicine Vouchers', 'Diagnostic Aid']
-  },
-  {
-    title: 'Legal Consultation',
-    description: 'Free legal advice and notary services for municipal residents seeking documentation.',
-    bgClass: 'bg-green-700',
-    icon: ScaleIcon,
-    benefits: ['Affidavit Preparation', 'Legal Counseling', 'Notary Services']
-  }
+const searchQuery = ref('');
+const activeTab = ref('Scholars');
+
+// DATA REGISTRIES (Mocked)
+const medicalList = [
+  { name: 'ALFONSO, REYNALDO T.', barangay: 'Poblacion', id: 'MED-2024-881', status: 'Released' },
+  { name: 'DIZON, CARMELITA S.', barangay: 'San Nicolas', id: 'MED-2024-902', status: 'Released' },
+  { name: 'MANALILI, EDUARDO P.', barangay: 'San Jose', id: 'MED-2024-745', status: 'Released' },
 ];
 
-const steps = [
-  { title: 'Inquiry', desc: 'Visit our office or contact the hotline to check program availability.' },
-  { title: 'Documentation', desc: 'Gather all required documents based on the program checklist.' },
-  { title: 'Evaluation', desc: 'Submit files to the Social Welfare officer for verification and interview.' },
-  { title: 'Granting', desc: 'Once approved, assistance will be released via check or voucher.' }
+const legalList = [
+  { name: 'ESTACIO, GREGORIO B.', barangay: 'Alfonso', id: 'LEG-2024-012', status: 'Consulted' },
+  { name: 'VALENCIA, ROSA M.', barangay: 'Sto. Niño', id: 'LEG-2024-009', status: 'Consulted' },
 ];
 
-const requirements = [
-  { title: 'Barangay Indigency', note: 'Must be issued within the last 3 months for the specific applicant.' },
-  { title: 'Valid Government ID', note: 'Photocopy of any ID showing municipal residency (Voters, PhilSys, etc).' },
-  { title: 'Specific Proof of Need', note: 'Medical Certificate, School Enrollment Form, or Burial Certificate.' }
+const scholarList = [
+  { name: 'DELA CRUZ, JUAN A.', school: 'Bulacan State Univ', id: 'SCH-2024-001', status: 'Active' },
+  { name: 'SANTOS, MARIA CLARA', school: 'UP Diliman', id: 'SCH-2024-042', status: 'Active' },
 ];
 
-const faqs = [
-  { q: 'Who is eligible for assistance?', a: 'Any bona fide resident of the municipality who falls under the "indigent" category as defined by MSWDO guidelines and local social welfare standards.' },
-  { q: 'When is People’s Day?', a: 'People’s Day is held every Tuesday, where the Sangguniang Bayan members personally cater to citizen requests and provide direct legislative assistance.' },
-  { q: 'How long does the processing take?', a: 'Standard applications typically take 3-5 working days. Emergency medical cases are prioritized and can often be processed within 24 hours.' }
+const assistanceItems = [
+  { category: 'Medical Aid', count: '142', icon: HeartIcon },
+  { category: 'Educational', count: '85', icon: AcademicCapIcon },
+  { category: 'Legal Aid', count: '12', icon: ScaleIcon },
 ];
+
+const filteredData = computed(() => {
+  let list = [];
+  if (activeTab.value === 'Scholars') list = scholarList;
+  if (activeTab.value === 'Medical Aid') list = medicalList;
+  if (activeTab.value === 'Legal Aid') list = legalList;
+
+  return list.filter(item => 
+    item.name.toLowerCase().includes(searchQuery.value.toLowerCase())
+  );
+});
 </script>
 
 <style scoped>
-/* Removes the default arrow from <details> in some browsers */
-details summary::-webkit-details-marker { display: none; }
-summary { list-style: none; }
+/* Scannable layout utilities */
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
-/* Custom smooth scroll spacing */
-section { scroll-margin-top: 100px; }
+/* Adjustments for smaller mobile devices */
+@media (max-width: 380px) {
+  /* Changed 'tracking-normal' to 'letter-spacing: normal' */
+  .tracking-widest { 
+    letter-spacing: normal !important; 
+  }
+  h1 { 
+    font-size: 1.75rem !important; 
+  }
+}
 </style>

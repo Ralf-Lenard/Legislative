@@ -19,113 +19,266 @@ use Illuminate\Support\Facades\Storage;
 
 class HomeController extends Controller
 {
+    // public function indexAdmin()
+    // {
+    //     $user = Auth::user();
+
+    //     // ========================
+    //     // ALLOWED ROLES
+    //     // ========================
+    //     if (!in_array($user->usertype, ['admin', 'super_admin'])) {
+    //         abort(403);
+    //     }
+
+    //     // ========================
+    //     // SHARED STATS (ADMIN + SUPER ADMIN)
+    //     // ========================
+    //     $totalOrdinances  = Ordinance::count();
+    //     $totalResolutions = Resolution::count();
+
+    //     $ordinanceRequestStatus = [
+    //         'pending'  => OrdinanceDownloadRequest::where('status', 'pending')->count(),
+    //         'approved' => OrdinanceDownloadRequest::where('status', 'approved')->count(),
+    //         'rejected' => OrdinanceDownloadRequest::where('status', 'rejected')->count(),
+    //     ];
+
+    //     $resolutionRequestStatus = [
+    //         'pending'  => ResolutionDownloadRequest::where('status', 'pending')->count(),
+    //         'approved' => ResolutionDownloadRequest::where('status', 'approved')->count(),
+    //         'rejected' => ResolutionDownloadRequest::where('status', 'rejected')->count(),
+    //     ];
+
+    //     // ========================
+    //     // MONTH LABELS
+    //     // ========================
+    //     $months = collect(range(1, 12))->map(
+    //         fn($m) =>
+    //         Carbon::create()->month($m)->format('M')
+    //     );
+
+    //     // ========================
+    //     // MONTHLY REQUESTS (SHARED)
+    //     // ========================
+    //     $ordinanceMonthly = OrdinanceDownloadRequest::selectRaw(
+    //         'MONTH(created_at) as month, COUNT(*) as total'
+    //     )->groupBy('month')->pluck('total', 'month');
+
+    //     $resolutionMonthly = ResolutionDownloadRequest::selectRaw(
+    //         'MONTH(created_at) as month, COUNT(*) as total'
+    //     )->groupBy('month')->pluck('total', 'month');
+
+    //     $monthlyRequests = $months->map(function ($monthName, $index) use ($ordinanceMonthly, $resolutionMonthly) {
+    //         $month = $index + 1;
+
+    //         return [
+    //             'month'       => $monthName,
+    //             'ordinances'  => $ordinanceMonthly[$month] ?? 0,
+    //             'resolutions' => $resolutionMonthly[$month] ?? 0,
+    //         ];
+    //     });
+
+    //     // ========================
+    //     // SUPER ADMIN ONLY STATS
+    //     // ========================
+    //     $userStats   = null;
+    //     $userMonthly = null;
+
+    //     if ($user->usertype === 'super_admin') {
+    //         // BASIC USER COUNTS
+    //         $userStats = [
+    //             'totalUsers' => User::count(),
+    //             'admins'     => User::where('usertype', 'admin')->count(),
+    //             'users'      => User::where('usertype', 'user')->count(),
+    //         ];
+
+    //         // MONTHLY USER REGISTRATIONS
+    //         $userMonthlyRaw = User::selectRaw(
+    //             'MONTH(created_at) as month, COUNT(*) as total'
+    //         )->groupBy('month')->pluck('total', 'month');
+
+    //         $userMonthly = $months->map(function ($monthName, $index) use ($userMonthlyRaw) {
+    //             $month = $index + 1;
+
+    //             return [
+    //                 'month' => $monthName,
+    //                 'total' => $userMonthlyRaw[$month] ?? 0,
+    //             ];
+    //         });
+    //     }
+
+    //     // ========================
+    //     // RESPONSE
+    //     // ========================
+    //     return Inertia::render('Admin/Dashboard', [
+    //         'role' => $user->usertype,
+
+    //         // SHARED
+    //         'stats' => [
+    //             'totalOrdinances'  => $totalOrdinances,
+    //             'totalResolutions' => $totalResolutions,
+    //         ],
+    //         'ordinanceRequestStatus'  => $ordinanceRequestStatus,
+    //         'resolutionRequestStatus' => $resolutionRequestStatus,
+    //         'monthlyRequests'         => $monthlyRequests,
+
+    //         // SUPER ADMIN ONLY
+    //         'userStats'   => $userStats,
+    //         'userMonthly' => $userMonthly,
+    //     ]);
+    // }
+
+
     public function indexAdmin()
-    {
-        $user = Auth::user();
+{
+    $user = Auth::user();
 
-        // ========================
-        // ALLOWED ROLES
-        // ========================
-        if (!in_array($user->usertype, ['admin', 'super_admin'])) {
-            abort(403);
-        }
+    // ========================
+    // ALLOWED ROLES
+    // ========================
+    if (!in_array($user->usertype, ['admin', 'super_admin'])) {
+        abort(403);
+    }
 
-        // ========================
-        // SHARED STATS (ADMIN + SUPER ADMIN)
-        // ========================
-        $totalOrdinances  = Ordinance::count();
-        $totalResolutions = Resolution::count();
+    // ========================
+    // SHARED STATS (ADMIN + SUPER ADMIN)
+    // ========================
+    $totalOrdinances  = Ordinance::count();
+    $totalResolutions = Resolution::count();
 
-        $ordinanceRequestStatus = [
-            'pending'  => OrdinanceDownloadRequest::where('status', 'pending')->count(),
-            'approved' => OrdinanceDownloadRequest::where('status', 'approved')->count(),
-            'rejected' => OrdinanceDownloadRequest::where('status', 'rejected')->count(),
-        ];
+    $ordinanceRequestStatus = [
+        'pending'  => OrdinanceDownloadRequest::where('status', 'pending')->count(),
+        'approved' => OrdinanceDownloadRequest::where('status', 'approved')->count(),
+        'rejected' => OrdinanceDownloadRequest::where('status', 'rejected')->count(),
+    ];
 
-        $resolutionRequestStatus = [
-            'pending'  => ResolutionDownloadRequest::where('status', 'pending')->count(),
-            'approved' => ResolutionDownloadRequest::where('status', 'approved')->count(),
-            'rejected' => ResolutionDownloadRequest::where('status', 'rejected')->count(),
-        ];
+    $resolutionRequestStatus = [
+        'pending'  => ResolutionDownloadRequest::where('status', 'pending')->count(),
+        'approved' => ResolutionDownloadRequest::where('status', 'approved')->count(),
+        'rejected' => ResolutionDownloadRequest::where('status', 'rejected')->count(),
+    ];
 
-        // ========================
-        // MONTH LABELS
-        // ========================
-        $months = collect(range(1, 12))->map(
-            fn($m) =>
-            Carbon::create()->month($m)->format('M')
-        );
+    // ========================
+    // MONTH LABELS
+    // ========================
+    $months = collect(range(1, 12))->map(
+        fn($m) => Carbon::create()->month($m)->format('M')
+    );
 
-        // ========================
-        // MONTHLY REQUESTS (SHARED)
-        // ========================
-        $ordinanceMonthly = OrdinanceDownloadRequest::selectRaw(
+    // ========================
+    // MONTHLY REQUESTS
+    // ========================
+    $ordinanceMonthly = OrdinanceDownloadRequest::selectRaw(
             'MONTH(created_at) as month, COUNT(*) as total'
-        )->groupBy('month')->pluck('total', 'month');
+        )
+        ->groupBy('month')
+        ->pluck('total', 'month');
 
-        $resolutionMonthly = ResolutionDownloadRequest::selectRaw(
+    $resolutionMonthly = ResolutionDownloadRequest::selectRaw(
             'MONTH(created_at) as month, COUNT(*) as total'
-        )->groupBy('month')->pluck('total', 'month');
+        )
+        ->groupBy('month')
+        ->pluck('total', 'month');
 
-        $monthlyRequests = $months->map(function ($monthName, $index) use ($ordinanceMonthly, $resolutionMonthly) {
-            $month = $index + 1;
+    $monthlyRequests = $months->map(function ($monthName, $index) use ($ordinanceMonthly, $resolutionMonthly) {
+        $month = $index + 1;
 
+        return [
+            'month'       => $monthName,
+            'ordinances'  => $ordinanceMonthly[$month] ?? 0,
+            'resolutions' => $resolutionMonthly[$month] ?? 0,
+        ];
+    });
+
+    // ========================
+    // MOST REQUESTED ORDINANCES
+    // ========================
+    $topOrdinances = OrdinanceDownloadRequest::selectRaw(
+            'ordinance_id, COUNT(*) as total'
+        )
+        ->groupBy('ordinance_id')
+        ->orderByDesc('total')
+        ->with('ordinance:id,title_ordinances')
+        ->take(5)
+        ->get()
+        ->map(function ($item) {
             return [
-                'month'       => $monthName,
-                'ordinances'  => $ordinanceMonthly[$month] ?? 0,
-                'resolutions' => $resolutionMonthly[$month] ?? 0,
+                'title' => optional($item->ordinance)->title_ordinances ?? 'Unknown',
+                'total' => $item->total,
             ];
         });
 
-        // ========================
-        // SUPER ADMIN ONLY STATS
-        // ========================
-        $userStats   = null;
-        $userMonthly = null;
-
-        if ($user->usertype === 'super_admin') {
-            // BASIC USER COUNTS
-            $userStats = [
-                'totalUsers' => User::count(),
-                'admins'     => User::where('usertype', 'admin')->count(),
-                'users'      => User::where('usertype', 'user')->count(),
+    // ========================
+    // MOST REQUESTED RESOLUTIONS
+    // ========================
+    $topResolutions = ResolutionDownloadRequest::selectRaw(
+            'resolution_id, COUNT(*) as total'
+        )
+        ->groupBy('resolution_id')
+        ->orderByDesc('total')
+        ->with('resolution:id,title_resolutions')
+        ->take(5)
+        ->get()
+        ->map(function ($item) {
+            return [
+                'title' => optional($item->resolution)->title_resolutions ?? 'Unknown',
+                'total' => $item->total,
             ];
+        });
 
-            // MONTHLY USER REGISTRATIONS
-            $userMonthlyRaw = User::selectRaw(
+    // ========================
+    // SUPER ADMIN ONLY STATS
+    // ========================
+    $userStats   = null;
+    $userMonthly = null;
+
+    if ($user->usertype === 'super_admin') {
+
+        $userStats = [
+            'totalUsers' => User::count(),
+            'admins'     => User::where('usertype', 'admin')->count(),
+            'users'      => User::where('usertype', 'user')->count(),
+        ];
+
+        $userMonthlyRaw = User::selectRaw(
                 'MONTH(created_at) as month, COUNT(*) as total'
-            )->groupBy('month')->pluck('total', 'month');
+            )
+            ->groupBy('month')
+            ->pluck('total', 'month');
 
-            $userMonthly = $months->map(function ($monthName, $index) use ($userMonthlyRaw) {
-                $month = $index + 1;
+        $userMonthly = $months->map(function ($monthName, $index) use ($userMonthlyRaw) {
+            $month = $index + 1;
 
-                return [
-                    'month' => $monthName,
-                    'total' => $userMonthlyRaw[$month] ?? 0,
-                ];
-            });
-        }
-
-        // ========================
-        // RESPONSE
-        // ========================
-        return Inertia::render('Admin/Dashboard', [
-            'role' => $user->usertype,
-
-            // SHARED
-            'stats' => [
-                'totalOrdinances'  => $totalOrdinances,
-                'totalResolutions' => $totalResolutions,
-            ],
-            'ordinanceRequestStatus'  => $ordinanceRequestStatus,
-            'resolutionRequestStatus' => $resolutionRequestStatus,
-            'monthlyRequests'         => $monthlyRequests,
-
-            // SUPER ADMIN ONLY
-            'userStats'   => $userStats,
-            'userMonthly' => $userMonthly,
-        ]);
+            return [
+                'month' => $monthName,
+                'total' => $userMonthlyRaw[$month] ?? 0,
+            ];
+        });
     }
+
+    // ========================
+    // RESPONSE
+    // ========================
+    return Inertia::render('Admin/Dashboard', [
+        'role' => $user->usertype,
+
+        // SHARED
+        'stats' => [
+            'totalOrdinances'  => $totalOrdinances,
+            'totalResolutions' => $totalResolutions,
+        ],
+        'ordinanceRequestStatus'  => $ordinanceRequestStatus,
+        'resolutionRequestStatus' => $resolutionRequestStatus,
+        'monthlyRequests'         => $monthlyRequests,
+
+        // NEW GRAPH DATA
+        'topOrdinances'   => $topOrdinances,
+        'topResolutions'  => $topResolutions,
+
+        // SUPER ADMIN
+        'userStats'   => $userStats,
+        'userMonthly' => $userMonthly,
+    ]);
+}
 
     // public function welcome()
     // {

@@ -28,26 +28,28 @@
           </h4>
           <ul class="space-y-3">
             <li><a href="/" class="text-white text-opacity-80 hover:text-[#ffc107] transition text-sm">Home</a></li>
-            <li><a href="/sanguniang-bayan-members" class="text-white text-opacity-80 hover:text-[#ffc107] transition text-sm">Sanguniang Bayan Members</a></li>
+            <li><a href="/organizational-chart" class="text-white text-opacity-80 hover:text-[#ffc107] transition text-sm">Organizational Chart</a></li>
             <li><a href="/sessions" class="text-white text-opacity-80 hover:text-[#ffc107] transition text-sm">Sessions</a></li>
+             <li><a href="/library" class="text-white text-opacity-80 hover:text-[#ffc107] transition text-sm">Library</a></li>
           </ul>
         </div>
 
         <!-- Legislation -->
         <div>
-          <h4 class="font-extrabold text-[#ffc107] mb-5 text-sm uppercase tracking-wider">Legislation</h4>
+          <h4 class="font-extrabold text-[#ffc107] mb-5 text-sm uppercase tracking-wider">Citizens Charter</h4>
           <ul class="space-y-3">
-            <li><a href="/ordinances" class="text-white text-opacity-80 hover:text-[#ffc107] transition text-sm">Ordinances</a></li>
-            <li><a href="/resolutions" class="text-white text-opacity-80 hover:text-[#ffc107] transition text-sm">Resolutions</a></li>
-            <!-- <li><a href="/documents" class="text-white text-opacity-80 hover:text-[#ffc107] transition text-sm">Public Records</a></li>
-            <li><a href="/transparency" class="text-white text-opacity-80 hover:text-[#ffc107] transition text-sm">Transparency Portal</a></li> -->
+             <li><a href="/citizens-charter" class="text-white text-opacity-80 hover:text-[#ffc107] transition text-sm">Citizens Charter</a></li>
+            <li><a href="/citizens-charter/ordinances" class="text-white text-opacity-80 hover:text-[#ffc107] transition text-sm">Ordinances</a></li>
+            <li><a href="/citizens-charter/resolutions" class="text-white text-opacity-80 hover:text-[#ffc107] transition text-sm">Resolutions</a></li>
+            <li><a href="/citizens-charter/public-assistance" class="text-white text-opacity-80 hover:text-[#ffc107] transition text-sm">Public Assistance</a></li>
+            <!-- <li><a href="/transparency" class="text-white text-opacity-80 hover:text-[#ffc107] transition text-sm">Transparency Portal</a></li> -->
           </ul>
         </div>
 
         <!-- Stay Connected -->
         <div class="col-span-2 sm:col-span-1">
           <h4 class="font-extrabold text-[#ffc107] mb-5 text-sm uppercase tracking-wider">Stay Connected</h4>
-            <div class="flex gap-4 mb-6">
+            <!-- <div class="flex gap-4 mb-6">
               <a
                   v-for="social in socials"
                   :key="social.name"
@@ -62,9 +64,9 @@
                   />
                 </a>
 
-          </div>
-          <p class="text-sm font-bold text-white mb-1">(045) 923-4567</p>
-          <p class="text-sm text-white text-opacity-80">sangguniangbayan@concepcion.gov.ph</p>
+          </div> -->
+          <p class="text-sm font-bold text-white mb-1">(045) 628-2127</p>
+          <p class="text-sm text-white text-opacity-80">sbo.cpn.tarlac@gmail.com</p>
         </div>
       </div>
 
@@ -84,10 +86,10 @@
 <script setup>
 import { Facebook, Twitter, Mail } from 'lucide-vue-next'
 
-const socials = [
-  { name: 'Facebook', icon: Facebook, url: 'https://facebook.com' },
-  { name: 'TikTok', icon: Mail, url: 'https://tiktok.com' }, // Lucide doesn’t have TikTok, use custom SVG later if needed
-  { name: 'Twitter', icon: Twitter, url: 'https://twitter.com' },
-  { name: 'Email', icon: Mail, url: 'mailto:sangguniangbayan@concepcion.gov.ph' },
-]
+// const socials = [
+//   { name: 'Facebook', icon: Facebook, url: 'https://facebook.com' },
+//   { name: 'TikTok', icon: Mail, url: 'https://tiktok.com' }, // Lucide doesn’t have TikTok, use custom SVG later if needed
+//   { name: 'Twitter', icon: Twitter, url: 'https://twitter.com' },
+//   { name: 'Email', icon: Mail, url: 'mailto:sangguniangbayan@concepcion.gov.ph' },
+// ]
 </script>

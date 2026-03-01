@@ -36,7 +36,7 @@ class ResolutionDownloadRequest extends Model
 
     // Relationship: Each request belongs to an ordinance
     public function resolution()
-    {
-        return $this->belongsTo(Resolution::class);
-    }
+{
+    return $this->belongsTo(Resolution::class);
+}
 }

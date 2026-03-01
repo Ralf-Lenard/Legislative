@@ -554,11 +554,11 @@ const contactDetails = [
         title: 'Address',
         detail: 'Legislative, Concepcion, Tarlac',
     },
-    { icon: '📞', title: 'Phone', detail: '(045) 923-4567' },
+    { icon: '📞', title: 'Phone', detail: '(045) 628-2127' },
     {
         icon: '📧',
         title: 'Email',
-        detail: 'sangguniangbayan@concepcion.gov.ph',
+        detail: 'sbo.cpn.tarlac@gmail.com',
     },
 ];
 </script>

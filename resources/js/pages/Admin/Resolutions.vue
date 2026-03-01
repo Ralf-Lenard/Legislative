@@ -14,7 +14,10 @@ import {
     Trash2,
     X,
     Eye,
-    ClipboardList
+    ClipboardList,
+    ChevronRight,
+    ChevronLeft,
+    MoreHorizontal
 } from 'lucide-vue-next';
 import { computed, nextTick, onMounted, ref, watch } from 'vue';
 
@@ -31,20 +34,15 @@ interface Resolution {
 
 interface PaginatedResolutions {
     data: Resolution[];
-    links: {
-        url: string | null;
-        label: string;
-        active: boolean;
-    }[];
-    meta: {
-        current_page: number;
-        from: number;
-        last_page: number;
-        per_page: number;
-        to: number;
-        total: number;
-    };
+    links: { url: string | null; label: string; active: boolean; }[];
+    current_page: number;
+    from: number;
+    last_page: number;
+    per_page: number;
+    to: number;
+    total: number;
 }
+
 
 // PROPS - Access directly from usePage for reactivity
 const page = usePage<{
@@ -56,6 +54,44 @@ const page = usePage<{
     resolutionsWithPdfCount: number;
     resolutionsWithImageCount: number;
 }>();
+
+const filteredLinks = computed(() => {
+    const links = page.props.resolutions.links;
+    if (links.length <= 10) return links;
+
+    const total = links.length;
+    const current = links.findIndex(l => l.active);
+    const result = [];
+
+    // Always include Previous (index 0)
+    result.push(links[0]);
+
+    // Logic for pages and ellipsis
+    for (let i = 1; i < total - 1; i++) {
+        // Always show first and last page
+        if (i === 1 || i === total - 2) {
+            result.push(links[i]);
+            continue;
+        }
+
+        // Show range around active page
+        if (i >= current - 1 && i <= current + 1) {
+            result.push(links[i]);
+            continue;
+        }
+
+        // Add ellipsis if we haven't just added one
+        if (result[result.length - 1].label !== '...') {
+            result.push({ url: null, label: '...', active: false });
+        }
+    }
+
+    // Always include Next (last index)
+    result.push(links[total - 1]);
+
+    return result;
+});
+
 
 // STATE - Bound to inputs
 const search = ref(page.props.filters?.search || '');
@@ -298,22 +334,42 @@ onMounted(() => {
                         </tbody>
                     </table>
 
-                    <div v-if="paginationLinks.length > 3" class="flex items-center justify-between border-t border-slate-200 bg-slate-50 px-4 py-4 sm:px-6">
-                        <div class="text-sm text-slate-600">
-                            Showing <span class="font-semibold">{{ paginationMeta?.from }}</span> to <span class="font-semibold">{{ paginationMeta?.to }}</span> of <span class="font-semibold">{{ paginationMeta?.total }}</span>
+                    <div v-if="page.props.resolutions.links.length > 3" 
+                         class="flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-slate-200 bg-slate-50 px-6 py-4">
+                        
+                        <div class="text-sm text-slate-500">
+                            Showing <span class="font-bold text-slate-900">{{ page.props.resolutions.from }}</span> to 
+                            <span class="font-bold text-slate-900">{{ page.props.resolutions.to }}</span> of 
+                            <span class="font-bold text-slate-900">{{ page.props.resolutions.total }}</span>
                         </div>
-                        <nav class="isolate inline-flex -space-x-px rounded-md shadow-sm">
-                            <button v-for="(link, key) in paginationLinks" :key="key"
-                                :disabled="!link.url"
-                                @click="paginate(link.url)"
-                                v-html="link.label"
-                                :class="[
-                                    'relative inline-flex items-center px-4 py-2 text-sm font-semibold ring-1 ring-slate-300 ring-inset transition-all',
-                                    key === 0 ? 'rounded-l-md' : '',
-                                    key === paginationLinks.length - 1 ? 'rounded-r-md' : '',
-                                    link.active ? 'z-10 bg-emerald-600 text-white ring-emerald-600' : link.url ? 'text-slate-900 hover:bg-slate-50' : 'cursor-not-allowed text-slate-400 bg-slate-100'
-                                ]"
-                            />
+
+                        <nav class="inline-flex -space-x-px rounded-lg bg-white shadow-sm border border-slate-200" aria-label="Pagination">
+                            <template v-for="(link, key) in filteredLinks" :key="key">
+                                
+                                <div v-if="link.label === '...'" 
+                                     class="relative inline-flex items-center px-3 py-2 text-slate-400">
+                                    <MoreHorizontal class="h-4 w-4" />
+                                </div>
+
+                                <button
+                                    v-else
+                                    :disabled="!link.url || link.active"
+                                    @click="paginate(link.url)"
+                                    class="relative inline-flex items-center justify-center min-w-[40px] h-10 px-3 text-sm font-semibold transition-all first:rounded-l-lg last:rounded-r-lg"
+                                    :class="[
+                                        link.active 
+                                            ? 'z-10 bg-emerald-600 text-white' 
+                                            : 'text-slate-500 hover:bg-slate-50 hover:text-emerald-600',
+                                        !link.url ? 'opacity-30 cursor-not-allowed' : 'cursor-pointer',
+                                        key !== 0 ? 'border-l border-slate-200' : ''
+                                    ]"
+                                >
+                                    <ChevronLeft v-if="link.label.includes('Previous')" class="h-4 w-4" />
+                                    <ChevronRight v-else-if="link.label.includes('Next')" class="h-4 w-4" />
+                                    <span v-else>{{ link.label }}</span>
+                                </button>
+
+                            </template>
                         </nav>
                     </div>
                 </div>

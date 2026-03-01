@@ -71,6 +71,12 @@
                       <Link href="/profile" class="block px-3 py-2 text-sm hover:bg-yellow-50 rounded-lg font-medium">
                         Profile Settings
                       </Link>
+                     <Link
+                      href="/document-requests"
+                      class="block px-3 py-2 text-sm hover:bg-yellow-50 rounded-lg font-medium"
+                    >
+                      My Requests
+                    </Link>
                       <Link
                         href="/logout"
                         method="post"
@@ -149,7 +155,10 @@
             <!-- MOBILE USER -->
             <template v-if="user">
               <Link href="/profile" @click="isOpen = false" class="block px-5 py-4 text-gray-700 font-bold">
-                ⚙️ Profile Settings
+                 Profile Settings
+              </Link>
+              <Link href="/document-requests" @click="isOpen = false" class="block px-5 py-4 text-gray-700 font-bold">
+                  My Requests
               </Link>
               <Link
                 href="/logout"
@@ -157,7 +166,7 @@
                 as="button"
                 class="w-full text-left px-5 py-4 text-red-600 font-black"
               >
-                🚪 Logout
+                 Logout
               </Link>
             </template>
 

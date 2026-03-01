@@ -62,32 +62,62 @@ class SessionController extends Controller
         ]);
     }
 
+    // public function showUser($id)
+    // {
+    //     $session = LegislativeSession::findOrFail($id);
+
+    //     return Inertia::render('User/SessionDetails', [
+    //         'session' => [
+    //             'id' => $session->id,
+    //             'session_number' => $session->session_number,
+    //             'session_title' => $session->session_title,
+    //             'date_of_session' => $session->date_of_session,
+    //             'session_type' => $session->session_type,
+    //             'summary' => $session->summary,
+
+    //             // 🔥 FIX HERE
+    //             'images' => collect($session->images ?? [])->map(function ($image) {
+    //                 return [
+    //                     'url' => asset('storage/' . $image['file_path']),
+    //                     'alt' => $image['alt'] ?? 'Session Image',
+    //                 ];
+    //             })->values(),
+
+    //             'created_at' => $session->created_at,
+    //         ],
+    //         'canRegister' => Route::has('register'),
+    //     ]);
+    // }
+
     public function showUser($id)
-    {
-        $session = LegislativeSession::findOrFail($id);
+{
+    $session = LegislativeSession::findOrFail($id);
 
-        return Inertia::render('User/SessionDetails', [
-            'session' => [
-                'id' => $session->id,
-                'session_number' => $session->session_number,
-                'session_title' => $session->session_title,
-                'date_of_session' => $session->date_of_session,
-                'session_type' => $session->session_type,
-                'summary' => $session->summary,
+    return Inertia::render('User/SessionDetails', [
+        'session' => [
+            'id' => $session->id,
+            'session_number' => $session->session_number,
+            'session_title' => $session->session_title,
+            'date_of_session' => $session->date_of_session,
+            'session_type' => $session->session_type,
+            'summary' => $session->summary,
 
-                // 🔥 FIX HERE
-                'images' => collect($session->images ?? [])->map(function ($image) {
-                    return [
-                        'url' => asset('storage/' . $image['file_path']),
-                        'alt' => $image['alt'] ?? 'Session Image',
-                    ];
-                })->values(),
+            // Handle null images safely
+            'images' => collect($session->images ?? [])->map(function ($image) {
+                if (!$image || !isset($image['file_path'])) {
+                    return null; // return null if image or file_path is missing
+                }
+                return [
+                    'url' => asset('storage/' . $image['file_path']),
+                    'alt' => $image['alt'] ?? 'Session Image',
+                ];
+            })->filter()->values(), // filter out any nulls
 
-                'created_at' => $session->created_at,
-            ],
-            'canRegister' => Route::has('register'),
-        ]);
-    }
+            'created_at' => $session->created_at,
+        ],
+        'canRegister' => Route::has('register'),
+    ]);
+}
 
 
     /**
