@@ -108,7 +108,7 @@ onUnmounted(() => window.removeEventListener('click', handleClickOutside));
             <ChevronLeft class="h-4 w-4" />
         </button>
         
-        <div class="px-4 py-8">
+        <div class="px-4 py-8 shrink-0">
             <div class="flex items-center gap-2" :class="isCollapsed ? 'flex-col justify-center' : 'justify-between px-2'">
                 <div class="flex items-center gap-3">
                     <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-emerald-600 text-white shadow-lg shadow-emerald-200/50 ring-4 ring-emerald-50">
@@ -125,7 +125,7 @@ onUnmounted(() => window.removeEventListener('click', handleClickOutside));
             </div>
         </div>
 
-        <nav class="custom-scrollbar flex-1 overflow-y-auto px-4 pb-4">
+        <nav class="custom-scrollbar flex-1 overflow-y-auto overflow-x-visible px-4 pb-4">
             <div v-for="(group, idx) in navGroups" :key="idx" class="mb-8">
                 <h3 v-if="!isCollapsed" class="mb-3 px-4 text-[10px] font-black uppercase tracking-[0.15em] text-slate-400/80">
                     {{ group.label }}
@@ -162,9 +162,7 @@ onUnmounted(() => window.removeEventListener('click', handleClickOutside));
                         >
                             <div class="relative flex items-center rounded-lg bg-emerald-600 px-3 py-2 text-[11px] font-bold text-white shadow-xl ring-1 ring-emerald-400/50">
                                 <div class="absolute -left-1 top-1/2 h-2.5 w-2.5 -translate-y-1/2 rotate-45 bg-emerald-600"></div>
-                                
                                 <span class="whitespace-nowrap">{{ item.title }}</span>
-                                
                                 <span v-if="item.count && item.count > 0" class="ml-2 rounded-md bg-white px-1.5 py-0.5 text-[9px] font-black text-emerald-600">
                                     {{ item.count }}
                                 </span>
@@ -175,13 +173,16 @@ onUnmounted(() => window.removeEventListener('click', handleClickOutside));
             </div>
         </nav>
 
-        <div class="relative p-4 mt-auto">
+        <div class="relative p-4 mt-auto shrink-0 overflow-visible z-[60]">
             <transition name="slide-up">
                 <div v-if="isProfileDropdownOpen" ref="profileDropdown" 
-                    class="absolute bottom-24 z-[80] overflow-hidden rounded-2xl border border-slate-200 bg-white p-2 shadow-2xl ring-1 ring-black/5"
-                    :class="isCollapsed ? 'left-4 w-48' : 'left-4 right-4'"
+                    class="absolute bottom-[105%] z-[100] overflow-hidden rounded-2xl border border-slate-200 bg-white p-2 shadow-2xl ring-1 ring-black/5"
+                    :class="isCollapsed ? 'left-4 w-56' : 'left-4 right-4'"
                 >
-                    <Link href="/profile-settings" class="flex items-center gap-3 rounded-xl px-4 py-2.5 text-sm font-bold text-slate-600 transition hover:bg-slate-50 hover:text-emerald-600">
+                    <div class="px-3 py-2 border-b border-slate-50 mb-1">
+                         <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Account Menu</p>
+                    </div>
+                    <Link href="/profile-settings" class="flex items-center gap-3 rounded-xl px-4 py-2.5 text-sm font-bold text-slate-600 transition hover:bg-emerald-50 hover:text-emerald-600">
                         <Settings class="h-4 w-4" /> Profile Settings
                     </Link>
                     <Link href="/logout" method="post" as="button" class="flex w-full items-center gap-3 rounded-xl px-4 py-2.5 text-sm font-black text-red-500 transition hover:bg-red-50">
@@ -203,15 +204,16 @@ onUnmounted(() => window.removeEventListener('click', handleClickOutside));
                     </div>
                 </div>
                 
-                <div v-if="!isCollapsed" class="min-w-0 flex-1 text-left">
+                <div v-if="!isCollapsed" class="min-w-0 flex-1 text-left flex items-center justify-between">
                     <p class="truncate text-sm font-bold text-slate-800 tracking-tight capitalize">
-                        {{ authUser?.name || 'Admin User' }}
+                        {{ authUser?.name || 'Admin' }}
                     </p>
+                    <ChevronUp class="h-4 w-4 text-slate-400 transition-transform duration-300" :class="isProfileDropdownOpen ? 'rotate-180' : ''" />
                 </div>
 
-                <div v-if="isCollapsed" class="pointer-events-none invisible fixed left-[75px] z-[9999] ml-2 flex items-center opacity-0 scale-90 -translate-x-2 transition-all duration-200 group-hover:visible group-hover:opacity-100 group-hover:scale-100 group-hover:translate-x-0">
-                    <div class="relative rounded-lg bg-emerald-600 px-3 py-2 text-[11px] font-bold text-emerald-50 shadow-2xl">
-                        <div class="absolute -left-1 top-1/2 h-2 w-2 -translate-y-1/2 rotate-45 bg-emerald-600"></div>
+                <div v-if="isCollapsed && !isProfileDropdownOpen" class="pointer-events-none invisible fixed left-[75px] z-[9999] ml-2 flex items-center opacity-0 scale-90 -translate-x-2 transition-all duration-200 group-hover:visible group-hover:opacity-100 group-hover:scale-100 group-hover:translate-x-0">
+                    <div class="relative rounded-lg bg-emerald-600 px-3 py-2 text-[11px] font-bold text-white shadow-xl ring-1 ring-emerald-400/50">
+                        <div class="absolute -left-1 top-1/2 h-2.5 w-2.5 -translate-y-1/2 rotate-45 bg-emerald-600"></div>
                         <span class="whitespace-nowrap">{{ authUser?.name || 'Admin' }}</span>
                     </div>
                 </div>
@@ -224,23 +226,23 @@ onUnmounted(() => window.removeEventListener('click', handleClickOutside));
 .custom-scrollbar::-webkit-scrollbar {
     width: 4px;
 }
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+}
+
 .custom-scrollbar::-webkit-scrollbar-thumb {
     background-color: #cbd5e1;
     border-radius: 20px;
 }
-
-/* IMPORTANT: 
-   'fixed' positioning inside a container with 'transform' (like 'transition') 
-   can sometimes behave like 'absolute'. 
-   We ensure the li has no transform properties during hover to keep 'fixed' working.
-*/
-li:hover {
-    transform: none;
+/* Crucial for allowing the profile dropdown to pop OUT of the sidebar footer */
+.mt-auto {
+    overflow: visible !important;
 }
 
 .slide-up-enter-active, .slide-up-leave-active {
     transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
+
 .slide-up-enter-from, .slide-up-leave-to {
     opacity: 0;
     transform: translateY(20px) scale(0.9);
