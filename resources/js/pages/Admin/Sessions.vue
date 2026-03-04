@@ -253,15 +253,23 @@ watch(yearFilter, () => applyFilters());
                                 />
                             </div>
 
-                            <div class="w-full md:w-44">
+                            <div class="relative w-full md:w-48">
                                 <select
                                     v-model="yearFilter"
                                     @change="applyFilters"
-                                    class="w-full rounded-xl border border-slate-300 px-4 py-2.5 shadow-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+                                    class="w-full rounded-lg border border-slate-300 
+                                            px-4 pr-10 py-2.5 outline-none
+                                            focus:ring-2 focus:ring-emerald-500
+                                            appearance-none bg-white"
                                 >
                                     <option value="">All Years</option>
                                     <option v-for="year in yearsList" :key="year" :value="year">{{ year }}</option>
                                 </select>
+                                <div class="absolute inset-y-0 right-3 flex items-center pointer-events-none">
+                                    <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                                    </svg>
+                                </div>
                             </div>
 
                             <button

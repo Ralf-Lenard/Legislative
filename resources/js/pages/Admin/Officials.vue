@@ -227,37 +227,124 @@ onMounted(() => {
                 <div class="flex flex-col gap-4 px-8 pb-6">
                     <div class="flex flex-wrap gap-4 items-center justify-between">
                         <div class="flex flex-1 flex-wrap gap-3 items-center">
+                            <!-- Search -->
                             <div class="relative w-full max-w-xs">
-                                <Search class="absolute top-1/2 left-3 h-5 w-5 -translate-y-1/2 text-slate-400"/>
-                                <input v-model="search" @keyup.enter="applyFilters" type="text" placeholder="Search name or position..."
-                                    class="w-full rounded-xl border border-slate-300 py-2.5 pl-10 focus:ring-2 focus:ring-emerald-500 focus:outline-none"/>
+                            <Search class="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
+                            
+                            <input
+                                v-model="search"
+                                @keyup.enter="applyFilters"
+                                type="text"
+                                placeholder="Search name or position..."
+                                class="w-full h-11 rounded-xl border border-slate-300 
+                                    pl-10 pr-4 bg-white
+                                    focus:ring-2 focus:ring-emerald-500 
+                                    focus:outline-none transition"
+                            />
                             </div>
 
-                            <select v-model="typeFilter" @change="applyFilters" 
-                                class="rounded-xl border border-slate-300 px-4 py-2.5 focus:ring-2 focus:ring-emerald-500">
+                            <!-- Personnel Type -->
+                            <div class="relative w-full md:w-48">
+                            <select
+                                v-model="typeFilter"
+                                @change="applyFilters"
+                                class="w-full h-11 rounded-xl border border-slate-300 
+                                    px-4 pr-10 bg-white text-slate-700
+                                    focus:ring-2 focus:ring-emerald-500 
+                                    focus:outline-none appearance-none transition"
+                            >
                                 <option value="">All Personnel</option>
                                 <option value="official">Officials</option>
                                 <option value="employee">Employees</option>
                             </select>
 
-                            <select v-if="typeFilter !== 'employee'" v-model="committeeFilter" @change="applyFilters"
-                                class="rounded-xl border border-slate-300 px-4 py-2.5 focus:ring-2 focus:ring-emerald-500">
+                            <svg
+                                class="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-500 pointer-events-none"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                            >
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M19 9l-7 7-7-7" />
+                            </svg>
+                            </div>
+
+                            <!-- Committees -->
+                            <div v-if="typeFilter !== 'employee'" class="relative w-full md:w-48">
+                            <select
+                                v-model="committeeFilter"
+                                @change="applyFilters"
+                                class="w-full h-11 rounded-xl border border-slate-300 
+                                    px-4 pr-10 bg-white text-slate-700
+                                    focus:ring-2 focus:ring-emerald-500 
+                                    focus:outline-none appearance-none transition"
+                            >
                                 <option value="">All Committees</option>
-                                <option v-for="c in uniqueCommittees" :key="c.id" :value="c.name">{{ c.name }}</option>
+                                <option
+                                v-for="c in uniqueCommittees"
+                                :key="c.id"
+                                :value="c.name"
+                                >
+                                {{ c.name }}
+                                </option>
                             </select>
 
-                            <select v-if="typeFilter === 'employee'" v-model="divisionFilter" @change="applyFilters"
-                                class="rounded-xl border border-slate-300 px-4 py-2.5 focus:ring-2 focus:ring-emerald-500">
+                            <svg
+                                class="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-500 pointer-events-none"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                            >
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M19 9l-7 7-7-7" />
+                            </svg>
+                            </div>
+
+                            <!-- Divisions -->
+                            <div v-if="typeFilter === 'employee'" class="relative w-full md:w-48">
+                            <select
+                                v-model="divisionFilter"
+                                @change="applyFilters"
+                                class="w-full h-11 rounded-xl border border-slate-300 
+                                    px-4 pr-10 bg-white text-slate-700
+                                    focus:ring-2 focus:ring-emerald-500 
+                                    focus:outline-none appearance-none transition"
+                            >
                                 <option value="">All Divisions</option>
-                                <option v-for="opt in page.props.divisionOptions" :key="opt" :value="opt">{{ opt }}</option>
+                                <option
+                                v-for="opt in page.props.divisionOptions"
+                                :key="opt"
+                                :value="opt"
+                                >
+                                {{ opt }}
+                                </option>
                             </select>
 
-                            <button v-if="search || committeeFilter || typeFilter || divisionFilter" @click="clearFilters"
-                                class="flex items-center gap-2 rounded-xl border border-slate-300 px-4 py-2.5 font-medium text-slate-700 hover:bg-slate-50">
-                                <X class="h-4 w-4"/> Clear
-                            </button>
-                        </div>
+                            <svg
+                                class="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-500 pointer-events-none"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                            >
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M19 9l-7 7-7-7" />
+                            </svg>
+                            </div>
 
+                            <!-- Clear Button -->
+                            <button
+                            v-if="search || committeeFilter || typeFilter || divisionFilter"
+                            @click="clearFilters"
+                            class="flex items-center gap-2 h-11 rounded-xl 
+                                    border border-slate-300 px-4 
+                                    font-medium text-slate-700 
+                                    hover:bg-slate-50 transition"
+                            >
+                            <X class="h-4 w-4" />
+                            Clear
+                            </button>
+
+                            </div>
                         <button @click="openModal()"
                             class="flex items-center gap-2 rounded-xl bg-emerald-600 px-5 py-2.5 font-semibold text-white shadow-lg shadow-emerald-500/30 hover:bg-emerald-700">
                             <Plus class="h-5 w-5"/> Add Official/Employee

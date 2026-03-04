@@ -217,7 +217,7 @@ const navLinks = [
   // { label: 'Ordinances', path: '/ordinances' },
   // { label: 'Resolutions', path: '/resolutions' },
   { label: 'Citizen\'s Charter', path: '/citizens-charter' },
-  { label: 'Sessions', path: '/sessions' },
+  { label: 'Sessions', path: '/legislative-sessions' },
   { label: 'Library', path: '/library' },
 ]
 

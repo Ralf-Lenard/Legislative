@@ -25,7 +25,7 @@
         <div class="max-w-7xl mx-auto">
   
           <div class="bg-white p-4 sm:p-6 rounded-xl shadow-lg border border-gray-200">
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 bg-white text-black">
   
               <div class="lg:col-span-2">
                 <label class="text-sm font-semibold text-gray-700 mb-2 block">
@@ -35,18 +35,23 @@
                   v-model="filters.search"
                   type="text"
                   @keyup.enter="applyFilters"
-                  class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-800 focus:border-green-800 transition"
+                  class="w-full px-4 py-2.5 border border-gray-300 rounded-lg 
+                        bg-white text-black
+                        focus:ring-2 focus:ring-green-800 focus:border-green-800 transition"
                   placeholder="Title, Author, Category..."
                 />
               </div>
-  
+
               <div>
                 <label class="text-sm font-semibold text-gray-700 mb-2 block">
                   Year
                 </label>
                 <select
                   v-model="filters.year"
-                  class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-800 focus:border-green-800 transition"
+                  class="w-full px-4 pr-10 py-2.5 border border-gray-300 rounded-lg 
+                          bg-white text-black
+                          focus:ring-2 focus:ring-green-800 focus:border-green-800 
+                          appearance-none custom-select transition"
                 >
                   <option value="">All Years</option>
                   <option v-for="year in years" :key="year" :value="year">
@@ -54,7 +59,7 @@
                   </option>
                 </select>
               </div>
-  
+
               <div class="flex items-end">
                 <button
                   @click="applyFilters"
@@ -63,7 +68,7 @@
                   Apply Filters
                 </button>
               </div>
-  
+
             </div>
           </div>
   
@@ -276,3 +281,13 @@
     });
   };
   </script>
+
+
+<style scoped>
+.custom-select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23374151' stroke-width='2'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E");
+  background-position: right 0.75rem center;
+  background-repeat: no-repeat;
+  background-size: 1rem;
+}
+</style>

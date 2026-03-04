@@ -270,34 +270,30 @@
                         class="text-xs font-bold tracking-widest text-green-900 uppercase"
                         >Browse</span
                     >
-                    <h2 class="text-4xl md:text-5xl font-black">Key Sections</h2>
+                    <h2 class="text-2xl md:text-3xl font-bold text-green-900">Key Sections</h2>
                     <div class="mx-auto h-1 w-20 md:w-24 bg-yellow-400"></div>
                 </div>
 
-                <div
-                    class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4"
-                >
+                <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-5">
                     <a
                         v-for="feature in features"
                         :key="feature.title"
                         :href="feature.href"
-                        class="group block rounded-xl border-t-4 border-yellow-400 bg-white p-6 md:p-8 shadow-lg transition hover:shadow-xl"
+                        class="group flex flex-col rounded-xl border-t-4 border-yellow-400 bg-white p-6 md:p-8 shadow-lg transition hover:shadow-xl"
                     >
-                        <div
-                            class="text-4xl md:text-5xl text-green-900 transition-transform group-hover:scale-110"
-                        >
+                        <div class="text-4xl md:text-5xl text-green-900 transition-transform group-hover:scale-110">
                             {{ feature.icon }}
                         </div>
-                        <h3 class="mt-4 text-lg md:text-xl font-extrabold">
+                        
+                        <h3 class="mt-4 text-lg md:text-xl font-extrabold text-gray-900">
                             {{ feature.title }}
                         </h3>
+                        
                         <p class="mt-2 text-xs md:text-sm text-gray-600">
                             {{ feature.desc }}
                         </p>
 
-                        <p
-                            class="mt-6 inline-flex items-center text-sm font-bold text-green-900 group-hover:text-yellow-500"
-                        >
+                        <p class="mt-auto pt-6 inline-flex items-center text-sm font-bold text-green-900 group-hover:text-yellow-600">
                             View Details →
                         </p>
                     </a>
@@ -312,7 +308,7 @@
                         class="text-xs font-bold tracking-widest text-green-900 uppercase"
                         >Gallery</span
                     >
-                    <h2 class="text-4xl md:text-5xl font-black">Community & Events</h2>
+                    <h2 class="text-2xl md:text-3xl font-bold text-green-900">Community & Events</h2>
                     <div class="mx-auto mt-2 h-1 w-20 md:w-24 bg-yellow-400"></div>
                 </div>
 
@@ -520,34 +516,38 @@ interface Props {
 const props = defineProps<Props>();
 
 const isModalOpen = ref(false);
-
 const features = [
     {
         icon: '📜',
         title: 'Ordinances',
-        desc: 'Browse all approved municipal ordinances.',
-        href: '/ordinances',
+        desc: 'Explore the definitive collection of local laws and municipal regulations.',
+        href: '/citizens-charter/ordinances',
     },
     {
         icon: '✍️',
         title: 'Resolutions',
-        desc: 'Access past resolutions and legislative decisions.',
-        href: '/resolutions',
+        desc: 'Review official expressions of the Council\'s will and policy decisions.',
+        href: '/citizens-charter/resolutions',
     },
     {
         icon: '👥',
-        title: 'Members',
-        desc: 'Meet our elected council members.',
-        href: '/members',
+        title: 'Organizational Chart', // Changed "Organizational Chart" to something punchier
+        desc: 'Get to know your elected officials and their legislative roles.',
+        href: '/organizational-chart',
     },
     {
         icon: '📅',
         title: 'Sessions',
-        desc: 'View schedules and minutes of past sessions.',
-        href: '/sessions',
+        desc: 'Stay informed with upcoming schedules and official minutes of past meetings.',
+        href: '/legislative-sessions',
+    },
+    {
+        icon: '📚', // Better icon for Library
+        title: 'Legislative Library',
+        desc: 'Search through our curated digital archive of books and research materials.',
+        href: '/Library',
     },
 ];
-
 const contactDetails = [
     {
         icon: '📍',

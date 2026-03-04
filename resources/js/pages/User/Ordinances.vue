@@ -47,33 +47,43 @@
 
     <section class="py-14 px-4 bg-gray-50">
       <div class="max-w-7xl mx-auto">
-        <div class="bg-white p-6 rounded-xl shadow-lg border border-gray-200">
+        <div class="max-w-7xl mx-auto">
+        <div class="bg-white text-black p-6 rounded-xl shadow-lg border border-gray-200">
           <form
             @submit.prevent="applyFilters"
             class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 items-end"
           >
             <div class="lg:col-span-2">
-              <label class="text-sm font-semibold text-gray-700 mb-2 block"
-                >Search Filter</label
-              >
+              <label class="text-sm font-semibold text-gray-700 mb-2 block">
+                Search Filter
+              </label>
               <div class="relative">
                 <input
                   v-model="form.search"
                   type="text"
-                  class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-800 focus:border-green-800 transition"
+                  class="w-full px-4 py-2.5 border border-gray-300 rounded-lg 
+                        bg-white text-black
+                        focus:ring-2 focus:ring-green-800 focus:border-green-800 transition"
                   placeholder="Ordinance No., Title, or Keyword..."
                 />
               </div>
             </div>
 
             <div>
-              <label class="text-sm font-semibold text-gray-700 mb-2 block">Year</label>
+              <label class="text-sm font-semibold text-gray-700 mb-2 block">
+                Year
+              </label>
               <select
                 v-model="form.year"
-                class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-800 focus:border-green-800 appearance-none custom-select transition"
+                class="w-full px-4 py-2.5 border border-gray-300 rounded-lg 
+                      bg-white text-black
+                      focus:ring-2 focus:ring-green-800 focus:border-green-800 
+                      appearance-none custom-select transition"
               >
                 <option value="">All Years</option>
-                <option v-for="year in years" :key="year">{{ year }}</option>
+                <option v-for="year in years" :key="year">
+                  {{ year }}
+                </option>
               </select>
             </div>
 
@@ -85,6 +95,7 @@
             </button>
           </form>
         </div>
+      </div>
 
         <div
           v-if="ordinances.data.length"
@@ -592,12 +603,9 @@ const handleDownloadClick = (ordinance) => {
 }
 
 .custom-select {
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  appearance: none; 
-  background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%234B5563%22%20d%3D%22M287%20197.8%20146.2%2057%205.4%20197.8z%22%2F%3E%3C%2Fsvg%3E');
-  background-repeat: no-repeat;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23374151' stroke-width='2'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E");
   background-position: right 0.75rem center;
-  background-size: 0.65em auto;
+  background-repeat: no-repeat;
+  background-size: 1rem;
 }
 </style>

@@ -8,7 +8,7 @@ import {
     ChevronRight, ChevronLeft, MoreHorizontal
 } from 'lucide-vue-next';
 import AppSidebar from '@/components/AppSidebar.vue';
-import FlashMessage from '@/components/FlashMessage.vue';
+import FlashMessage from '@/components/Admin/FlashMessage.vue';
 
 const props = defineProps({
     users: Object, // Paginator object
@@ -94,6 +94,13 @@ const closeModal = () => {
     selectedUser.value = null;
 };
 
+
+const closeConfirm = () => {
+  isConfirmModalOpen.value = false;
+  // Optional: clear the action object to reset state
+  // confirmAction.value = null; 
+};
+
 const openConfirmModal = (title, message, type, onConfirm) => {
     confirmAction.value = { title, message, type, execute: onConfirm };
     isConfirmModalOpen.value = true;
@@ -151,10 +158,28 @@ const deleteUser = (user) => {
                             <Search class="absolute top-1/2 left-3 h-5 w-5 -translate-y-1/2 text-slate-400" />
                             <input v-model="search" @keyup.enter="applyFilters" type="text" placeholder="Search name or email..." class="w-full rounded-lg border border-slate-300 py-2.5 pl-10 focus:ring-2 focus:ring-emerald-500 outline-none" />
                         </div>
-                        <select v-model="role" @change="applyFilters" class="w-full md:w-48 rounded-lg border border-slate-300 px-4 py-2.5 outline-none focus:ring-2 focus:ring-emerald-500">
-                            <option value="">All Roles</option>
-                            <option v-for="r in props.roles" :key="r" :value="r">{{ r.toUpperCase() }}</option>
-                        </select>
+                        <div class="relative w-full md:w-48">
+                            <select
+                                v-model="role"
+                                @change="applyFilters"
+                                class="w-full rounded-lg border border-slate-300 
+                                    px-4 pr-10 py-2.5 outline-none
+                                    focus:ring-2 focus:ring-emerald-500
+                                    appearance-none bg-white"
+                            >
+                                <option value="">All Roles</option>
+                                <option v-for="r in props.roles" :key="r" :value="r">
+                                {{ r.toUpperCase() }}
+                                </option>
+                            </select>
+
+                            <!-- Custom Arrow -->
+                            <div class="absolute inset-y-0 right-3 flex items-center pointer-events-none">
+                                <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                                </svg>
+                            </div>
+                            </div>
                         <button v-if="search || role" @click="clearFilters" class="flex items-center gap-2 px-4 py-2.5 text-slate-700 border border-slate-300 rounded-lg hover:bg-slate-50">
                             <X class="h-4 w-4" /> Clear
                         </button>

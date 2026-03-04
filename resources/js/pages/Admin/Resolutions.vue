@@ -240,13 +240,21 @@ onMounted(() => {
                                     class="w-full rounded-lg border border-slate-300 py-2.5 pr-4 pl-10 shadow-sm transition-all focus:border-transparent focus:ring-2 focus:ring-emerald-500 focus:outline-none"/>
                             </div>
 
-                            <div class="w-full md:w-40">
+                            <div class="relative w-full md:w-48">
                                 <select v-model="year"
                                     @change="applyFilters"
-                                    class="w-full rounded-lg border border-slate-300 px-4 py-2.5 shadow-sm transition-all focus:border-transparent focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+                                    class="w-full rounded-lg border border-slate-300 
+                                            px-4 pr-10 py-2.5 outline-none
+                                            focus:ring-2 focus:ring-emerald-500
+                                            appearance-none bg-white">
                                     <option value="">All Years</option>
                                     <option v-for="y in yearsList" :key="y" :value="y">{{ y }}</option>
                                 </select>
+                                <div class="absolute inset-y-0 right-3 flex items-center pointer-events-none">
+                                    <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                                    </svg>
+                                </div>
                             </div>
 
                             <button v-if="search || year"
@@ -278,7 +286,7 @@ onMounted(() => {
                     <FileText class="h-8 w-8 text-indigo-500 opacity-60"/>
                 </div>
                 <div class="flex items-center justify-between rounded-lg border-l-4 border-purple-500 bg-white p-5 shadow-lg">
-                    <div><p class="text-sm font-medium text-slate-500">With Media Image</p><p class="mt-2 text-3xl font-bold text-slate-900">{{ page.props.resolutionsWithImageCount }}</p></div>
+                    <div><p class="text-sm font-medium text-slate-500">With Image</p><p class="mt-2 text-3xl font-bold text-slate-900">{{ page.props.resolutionsWithImageCount }}</p></div>
                     <Image class="h-8 w-8 text-purple-500 opacity-60"/>
                 </div>
             </div>

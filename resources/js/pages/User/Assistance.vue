@@ -115,14 +115,22 @@
                 <p class="text-[9px] md:text-[10px] text-gray-400 font-bold uppercase mt-1 tracking-wider">Verified Records</p>
               </div>
               
-              <div class="relative w-full sm:w-64 group">
-                <MagnifyingGlassIcon class="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-300" />
+              <div class="relative w-full sm:w-64 group bg-white text-black">
+                <MagnifyingGlassIcon 
+                  class="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" 
+                />
                 <input 
                   v-model="search" 
                   @input="handleSearch"
                   type="text" 
                   placeholder="Search full name..." 
-                  class="w-full pl-11 pr-4 py-2.5 bg-gray-50 border-none rounded-xl text-xs md:text-sm focus:ring-2 focus:ring-yellow-400 font-medium" 
+                  class="w-full pl-11 pr-4 py-2.5 
+                        bg-white text-black
+                        border border-gray-300
+                        rounded-xl text-xs md:text-sm 
+                        focus:ring-2 focus:ring-yellow-400 
+                        focus:border-yellow-400
+                        font-medium transition" 
                 />
               </div>
             </div>

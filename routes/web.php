@@ -42,10 +42,10 @@ Route::get('/citizens-charter/resolutions', [ResolutionController::class, 'index
     ->name('resolutions.indexUser');
 
 // sessions
-Route::get('/sessions', [SessionController::class, 'indexUser'])
+Route::get('/legislative-sessions', [SessionController::class, 'indexUser'])
     ->name('sessions.indexUser');
 
-Route::get('/session-details/{id}', [SessionController::class, 'showUser'])
+Route::get('/legislative-session-details/{id}', [SessionController::class, 'showUser'])
     ->name('sessions.showUser');
 
 Route::get('/library', [BookController::class, 'indexUser']);

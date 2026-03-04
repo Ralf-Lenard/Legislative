@@ -8,7 +8,7 @@
           <div class="flex items-center space-x-2 text-sm mb-2">
             <a href="/" class="text-gray-300 hover:text-white transition">Home</a>
             <span class="text-gray-300">/</span>
-            <a href="/sessions" class="text-gray-300 hover:text-white transition">
+            <a href="/legislative-sessions" class="text-gray-300 hover:text-white transition">
               Legislative Sessions
             </a>
             <span class="text-gray-300">/</span>
@@ -93,7 +93,7 @@
         <!-- BACK -->
         <div class="max-w-7xl mx-auto mt-8 flex justify-end">
           <a
-            href="/sessions"
+            href="/legislative-sessions"
             class="flex items-center text-sm font-semibold text-gray-700 hover:text-green-800 transition"
           >
             ← Back to All Sessions

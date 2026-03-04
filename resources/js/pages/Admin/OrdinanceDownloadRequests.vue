@@ -226,15 +226,24 @@ const submitRejection = () => {
                                 />
                             </div>
 
-                            <select
-                                v-model="statusFilter"
-                                class="cursor-pointer rounded-lg border border-slate-300 py-2.5 px-4 shadow-sm focus:ring-2 focus:ring-emerald-500 md:w-40"
-                            >
-                                <option value="">All Statuses</option>
-                                <option value="pending">Pending</option>
-                                <option value="approved">Approved</option>
-                                <option value="rejected">Rejected</option>
+                            <div class="relative w-full md:w-48">
+                                <select
+                                    v-model="statusFilter"
+                                    class="w-full rounded-lg border border-slate-300 
+                                            px-4 pr-10 py-2.5 outline-none
+                                            focus:ring-2 focus:ring-emerald-500
+                                            appearance-none bg-white">
+                                    <option value="">All Statuses</option>
+                                    <option value="pending">Pending</option>
+                                    <option value="approved">Approved</option>
+                                    <option value="rejected">Rejected</option>
                             </select>
+                                <div class="absolute inset-y-0 right-3 flex items-center pointer-events-none">
+                                    <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                                    </svg>
+                                </div>
+                            </div>
 
                             <button
                                 v-if="search || statusFilter"
