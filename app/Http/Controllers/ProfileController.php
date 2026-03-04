@@ -142,7 +142,7 @@ class ProfileController extends Controller
 
 
         return redirect()
-            ->route('admin.profile')
+            ->route('admin.profile-settings')
             ->with('success', 'Profile updated successfully.');
     }
 
