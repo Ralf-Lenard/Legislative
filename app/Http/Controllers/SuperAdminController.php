@@ -30,6 +30,10 @@ class SuperAdminController extends Controller
             $query->where('usertype', $request->role);
         }
 
+        if ($request->filled(key: 'status')) {
+            $query->where('status', $request->status);
+        }
+
         // 4. Get Paginated Results
         $users = $query
             ->latest()
@@ -39,7 +43,7 @@ class SuperAdminController extends Controller
         // 5. Return to Inertia
         return Inertia::render('SuperAdmin/Users', [
             'users' => $users,
-            'filters' => $request->only(['search', 'role']),
+            'filters' => $request->only(['search', 'role', 'status']),
             
             // Stats
             'totalUsers' => User::where('usertype', 'user')->count(),
@@ -49,6 +53,7 @@ class SuperAdminController extends Controller
 
             // These are the actual ROLES for the dropdown
             'roles' => ['admin', 'user'], 
+            'status' => ['active', 'inactive'], 
         ]);
     }
 
