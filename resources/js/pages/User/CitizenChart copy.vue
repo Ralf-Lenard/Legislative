@@ -201,110 +201,138 @@
       </div>
     </section>
 
-   <section id="assistance" class="py-12 md:py-24 px-4 sm:px-6 bg-slate-50 border-t border-gray-100">
-  <div class="max-w-7xl mx-auto">
-    <!-- <div class="mb-10 md:mb-16 text-center lg:text-left">
-      <div class="flex items-center justify-center lg:justify-start gap-4 mb-4 md:mb-6">
-        <div class="w-12 h-[2px] bg-yellow-500"></div>
-            <h2 class="text-xs font-black text-green-900 uppercase tracking-[0.4em]">Operational Hours</h2>
-      </div>
-      <h3 class="text-3xl sm:text-4xl md:text-6xl font-black text-green-950 uppercase tracking-tighter mb-4 md:mb-6">
-        Service <span class="text-green-700 italic font-serif">Schedule</span>
-      </h3>
-    </div> -->
-     <div class="mb-12 md:mb-16 text-center md:text-left">
-          <div class="flex items-center justify-center md:justify-start gap-4 mb-6">
-            <div class="w-12 h-[2px] bg-yellow-500"></div>
-            <h2 class="text-xs font-black text-green-900 uppercase tracking-[0.4em]">Operational Hours</h2>
-          </div>
-          <h3 class="text-3xl md:text-6xl font-black text-green-950 uppercase tracking-tighter mb-6">
-            Service <span class="text-green-700 italic font-serif">Schedule</span>
-          </h3>
-
+    <section id="assistance" class="py-24 px-6 bg-[#f8fafb] border-t border-gray-100">
+      <div class="max-w-7xl mx-auto">
+        <div class="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-8">
+            <div class="max-w-xl text-center md:text-left">
+                <h2 class="text-xs font-black text-yellow-500 uppercase tracking-[0.4em] mb-4">Accountability</h2>
+                <h3 class="text-4xl md:text-5xl font-black text-green-950 uppercase tracking-tighter">Public Assistance</h3>
+            </div>
+            <p class="text-gray-500 font-medium max-w-sm text-center md:text-right">Direct community support initiatives monitored for legislative transparency.</p>
         </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 md:gap-8">
-      
-      <div class="lg:col-span-5 w-full">
-        <div class="h-full bg-yellow-400 rounded-[2rem] md:rounded-[3rem] p-8 md:p-12 shadow-xl shadow-yellow-200/50 flex flex-col justify-between relative overflow-hidden group min-h-[400px] lg:min-h-0">
-          <div class="relative z-10">
-            <div class="inline-flex items-center gap-2 px-4 py-2 bg-green-950/10 rounded-full mb-6 md:mb-8">
-              <span class="w-2 h-2 rounded-full bg-green-950 animate-pulse"></span>
-              <span class="text-[9px] md:text-[10px] font-black text-green-950 uppercase tracking-widest">Weekly Community Event</span>
-            </div>
-            <h4 class="text-4xl md:text-5xl font-black text-green-950 uppercase tracking-tighter leading-none mb-4">
-              People's <br class="hidden md:block"/> Day
-            </h4>
-            <p class="text-green-950/70 font-bold text-base md:text-lg leading-tight uppercase tracking-tight mb-6 md:mb-8">
-              Direct consultations & <br class="hidden sm:block"/> community assistance.
-            </p>
-            
-            <div class="flex items-baseline gap-2">
-              <span class="text-5xl md:text-6xl font-black text-green-950 uppercase">Tuesday</span>
-            </div>
-          </div>
-          
-          <div class="relative z-10 mt-8 md:mt-12 pt-6 md:pt-8 border-t border-green-950/10">
-            <p class="text-[9px] md:text-[10px] font-black text-green-950 uppercase tracking-[0.2em]">Location</p>
-            <p class="text-green-950 font-bold text-sm md:text-base">Municipal Legislative / SB Office</p>
-          </div>
-
-          <div class="absolute -bottom-6 -right-4 text-8xl md:text-[12rem] font-black text-green-950/5 pointer-events-none select-none uppercase tracking-tighter">
-            TUE
-          </div>
-        </div>
-      </div>
-
-      <div class="lg:col-span-7 w-full">
-        <div class="bg-white rounded-[2rem] md:rounded-[3rem] border border-gray-100 shadow-sm overflow-hidden h-full flex flex-col">
-          <div class="bg-green-900 px-6 md:px-8 py-5 md:py-6 flex flex-col sm:flex-row justify-between items-center gap-2">
-            <h4 class="text-white font-black uppercase text-[10px] md:text-xs tracking-widest text-center">Legislative Office Hours</h4>
-            <span class="text-yellow-400 text-[9px] md:text-[10px] font-black uppercase tracking-widest">Active Mon-Fri</span>
-          </div>
-          
-          <div class="p-8 md:p-12 flex-grow flex flex-col justify-center">
-            <div class="flex flex-col sm:flex-row items-center sm:items-start gap-6 md:gap-8 mb-8 md:mb-10 text-center sm:text-left">
-              <div class="w-14 h-14 md:w-16 md:h-16 bg-green-50 rounded-2xl flex items-center justify-center shrink-0">
-                <BuildingOfficeIcon class="w-7 h-7 md:w-8 md:h-8 text-green-900" />
-              </div>
-              <div class="w-full">
-                <span class="block text-[9px] md:text-[10px] font-black text-green-600 uppercase tracking-[0.2em] mb-2">Standard Operations</span>
-                <h5 class="text-2xl md:text-3xl font-black text-green-950 uppercase tracking-tight leading-none mb-4 md:mb-6">Monday to Friday</h5>
-                <div class="flex flex-col sm:flex-row items-center gap-2 sm:gap-4 justify-center sm:justify-start">
-                  <span class="text-3xl md:text-4xl font-black text-green-900">8:00 AM</span>
-                  <span class="hidden sm:block text-xl font-bold text-gray-300">—</span>
-                  <span class="text-3xl md:text-4xl font-black text-green-900">5:00 PM</span>
+        <div class="grid lg:grid-cols-12 gap-8">
+          <div class="lg:col-span-7 bg-white rounded-[3rem] p-8 md:p-12 shadow-sm border border-gray-100">
+            <div class="flex items-center justify-between mb-10">
+                <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 bg-green-50 rounded-2xl flex items-center justify-center">
+                        <AcademicCapIcon class="w-6 h-6 text-green-900" />
+                    </div>
+                    <h4 class="text-xl font-black text-green-950 uppercase">Latest Beneficiaries</h4>
                 </div>
-              </div>
+                <span class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Recent Activity</span>
             </div>
-
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4">
-              <div class="p-5 md:p-6 bg-slate-50 rounded-2xl border border-slate-100 flex flex-col items-center sm:items-start">
-                <span class="block text-[9px] md:text-[10px] font-black text-gray-400 uppercase mb-1 md:mb-2">Policy</span>
-                <p class="text-xs md:text-sm font-black text-green-950 uppercase">No Lunch Break</p>
-              </div>
-              <div class="p-5 md:p-6 bg-slate-50 rounded-2xl border border-slate-100 flex flex-col items-center sm:items-start">
-                <span class="block text-[9px] md:text-[10px] font-black text-gray-400 uppercase mb-1 md:mb-2">Status</span>
-                <p class="text-xs md:text-sm font-black text-green-950 uppercase">Open Thru Noon</p>
-              </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left">
+                    <thead class="text-[10px] font-black text-gray-400 uppercase tracking-widest border-b border-gray-50">
+                        <tr>
+                            <th class="pb-4">Name</th>
+                            <th class="pb-4">Type</th>
+                            <th class="pb-4">Location/School</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-50">
+                        <tr v-for="assist in latestAssistances" :key="assist.id" class="group hover:bg-slate-50 transition-colors">
+                            <td class="py-5 font-bold text-green-950 uppercase text-xs">{{ assist.full_name }}</td>
+                            <td class="py-5">
+                              <span class="px-2 py-1 rounded-md text-[9px] font-black uppercase bg-slate-100 text-slate-600">{{ assist.type }}</span>
+                            </td>
+                            <td class="py-5 text-sm text-gray-500 font-medium tracking-tight">
+                              {{ assist.school || assist.barangay }}
+                            </td>
+                        </tr>
+                        <tr v-if="latestAssistances.length === 0">
+                          <td colspan="3" class="py-10 text-center text-gray-400 uppercase text-xs font-bold">No recent assistance records.</td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
+            <Link href="/citizens-charter/public-assistance" class="mt-10 group relative inline-flex items-center justify-center px-10 py-4 font-black text-white transition-all duration-200 bg-green-800 rounded-2xl hover:bg-green-900 uppercase text-[10px] tracking-[0.2em] w-full md:w-auto">
+              Access All Assistance Records 
+            </Link>
           </div>
 
-          <div class="p-6 md:p-8 bg-green-50/50 border-t border-green-100 mt-auto">
-            <p class="text-[9px] md:text-[10px] text-green-800/60 font-bold uppercase tracking-widest italic text-center">
-              * Providing uninterrupted legislative services to the people of Concepcion.
-            </p>
+          <div class="lg:col-span-5 flex flex-col gap-8">
+            <div class="bg-yellow-400 rounded-[3rem] p-8 md:p-10 flex-grow relative overflow-hidden group">
+                <div class="relative z-10">
+                    <h4 class="text-xl font-black text-green-950 uppercase mb-10">Overall Service Reach</h4>
+                    <div class="space-y-8">
+                        <div class="flex items-center justify-between group/item">
+                            <div class="flex items-center gap-4">
+                                <HeartIcon class="w-5 h-5 text-green-900/60" />
+                                <span class="text-sm font-black text-green-900 uppercase tracking-tight">Medical Aid</span>
+                            </div>
+                            <span class="text-3xl font-black text-green-950 group-hover/item:scale-110 transition-transform">{{ assistanceTotals.medical }}</span>
+                        </div>
+                        <div class="flex items-center justify-between group/item">
+                            <div class="flex items-center gap-4">
+                                <AcademicCapIcon class="w-5 h-5 text-green-900/60" />
+                                <span class="text-sm font-black text-green-900 uppercase tracking-tight">Scholars</span>
+                            </div>
+                            <span class="text-3xl font-black text-green-950 group-hover/item:scale-110 transition-transform">{{ assistanceTotals.scholar }}</span>
+                        </div>
+                        <div class="flex items-center justify-between group/item">
+                            <div class="flex items-center gap-4">
+                                <ScaleIcon class="w-5 h-5 text-green-900/60" />
+                                <span class="text-sm font-black text-green-900 uppercase tracking-tight">Legal Aid</span>
+                            </div>
+                            <span class="text-3xl font-black text-green-950 group-hover/item:scale-110 transition-transform">{{ assistanceTotals.legal }}</span>
+                        </div>
+                        <div class="pt-6 border-t border-green-950/10 flex items-center justify-between">
+                            <span class="text-xs font-black text-green-900 uppercase">Total Served</span>
+                            <span class="text-4xl font-black text-green-950">{{ assistanceTotals.overall }}</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="absolute -bottom-10 -right-10 text-9xl font-black text-green-950/5 pointer-events-none select-none uppercase tracking-tighter">LIVE</div>
+            </div>
+            
+            <div class="bg-white rounded-[2.5rem] p-8 border border-gray-100 shadow-sm">
+                <p class="text-gray-500 text-sm font-medium leading-relaxed mb-6">
+                    Weekly legislative support and legal consultations for the <span class="text-green-950 font-black italic">"People's Day"</span> program.
+                </p>
+                <button @click="isScheduleModalOpen = true" class="w-full py-4 border-2 border-green-950 text-green-950 font-black uppercase text-[10px] tracking-widest rounded-xl hover:bg-green-950 hover:text-white transition-all">
+                    View Weekly Schedule
+                </button>
+            </div>
           </div>
         </div>
       </div>
-      
-    </div>
-  </div>
-</section>
+    </section>
 
     <Footer />
   </div>
 
+  <!-- <Teleport to="body">
+      <Transition enter-active-class="transition duration-300 ease-out" enter-from-class="opacity-0" enter-to-class="opacity-100" leave-active-class="transition duration-200 ease-in" leave-from-class="opacity-100" leave-to-class="opacity-0">
+        <div v-if="isScheduleModalOpen" class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-green-950/60 backdrop-blur-sm">
+          <div @click.stop class="bg-white w-full max-w-lg rounded-[2.5rem] shadow-2xl overflow-hidden">
+            <div class="bg-[#064e3b] p-8 text-white">
+              <h4 class="text-xs font-black text-yellow-400 uppercase tracking-[0.3em] mb-2">Service Hours</h4>
+              <h3 class="text-3xl font-black uppercase tracking-tighter">Sangguniang Bayan Schedule</h3>
+            </div>
+
+            <div class="p-8">
+              <div class="space-y-6">
+                <div v-for="event in weeklySchedule" :key="event.day" class="flex gap-6 pb-6 border-b border-gray-100 last:border-0 items-center">
+                  <div class="min-w-[100px] py-2 px-4 bg-slate-50 rounded-xl text-center">
+                    <p class="text-xs font-black text-green-900 uppercase">{{ event.day }}</p>
+                  </div>
+                  <div>
+                    <h5 class="font-black text-green-950 uppercase text-sm tracking-tight">{{ event.title }}</h5>
+                    <p class="text-[10px] text-gray-500 font-bold uppercase">{{ event.time }} • {{ event.location }}</p>
+                  </div>
+                </div>
+              </div>
+
+              <button @click="isScheduleModalOpen = false" class="mt-8 w-full py-4 bg-slate-100 text-green-950 font-black uppercase text-[10px] tracking-widest rounded-xl hover:bg-yellow-400 transition-all">
+                Close Schedule
+              </button>
+            </div>
+          </div>
+        </div>
+      </Transition>
+  </Teleport> -->
 </template>
 
 <script setup>
@@ -334,7 +362,7 @@ const navLinks = [
   { name: 'Document Issuance', href: '#issuance' },
   { name: 'Ordinances', href: '#ordinances' },
   { name: 'Resolutions', href: '#resolutions' },
-  
+  { name: 'Assistance', href: '#assistance' },
 ];
 
 const weeklySchedule = [

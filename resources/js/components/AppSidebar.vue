@@ -15,7 +15,8 @@ import {
     Users,
     Settings,
     BookIcon,
-    HelpingHand 
+    HelpingHand,
+    Network
 } from 'lucide-vue-next';
 import { computed, onMounted, ref, onUnmounted } from 'vue';
 import AppLogo from './AppLogo.vue';
@@ -27,7 +28,7 @@ const authUser = computed(() => props.auth?.user);
 const pendingOrdinances = computed(() => props.ordinanceRequestStatus?.pending || 0);
 const pendingResolutions = computed(() => props.resolutionRequestStatus?.pending || 0);
 
-// Persistence logic
+// Sidebar collapse persistence
 const isCollapsed = ref(localStorage.getItem('sidebar-collapsed') === 'true');
 
 const toggleSidebar = () => {
@@ -36,42 +37,69 @@ const toggleSidebar = () => {
 };
 
 const navGroups = computed(() => {
+
     const managementItems: Array<any> = [
         ...(authUser.value?.usertype === 'super_admin'
             ? [{ title: 'Manage Users', href: '/super-admin-users', icon: Users }]
             : []),
+
         { title: 'Ordinances', href: '/admin-ordinances', icon: Library },
         { title: 'Resolutions', href: '/admin-resolutions', icon: FileText },
-        { title: 'Assistance', href: '/admin-assistances', icon: HelpingHand  },
-        { title: 'Organizational Chart', href: '/admin-organizational-chart', icon: Users },
+        { title: 'Assistance', href: '/admin-assistances', icon: HelpingHand },
+        { title: 'Organizational Chart', href: '/admin-organizational-chart', icon: Network },
         { title: 'Sessions', href: '/admin-sessions', icon: BookOpen },
         { title: 'Library', href: '/admin-library', icon: BookIcon },
+    ];
+
+    const publicRequestItems: Array<any> = [
+        ...(authUser.value?.usertype === 'super_admin'
+            ? [
+                {
+                    title: 'Ordinance Requests',
+                    href: '/ordinance-request',
+                    icon: FileSearch,
+                    count: pendingOrdinances
+                },
+                {
+                    title: 'Resolution Requests',
+                    href: '/resolution-request',
+                    icon: ClipboardList,
+                    count: pendingResolutions
+                }
+            ]
+            : [])
     ];
 
     return [
         {
             label: 'System Overview',
-            items: [{ title: 'Dashboard', href: '/dashboard', icon: LayoutGrid }],
+            items: [
+                { title: 'Dashboard', href: '/dashboard', icon: LayoutGrid }
+            ],
         },
         {
             label: 'Legislative Management',
             items: managementItems,
         },
-        {
-            label: 'Public Requests',
-            items: [
-                { title: 'Ordinance Requests', href: '/ordinance-request', icon: FileSearch, count: pendingOrdinances },
-                { title: 'Resolution Requests', href: '/resolution-request', icon: ClipboardList, count: pendingResolutions },
-            ],
-        },
+
+        ...(publicRequestItems.length
+            ? [{
+                label: 'Public Requests',
+                items: publicRequestItems
+            }]
+            : []),
+
         {
             label: 'Home Content',
-            items: [{ title: 'Home Content', href: '/home-content', icon: Megaphone }],
+            items: [
+                { title: 'Home Content', href: '/home-content', icon: Megaphone }
+            ],
         },
     ];
 });
 
 const currentRoute = computed(() => window.location.pathname);
+
 const isActive = (href: string) => {
     if (href === '/') return currentRoute.value === '/';
     return currentRoute.value.startsWith(href);
@@ -84,9 +112,13 @@ const profileDropdown = ref<HTMLElement | null>(null);
 const userProfileButton = ref<HTMLElement | null>(null);
 
 const handleClickOutside = (event: MouseEvent) => {
-    if (isProfileDropdownOpen.value && 
-        profileDropdown.value && !profileDropdown.value.contains(event.target as Node) && 
-        userProfileButton.value && !userProfileButton.value.contains(event.target as Node)) {
+    if (
+        isProfileDropdownOpen.value &&
+        profileDropdown.value &&
+        !profileDropdown.value.contains(event.target as Node) &&
+        userProfileButton.value &&
+        !userProfileButton.value.contains(event.target as Node)
+    ) {
         isProfileDropdownOpen.value = false;
     }
 };

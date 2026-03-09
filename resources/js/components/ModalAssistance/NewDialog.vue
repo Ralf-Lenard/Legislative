@@ -37,8 +37,9 @@
                         class="w-full rounded-xl border border-slate-300 px-4 py-2.5 shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
                     >
                         <option value="" disabled>Select a type</option>
-                        <option value="medical">Medical Assistance</option>
-                        <option value="legal">Legal Assistance</option>
+                        <!-- <option value="medical">Medical Assistance</option>
+                        <option value="legal">Legal Assistance</option> -->
+                         <option value="people">People's Day</option>
                         <option value="scholar">Scholarship Program</option>
                     </select>
                 </div>
@@ -111,7 +112,7 @@ import { reactive, ref, watch } from 'vue'; // Switched to 'watch'
 
 interface Assistance {
     id?: number;
-    type: 'medical' | 'legal' | 'scholar' | '';
+    type: 'people' | 'scholar' | '';
     full_name: string;
     barangay?: string;
     school?: string;
@@ -129,7 +130,7 @@ const emit = defineEmits<{
 const isLoading = ref(false);
 
 const form = useForm({
-    type: '' as 'medical' | 'legal' | 'scholar' | '',
+    type: '' as | 'people' | 'scholar' | '',
     full_name: '',
     barangay: '',
     school: '',

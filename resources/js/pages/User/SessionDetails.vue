@@ -3,26 +3,45 @@
       <Navbar />
   
       <!-- HEADER -->
-      <section class="pt-28 pb-10 bg-gradient-to-br from-green-900 to-green-700 text-white">
-        <div class="max-w-7xl mx-auto px-4">
-          <div class="flex items-center space-x-2 text-sm mb-2">
-            <a href="/" class="text-gray-300 hover:text-white transition">Home</a>
-            <span class="text-gray-300">/</span>
-            <a href="/legislative-sessions" class="text-gray-300 hover:text-white transition">
-              Legislative Sessions
-            </a>
-            <span class="text-gray-300">/</span>
-            <span class="font-semibold text-yellow-400">Details</span>
-          </div>
-  
-          <h1 class="text-4xl md:text-5xl font-extrabold mt-2 leading-tight">
-            Session No. {{ session.session_number }}
-          </h1>
-          <p class="text-lg mt-1 text-gray-100 font-medium">
-            {{ session.session_title }}
-          </p>
+     <section class="pt-28 pb-20 bg-gradient-to-br from-green-900 to-green-700 relative overflow-hidden text-white">
+
+      <!-- Background Blur -->
+      <div class="absolute top-0 right-0 w-96 h-96 bg-yellow-300/10 rounded-full blur-3xl z-0"></div>
+
+      <div class="max-w-7xl mx-auto px-4 relative z-10">
+
+        <!-- Breadcrumb -->
+        <div class="flex items-center space-x-2 text-sm mb-6">
+          <a href="/" class="text-gray-300 hover:text-white transition">Home</a>
+
+          <span class="text-gray-300">/</span>
+
+          <a href="/legislative-sessions" class="text-gray-300 hover:text-white transition">
+            Legislative Sessions
+          </a>
+
+          <span class="text-gray-300">/</span>
+
+          <span class="font-semibold text-yellow-400">Session Details</span>
         </div>
-      </section>
+
+        <!-- Badge -->
+        <span class="inline-block text-[10px] md:text-xs tracking-[0.3em] uppercase bg-yellow-400 text-green-950 px-6 py-2 rounded-full font-black mb-8">
+          Official Session Record
+        </span>
+
+        <!-- Title -->
+        <h1 class="text-4xl md:text-6xl font-black leading-none tracking-tight mb-4 uppercase">
+          Session No. <span class="text-yellow-400 italic font-serif">{{ session.session_number }}</span>
+        </h1>
+
+        <!-- Subtitle -->
+        <p class="text-lg md:text-xl text-green-50/80 font-medium max-w-3xl">
+          {{ session.session_title }}
+        </p>
+
+      </div>
+    </section>
   
       <!-- CONTENT -->
       <section class="py-12 px-4">

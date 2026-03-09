@@ -3,7 +3,7 @@
   <div class="bg-white min-h-screen">
     <Navbar />
 
-    <section
+    <!-- <section
       class="pt-28 pb-20 bg-gradient-to-br from-green-900 to-green-700 relative overflow-hidden"
     >
       <div
@@ -41,6 +41,26 @@
             >
               Concepcion, Tarlac
             </div>
+          </div>
+        </div>
+      </div>
+    </section> -->
+
+     <section class="pt-28 pb-20 bg-gradient-to-br from-green-900 to-green-700 relative overflow-hidden">
+      <div class="absolute top-0 right-0 w-96 h-96 bg-yellow-300/10 rounded-full blur-3xl z-0"></div>
+
+      <div class="max-w-7xl mx-auto px-4 flex flex-col md:flex-row items-center gap-10 relative z-10">
+        <div class="flex-1 text-white">
+          <div class="text-left">
+            <span class="inline-block text-[10px] md:text-xs tracking-[0.3em] uppercase bg-yellow-400 text-green-950 px-6 py-2 rounded-full font-black mb-8">
+              Public Session Records
+            </span>
+            <h1 class="text-4xl md:text-7xl font-black text-white leading-none tracking-tighter mb-8 uppercase">
+              Legislative <span class="text-yellow-400 italic font-serif">Sessions</span>
+            </h1>
+            <p class="max-w-xl text-green-50/80 text-lg md:text-xl font-medium leading-relaxed">
+             Records of official meetings and deliberations.
+            </p>
           </div>
         </div>
       </div>

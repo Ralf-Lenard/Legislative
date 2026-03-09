@@ -3,7 +3,7 @@
     <div class="bg-white min-h-screen">
       <Navbar />
   
-      <section class="pt-24 sm:pt-28 pb-16 sm:pb-20 bg-gradient-to-br from-green-900 to-green-700 relative overflow-hidden">
+      <!-- <section class="pt-24 sm:pt-28 pb-16 sm:pb-20 bg-gradient-to-br from-green-900 to-green-700 relative overflow-hidden">
         <div class="absolute top-0 right-0 w-72 sm:w-96 h-72 sm:h-96 bg-yellow-300/10 rounded-full blur-3xl"></div>
         
         <div class="max-w-7xl mx-auto px-4 text-center md:text-left">
@@ -19,7 +19,26 @@
             Explore our collection of books and research materials.
           </p>
         </div>
-      </section>
+      </section> -->
+       <section class="pt-28 pb-20 bg-gradient-to-br from-green-900 to-green-700 relative overflow-hidden">
+      <div class="absolute top-0 right-0 w-96 h-96 bg-yellow-300/10 rounded-full blur-3xl z-0"></div>
+
+      <div class="max-w-7xl mx-auto px-4 flex flex-col md:flex-row items-center gap-10 relative z-10">
+        <div class="flex-1 text-white">
+          <div class="text-left">
+            <span class="inline-block text-[10px] md:text-xs tracking-[0.3em] uppercase bg-yellow-400 text-green-950 px-6 py-2 rounded-full font-black mb-8">
+               Digital Resources
+            </span>
+            <h1 class="text-4xl md:text-7xl font-black text-white leading-none tracking-tighter mb-8 uppercase">
+              Municipal <span class="text-yellow-400 italic font-serif">Library</span>
+            </h1>
+            <p class="max-w-xl text-green-50/80 text-lg md:text-xl font-medium leading-relaxed">
+             Explore our collection of books and research materials.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
   
       <section class="py-10 sm:py-14 px-4 bg-gray-50">
         <div class="max-w-7xl mx-auto">

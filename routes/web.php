@@ -57,7 +57,7 @@ Route::get('/library', [BookController::class, 'indexUser']);
 //     ]);
 // });
 
-Route::get('/citizens-charter/public-assistance', [AssistanceController::class, 'indexUser'])->name('assistances.public');
+// Route::get('/citizens-charter/public-assistance', [AssistanceController::class, 'indexUser'])->name('assistances.public');
 Route::get('/citizens-charter', [AssistanceController::class, 'citizenCharter']);
 
 
@@ -111,8 +111,6 @@ Route::middleware(['auth', 'admin_or_super', 'check.banned'])->group(function ()
     Route::put('/admin-ordinances/{id}', [OrdinancesController::class, 'update'])->name('ordinances.update');
     Route::delete('/ordinances/{id}', [OrdinancesController::class, 'destroy'])->name('ordinances.destroy');
     Route::get('/ordinance-request', [OrdinancesController::class, 'indexRequest'])->name('ordinances.indexRequest');
-    Route::post('/ordinance-request/{id}/approve', [OrdinancesController::class, 'approveDownloadRequest']);
-    Route::post('/ordinance-request/{id}/reject', [OrdinancesController::class, 'rejectDownloadRequest']);
 
     // resolutions
     Route::get('/admin-resolutions', [ResolutionController::class, 'index'])->name('resolutions.index');
@@ -120,9 +118,7 @@ Route::middleware(['auth', 'admin_or_super', 'check.banned'])->group(function ()
     Route::put('/admin-resolutions/{id}', [ResolutionController::class, 'update'])->name('resolutions.update');
     Route::delete('/admin-resolutions/{id}', [ResolutionController::class, 'destroy'])->name('resolutions.destroy');
     Route::get('/resolution-request', [ResolutionController::class, 'indexRequest'])->name('resolutions.indexRequest');
-    Route::post('/resolution-request/{id}/approve', [ResolutionController::class, 'approveDownloadRequest']);
-    Route::post('/resolution-request/{id}/reject', [ResolutionController::class, 'rejectDownloadRequest']);
-
+   
     // sesion
     Route::get('/admin-sessions', [SessionController::class, 'index'])->name('sessions.index');
     Route::post('/admin-sessions', [SessionController::class, 'store'])->name('sessions.store');
@@ -172,6 +168,17 @@ Route::middleware(['auth', 'super_admin'])->group(function () {
     Route::post('/super-admin/ban-user/{id}', [SuperAdminController::class, 'banUser'])->name('superadmin.banUser');
     Route::post('/super-admin/unban-user/{id}', [SuperAdminController::class, 'unbanUser'])->name('superadmin.unbanUser');
     Route::delete('/super-admin-users/{id}', [SuperAdminController::class, 'destroy'])->name('superadmin.destroy');
+
+
+    // REQUEST APPROVE AND REJECT
+
+    // RESOLUTION
+    Route::post('/resolution-request/{id}/approve', [ResolutionController::class, 'approveDownloadRequest']);
+    Route::post('/resolution-request/{id}/reject', [ResolutionController::class, 'rejectDownloadRequest']);
+
+    // ORDINANCE
+    Route::post('/ordinance-request/{id}/approve', [OrdinancesController::class, 'approveDownloadRequest']);
+    Route::post('/ordinance-request/{id}/reject', [OrdinancesController::class, 'rejectDownloadRequest']);
 });
 
 // notifications

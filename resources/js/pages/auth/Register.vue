@@ -120,6 +120,7 @@
                                         <EyeOff v-else class="w-3.5 h-3.5" />
                                     </button>
                                 </div>
+                                
                             </div>
     
                             <!-- Confirm Password -->
@@ -136,8 +137,9 @@
                                     </button>
                                 </div>
                             </div>
-    
+                               
                         </div>
+                         <InputError :message="errors.password" class="text-[10px]" />
     
                         <!-- Terms -->
                         <div class="flex items-center gap-2">

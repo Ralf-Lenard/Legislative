@@ -3,27 +3,25 @@
   <div class="bg-white min-h-screen">
     <Navbar />
 
-    <section class="pt-24 pb-16 md:pt-32 md:pb-24 bg-gradient-to-br from-green-900 to-green-700 relative overflow-hidden">
-      <div class="absolute top-0 right-0 w-64 h-64 md:w-96 md:h-96 bg-yellow-300/10 rounded-full blur-3xl"></div>
+    <section class="pt-28 pb-20 bg-gradient-to-br from-green-900 to-green-700 relative overflow-hidden">
+      <div class="absolute top-0 right-0 w-96 h-96 bg-yellow-300/10 rounded-full blur-3xl z-0"></div>
 
-      <div class="max-w-7xl mx-auto px-4 flex flex-col lg:flex-row items-center gap-8 md:gap-12">
-        <div class="flex-1 text-center lg:text-left text-white relative z-10">
-          <span class="text-[10px] md:text-xs tracking-widest uppercase bg-yellow-400 text-green-900 px-4 py-1 rounded-full font-bold inline-block">
-            Legislative & Structural Overview
-          </span>
-          <h1 class="text-4xl md:text-6xl font-extrabold mt-4 leading-tight">
-            Governance & Structure
-          </h1>
-          <p class="text-base md:text-lg mt-3 text-gray-100 max-w-2xl mx-auto lg:mx-0">
-            Understanding the legislative process and the organizational framework of the Sangguniang Bayan of Concepcion.
-          </p>
-        </div>
+      <div class="max-w-7xl mx-auto px-4 flex flex-col md:flex-row items-center gap-10 relative z-10">
+        <div class="flex-1 text-white">
+          <div class="text-left">
+            
+            <span class="inline-block text-[10px] md:text-xs tracking-[0.3em] uppercase bg-yellow-400 text-green-950 px-6 py-2 rounded-full font-black mb-8">
+              Municipal Leadership Structure
+            </span>
 
-        <div class="w-full lg:w-1/3 hidden sm:block">
-          <div class="relative aspect-video lg:aspect-square rounded-2xl overflow-hidden shadow-2xl border-2 border-white/20">
-            <img src="https://upload.wikimedia.org/wikipedia/commons/7/78/Concepcion_Municipal_Hall%2C_Tarlac%2C_Oct_2023.jpg" 
-                 alt="Concepcion Municipal Hall" 
-                 class="w-full h-full object-cover">
+            <h1 class="text-4xl md:text-7xl font-black text-white leading-none tracking-tighter mb-8 uppercase">
+              Organizational <span class="text-yellow-400 italic font-serif">Chart</span>
+            </h1>
+
+            <p class="max-w-xl text-green-50/80 text-lg md:text-xl font-medium leading-relaxed">
+              Overview of the municipal government structure, including elected officials and employees responsible for delivering public service.
+            </p>
+
           </div>
         </div>
       </div>

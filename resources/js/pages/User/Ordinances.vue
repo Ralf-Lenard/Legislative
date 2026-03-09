@@ -10,10 +10,11 @@
 
       <div class="max-w-7xl mx-auto px-4 flex flex-col md:flex-row items-center gap-10 relative z-10">
         <div class="flex-1 text-white">
-          
+
+          <!-- Back Button -->
           <Link 
             href="/citizens-charter" 
-            class="relative z-20 inline-flex items-center text-yellow-400 hover:text-white mb-8 transition-colors font-bold text-xs uppercase tracking-[0.2em] cursor-pointer"
+            class="relative z-20 inline-flex items-center text-yellow-400 hover:text-white mb-8 transition-colors font-bold text-xs uppercase tracking-[0.2em]"
           >
             <svg 
               xmlns="http://www.w3.org/2000/svg" 
@@ -27,22 +28,22 @@
             Back to Citizen Charter
           </Link>
 
-          <div class="block">
-            <span class="text-xs tracking-widest uppercase bg-yellow-400 text-green-900 px-4 py-1 rounded-full font-bold">
-              Official Website
+          <div class="text-left">
+            <span class="inline-block text-[10px] md:text-xs tracking-[0.3em] uppercase bg-yellow-400 text-green-950 px-6 py-2 rounded-full font-black mb-8">
+              Official Legislative Measures
             </span>
+
+            <h1 class="text-4xl md:text-7xl font-black text-white leading-none tracking-tighter mb-8 uppercase">
+              Municipal <span class="text-yellow-400 italic font-serif">Ordinances</span>
+            </h1>
+
+            <p class="max-w-xl text-green-50/80 text-lg md:text-xl font-medium leading-relaxed">
+              Local laws enacted by the municipal council to regulate policies, services, and community development.
+            </p>
           </div>
 
-          <h1 class="text-5xl md:text-6xl font-extrabold mt-4 leading-tight">
-            Municipal Ordinances
-          </h1>
-
-          <p class="text-lg mt-3 text-gray-100">
-            Crafting laws for a better future.
-          </p>
         </div>
-        
-        </div>
+      </div>
     </section>
 
     <section class="py-14 px-4 bg-gray-50">

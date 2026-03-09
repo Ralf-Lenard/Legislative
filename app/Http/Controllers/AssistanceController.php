@@ -15,42 +15,42 @@ class AssistanceController extends Controller
      * Display a listing of the resource for users.
      */
    
-    public function indexUser(Request $request)
-{
-    $type = $request->get('type', 'scholar'); // default tab
-    $search = $request->get('search');
+//     public function indexUser(Request $request)
+// {
+//     $type = $request->get('type', 'scholar'); // default tab
+//     $search = $request->get('search');
 
-    $query = Assistance::query();
+//     $query = Assistance::query();
 
-    // Filter by type
-    if ($type) {
-        $query->where('type', $type);
-    }
+//     // Filter by type
+//     if ($type) {
+//         $query->where('type', $type);
+//     }
 
-    // Search by full name
-    if ($search) {
-        $query->where('full_name', 'like', '%' . $search . '%');
-    }
+//     // Search by full name
+//     if ($search) {
+//         $query->where('full_name', 'like', '%' . $search . '%');
+//     }
 
-    $assistances = $query
-        ->latest()
-        ->paginate(10)
-        ->withQueryString();
+//     $assistances = $query
+//         ->latest()
+//         ->paginate(10)
+//         ->withQueryString();
 
-    return Inertia::render('User/Assistance', [
-        'canRegister' => Route::has('register'),
-        'assistances' => $assistances,
-        'filters' => [
-            'type' => $type,
-            'search' => $search,
-        ],
-        'counts' => [
-            'medical' => Assistance::where('type', 'medical')->count(),
-            'legal' => Assistance::where('type', 'legal')->count(),
-            'scholar' => Assistance::where('type', 'scholar')->count(),
-        ]
-    ]);
-}
+//     return Inertia::render('User/Assistance', [
+//         'canRegister' => Route::has('register'),
+//         'assistances' => $assistances,
+//         'filters' => [
+//             'type' => $type,
+//             'search' => $search,
+//         ],
+//         'counts' => [
+//             'medical' => Assistance::where('type', 'medical')->count(),
+//             'legal' => Assistance::where('type', 'legal')->count(),
+//             'scholar' => Assistance::where('type', 'scholar')->count(),
+//         ]
+//     ]);
+// }
 
 
     /**
@@ -112,7 +112,7 @@ class AssistanceController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'type' => 'required|string|in:medical,legal,scholar',
+            'type' => 'required|string|in:people,scholar',
             'full_name' => 'required|string|max:255',
             'barangay' => 'nullable|string|max:255',
             'school' => 'nullable|string|max:255',
@@ -131,7 +131,7 @@ class AssistanceController extends Controller
         $assistance = Assistance::findOrFail($id);
 
         $validated = $request->validate([
-            'type' => 'required|string|in:medical,legal,scholar',
+            'type' => 'required|string|in:people,scholar',
             'full_name' => 'required|string|max:255',
             'barangay' => 'nullable|string|max:255',
             'school' => 'nullable|string|max:255',
@@ -190,37 +190,37 @@ class AssistanceController extends Controller
     // =========================
     // LATEST 4 ASSISTANCE
     // =========================
-    $latestAssistances = Assistance::latest()
-        ->take(4)
-        ->get()
-        ->map(function ($assist) {
-            return [
-                'id' => $assist->id,
-                'type' => ucfirst($assist->type),
-                'full_name' => $assist->full_name,
-                'barangay' => $assist->barangay,
-                'school' => $assist->school,
-                'date' => $assist->created_at->format('M d, Y'),
-            ];
-        });
+    // $latestAssistances = Assistance::latest()
+    //     ->take(4)
+    //     ->get()
+    //     ->map(function ($assist) {
+    //         return [
+    //             'id' => $assist->id,
+    //             'type' => ucfirst($assist->type),
+    //             'full_name' => $assist->full_name,
+    //             'barangay' => $assist->barangay,
+    //             'school' => $assist->school,
+    //             'date' => $assist->created_at->format('M d, Y'),
+    //         ];
+    //     });
 
     // =========================
     // ASSISTANCE TOTAL COUNTS
     // =========================
-    $assistanceTotals = [
-        'medical' => Assistance::where('type', 'medical')->count(),
-        'legal'   => Assistance::where('type', 'legal')->count(),
-        'scholar' => Assistance::where('type', 'scholar')->count(),
-        'overall' => Assistance::count(),
-    ];
+    // $assistanceTotals = [
+    //     // 'medical' => Assistance::where('type', 'medical')->count(),
+    //     // 'legal'   => Assistance::where('type', 'legal')->count(),
+    //     // 'scholar' => Assistance::where('type', 'scholar')->count(),
+    //     'overall' => Assistance::count(),
+    // ];
 
     return Inertia::render('User/CitizenChart', [
         'canRegister' => Route::has('register'),
 
         'latestOrdinances'  => $latestOrdinances,
         'latestResolutions' => $latestResolutions,
-        'latestAssistances' => $latestAssistances,
-        'assistanceTotals'  => $assistanceTotals,
+        // 'latestAssistances' => $latestAssistances,
+        // // 'assistanceTotals'  => $assistanceTotals,
     ]);
 }
 }

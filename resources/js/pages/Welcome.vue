@@ -274,7 +274,7 @@
                     <div class="mx-auto h-1 w-20 md:w-24 bg-yellow-400"></div>
                 </div>
 
-                <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-5">
+                <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
                     <a
                         v-for="feature in features"
                         :key="feature.title"
@@ -518,6 +518,12 @@ const props = defineProps<Props>();
 const isModalOpen = ref(false);
 const features = [
     {
+        icon: '📑',
+        title: 'Citizen’s Charter',
+        desc: 'Learn about the services, requirements, and procedures offered by the Sangguniang Panlungsod.',
+        href: '/citizens-charter',
+        },
+    {
         icon: '📜',
         title: 'Ordinances',
         desc: 'Explore the definitive collection of local laws and municipal regulations.',
@@ -537,7 +543,7 @@ const features = [
     },
     {
         icon: '📅',
-        title: 'Sessions',
+        title: 'Legislative Sessions',
         desc: 'Stay informed with upcoming schedules and official minutes of past meetings.',
         href: '/legislative-sessions',
     },

@@ -41,7 +41,7 @@
              <li><a href="/citizens-charter" class="text-white text-opacity-80 hover:text-[#ffc107] transition text-sm">Citizens Charter</a></li>
             <li><a href="/citizens-charter/ordinances" class="text-white text-opacity-80 hover:text-[#ffc107] transition text-sm">Ordinances</a></li>
             <li><a href="/citizens-charter/resolutions" class="text-white text-opacity-80 hover:text-[#ffc107] transition text-sm">Resolutions</a></li>
-            <li><a href="/citizens-charter/public-assistance" class="text-white text-opacity-80 hover:text-[#ffc107] transition text-sm">Public Assistance</a></li>
+            <!-- <li><a href="/citizens-charter/public-assistance" class="text-white text-opacity-80 hover:text-[#ffc107] transition text-sm">Public Assistance</a></li> -->
             <!-- <li><a href="/transparency" class="text-white text-opacity-80 hover:text-[#ffc107] transition text-sm">Transparency Portal</a></li> -->
           </ul>
         </div>
