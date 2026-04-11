@@ -22,6 +22,7 @@ class LegislativeSession extends Model
         'session_type',
         'summary',
         'images',
+        'videos',
     ];
 
     /**
@@ -30,5 +31,6 @@ class LegislativeSession extends Model
     protected $casts = [
         'date_of_session' => 'date',
         'images' => 'array', // Automatically decode JSON to array
+        'videos' => 'array',
     ];
 }

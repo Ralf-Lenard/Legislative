@@ -391,6 +391,109 @@
             </div>
         </section>
 
+       <section id="feedback" class="relative overflow-hidden bg-white px-4 py-16 md:py-24">
+            <div class="mx-auto max-w-7xl">
+                <div class="grid grid-cols-1 gap-12 lg:grid-cols-2">
+                    
+                    <div class="rounded-3xl border border-gray-100 bg-white p-8 shadow-xl md:p-12">
+                        <div class="mb-8">
+                            <span class="inline-block rounded-full bg-green-100 px-4 py-2 text-[10px] font-bold tracking-widest text-green-900 uppercase">
+                                Public Consultation
+                            </span>
+                            <h2 class="mt-4 text-3xl font-black text-gray-900 md:text-4xl">Submit Feedback</h2>
+                            <p class="mt-2 text-gray-600">Share your suggestions, concerns, or commendations regarding municipal services.</p>
+                        </div>
+
+                        <form @submit.prevent="submitFeedback" class="space-y-6">
+                            <div>
+                                <label class="block text-xs font-bold uppercase text-gray-500 mb-2 ml-1">Feedback Category</label>
+                                <select v-model="feedbackForm.category" required
+                                    class="w-full rounded-xl border-gray-200 bg-gray-50 px-4 py-4 text-sm transition focus:border-green-800 focus:bg-white focus:ring-0">
+                                    <option value="" disabled>Select a category</option>
+                                    <option value="suggestion">Legislative Suggestion</option>
+                                    <option value="concern">Community Concern</option>
+                                    <option value="commendation">Commendation</option>
+                                    <option value="other">Others</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-bold uppercase text-gray-500 mb-2 ml-1">Your Message</label>
+                                <textarea v-model="feedbackForm.message" rows="6" required
+                                    class="w-full rounded-xl border-gray-200 bg-gray-50 px-4 py-4 text-sm transition focus:border-green-800 focus:bg-white focus:ring-0" 
+                                    placeholder="Please provide as much detail as possible to help us take action..."></textarea>
+                            </div>
+
+                            <button type="submit" 
+                                class="group flex w-full items-center justify-center gap-3 rounded-xl bg-green-800 py-4 font-bold text-white shadow-lg transition-all hover:bg-green-900 active:scale-95">
+                                Submit Feedback
+                                <span class="transition-transform group-hover:translate-x-1">📩</span>
+                            </button>
+                        </form>
+                    </div>
+
+                    <div class="flex flex-col justify-center space-y-8">
+                        <div class="relative overflow-hidden rounded-3xl bg-green-900 p-8 text-white md:p-12">
+                            <div class="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-yellow-400/10 blur-3xl"></div>
+                            
+                            <h3 class="relative z-10 text-2xl font-bold md:text-3xl">Participatory Governance.</h3>
+                            <p class="relative z-10 mt-4 text-green-50/70 leading-relaxed">
+                                The Sangguniang Bayan is dedicated to ensuring that the needs of Concepcion are met through active collaboration with its citizens. Your input helps us refine our policies and improve local legislation.
+                            </p>
+
+                            <div class="mt-8 space-y-4">
+                                <div class="flex items-center gap-4">
+                                    <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-yellow-400 font-bold text-green-900">✓</div>
+                                    <p class="text-sm font-medium">Categorized for legislative action</p>
+                                </div>
+                                <div class="flex items-center gap-4">
+                                    <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-yellow-400 font-bold text-green-900">✓</div>
+                                    <p class="text-sm font-medium">Reviewed by the Office of the Secretary</p>
+                                </div>
+                                <div class="flex items-center gap-4">
+                                    <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-yellow-400 font-bold text-green-900">✓</div>
+                                    <p class="text-sm font-medium">Direct impact on community development</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="rounded-3xl border-2 border-dashed border-gray-200 p-8 text-center transition hover:border-green-800/30">
+                            <p class="text-sm italic text-gray-500">
+                                "Public service is a public trust."
+                            </p>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <Teleport to="body">
+            <Transition
+                enter-active-class="ease-out duration-300"
+                enter-from-class="opacity-0 scale-95"
+                enter-to-class="opacity-100 scale-100"
+                leave-active-class="ease-in duration-200"
+                leave-from-class="opacity-100 scale-100"
+                leave-to-class="opacity-0 scale-95"
+            >
+                <div v-if="showSuccessModal" class="fixed inset-0 z-[9999] flex items-center justify-center p-4">
+                    <div class="fixed inset-0 bg-gray-900/60 backdrop-blur-sm" @click="showSuccessModal = false"></div>
+
+                    <div class="relative w-full max-w-sm transform rounded-3xl bg-white p-8 text-center shadow-2xl transition-all">
+                        <div class="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-green-100">
+                            <span class="text-4xl">✅</span>
+                        </div>
+                        <h3 class="text-2xl font-black text-gray-900">Message Sent!</h3>
+                        <p class="mt-3 text-sm text-gray-600">Your feedback has been successfully submitted.</p>
+                        <button @click="showSuccessModal = false" class="mt-8 w-full rounded-xl bg-green-800 py-3 font-bold text-white hover:bg-green-900">
+                            Close
+                        </button>
+                    </div>
+                </div>
+            </Transition>
+        </Teleport>
+
         <Footer />
     </div>
 
@@ -488,6 +591,7 @@
 import Footer from '@/components/Home/Footer.vue';
 import Navbar from '@/components/Home/Navbar.vue';
 import { ref } from 'vue';
+import { router } from '@inertiajs/vue3'; // Import the Inertia router
 
 interface ViceMayor {
     name: string;
@@ -567,6 +671,29 @@ const contactDetails = [
         detail: 'sbo.cpn.tarlac@gmail.com',
     },
 ];
+
+const showSuccessModal = ref(false);
+
+const feedbackForm = ref({
+    category: '',
+    message: ''
+});
+
+const submitFeedback = () => {
+    router.post('/feedback', feedbackForm.value, {
+        onSuccess: () => {
+            // Reset form
+            feedbackForm.value = { category: '', message: '' };
+            
+            // CORRECT: Use .value to trigger the reactive state
+            showSuccessModal.value = true; 
+        },
+        onError: (errors) => {
+            console.error(errors);
+        },
+        preserveScroll: true,
+    });
+};
 </script>
 
 <style scoped>

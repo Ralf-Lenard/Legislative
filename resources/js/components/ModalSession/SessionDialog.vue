@@ -54,20 +54,20 @@
           <div v-if="existingImages.length > 0" class="mb-4">
             <p class="mb-2 text-[10px] font-bold uppercase tracking-widest text-slate-400">Current Gallery</p>
             <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
-              <div v-for="(img, idx) in existingImages" :key="'ex-'+idx" class="flex items-center gap-3 rounded-lg border border-slate-200 bg-slate-50 p-2">
+              <div v-for="(img, idx) in existingImages" :key="'ex-img-'+idx" class="flex items-center gap-3 rounded-lg border border-slate-200 bg-slate-50 p-2">
                 <img :src="'/storage/' + img.file_path" class="h-12 w-12 rounded object-cover shadow-sm" />
                 <input v-model="img.alt" class="flex-1 bg-transparent text-xs focus:outline-none" placeholder="Description..." />
-                <button type="button" @click="removeExisting(idx)" class="text-slate-400 hover:text-red-500">
+                <button type="button" @click="removeExistingImg(idx)" class="text-slate-400 hover:text-red-500">
                   <X class="h-4 w-4" />
                 </button>
               </div>
             </div>
           </div>
 
-          <div @dragover.prevent="isDragging = true" @dragleave.prevent="isDragging = false" @drop.prevent="handleFileDrop"
+          <div @dragover.prevent="isDraggingImg = true" @dragleave.prevent="isDraggingImg = false" @drop.prevent="handleImgDrop"
             class="relative rounded-xl border-2 border-dashed p-6 transition-colors duration-200"
-            :class="isDragging ? 'border-emerald-500 bg-emerald-50' : 'border-slate-300 hover:border-emerald-400'">
-            <input type="file" multiple accept="image/*" @change="handleFileSelect" class="absolute inset-0 h-full w-full cursor-pointer opacity-0" />
+            :class="isDraggingImg ? 'border-emerald-500 bg-emerald-50' : 'border-slate-300 hover:border-emerald-400'">
+            <input type="file" multiple accept="image/*" @change="handleImgSelect" class="absolute inset-0 h-full w-full cursor-pointer opacity-0" />
             <div class="flex flex-col items-center justify-center text-center">
               <UploadCloud class="mb-2 h-8 w-8 text-slate-400" />
               <p class="text-xs text-slate-600"><span class="font-bold text-emerald-600">Upload images</span> or drag & drop</p>
@@ -75,10 +75,53 @@
           </div>
 
           <div v-if="tempImages.length > 0" class="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
-            <div v-for="(img, index) in tempImages" :key="index" class="flex items-center gap-3 rounded-xl border border-emerald-100 bg-emerald-50/50 p-2">
+            <div v-for="(img, index) in tempImages" :key="'temp-img-'+index" class="flex items-center gap-3 rounded-xl border border-emerald-100 bg-emerald-50/50 p-2">
               <img :src="img.preview" class="h-12 w-12 rounded object-cover" />
               <input v-model="img.alt" placeholder="Alt text..." class="flex-1 rounded border bg-white px-2 py-1 text-xs focus:ring-1 focus:ring-emerald-500" />
-              <button type="button" @click="removeTemp(index)" class="text-slate-400 hover:text-red-500">
+              <button type="button" @click="removeTempImg(index)" class="text-slate-400 hover:text-red-500">
+                <X class="h-4 w-4" />
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <hr class="border-slate-200" />
+
+        <div>
+          <label class="mb-2 block text-sm font-semibold text-slate-900">Session Videos</label>
+
+          <div v-if="existingVideos.length > 0" class="mb-4">
+            <p class="mb-2 text-[10px] font-bold uppercase tracking-widest text-slate-400">Current Videos</p>
+            <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+              <div v-for="(vid, idx) in existingVideos" :key="'ex-vid-'+idx" class="flex items-center gap-3 rounded-lg border border-slate-200 bg-slate-50 p-2">
+                <div class="flex h-12 w-12 items-center justify-center rounded bg-slate-200 text-slate-500">
+                  <Video class="h-6 w-6" />
+                </div>
+                <input v-model="vid.title" class="flex-1 bg-transparent text-xs focus:outline-none" placeholder="Video title..." />
+                <button type="button" @click="removeExistingVid(idx)" class="text-slate-400 hover:text-red-500">
+                  <X class="h-4 w-4" />
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div @dragover.prevent="isDraggingVid = true" @dragleave.prevent="isDraggingVid = false" @drop.prevent="handleVidDrop"
+            class="relative rounded-xl border-2 border-dashed p-6 transition-colors duration-200"
+            :class="isDraggingVid ? 'border-emerald-500 bg-emerald-50' : 'border-slate-300 hover:border-emerald-400'">
+            <input type="file" multiple accept="video/*" @change="handleVidSelect" class="absolute inset-0 h-full w-full cursor-pointer opacity-0" />
+            <div class="flex flex-col items-center justify-center text-center">
+              <UploadCloud class="mb-2 h-8 w-8 text-slate-400" />
+              <p class="text-xs text-slate-600"><span class="font-bold text-emerald-600">Upload videos</span> or drag & drop</p>
+            </div>
+          </div>
+
+          <div v-if="tempVideos.length > 0" class="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <div v-for="(vid, index) in tempVideos" :key="'temp-vid-'+index" class="flex items-center gap-3 rounded-xl border border-emerald-100 bg-emerald-50/50 p-2">
+              <div class="flex h-12 w-12 items-center justify-center rounded bg-emerald-100 text-emerald-600">
+                <Video class="h-6 w-6" />
+              </div>
+              <input v-model="vid.title" placeholder="Video title..." class="flex-1 rounded border bg-white px-2 py-1 text-xs focus:ring-1 focus:ring-emerald-500" />
+              <button type="button" @click="removeTempVid(index)" class="text-slate-400 hover:text-red-500">
                 <X class="h-4 w-4" />
               </button>
             </div>
@@ -100,15 +143,20 @@
 <script setup lang="ts">
 import { router } from '@inertiajs/vue3'
 import { reactive, ref, watchEffect } from 'vue'
-import { X, Loader2, UploadCloud } from 'lucide-vue-next'
+import { X, Loader2, UploadCloud, Video } from 'lucide-vue-next'
 
 const props = defineProps<{ isOpen: boolean; session?: any | null }>()
 const emit = defineEmits(['close', 'submitted'])
 
 const isLoading = ref(false)
-const isDragging = ref(false)
+const isDraggingImg = ref(false)
+const isDraggingVid = ref(false)
+
 const existingImages = ref<any[]>([])
 const tempImages = ref<any[]>([])
+
+const existingVideos = ref<any[]>([])
+const tempVideos = ref<any[]>([])
 
 const form = reactive({
   session_number: '',
@@ -118,28 +166,39 @@ const form = reactive({
   summary: '',
 })
 
-// Process file logic
-const addFiles = (files: File[]) => {
+// Image Logic
+const addImages = (files: File[]) => {
   files.forEach(file => {
     if (file.type.startsWith('image/')) {
       tempImages.value.push({ file, alt: '', preview: URL.createObjectURL(file) })
     }
   })
 }
-const handleFileSelect = (e: any) => addFiles(Array.from(e.target.files))
-const handleFileDrop = (e: any) => { isDragging.value = false; addFiles(Array.from(e.dataTransfer.files)) }
-const removeTemp = (i: number) => { URL.revokeObjectURL(tempImages.value[i].preview); tempImages.value.splice(i, 1) }
-const removeExisting = (i: number) => existingImages.value.splice(i, 1)
+const handleImgSelect = (e: any) => addImages(Array.from(e.target.files))
+const handleImgDrop = (e: any) => { isDraggingImg.value = false; addImages(Array.from(e.dataTransfer.files)) }
+const removeTempImg = (i: number) => { URL.revokeObjectURL(tempImages.value[i].preview); tempImages.value.splice(i, 1) }
+const removeExistingImg = (i: number) => existingImages.value.splice(i, 1)
+
+// Video Logic
+const addVideos = (files: File[]) => {
+  files.forEach(file => {
+    if (file.type.startsWith('video/')) {
+      tempVideos.value.push({ file, title: file.name })
+    }
+  })
+}
+const handleVidSelect = (e: any) => addVideos(Array.from(e.target.files))
+const handleVidDrop = (e: any) => { isDraggingVid.value = false; addVideos(Array.from(e.dataTransfer.files)) }
+const removeTempVid = (i: number) => tempVideos.value.splice(i, 1)
+const removeExistingVid = (i: number) => existingVideos.value.splice(i, 1)
 
 watchEffect(() => {
   if (!props.isOpen) return
 
   if (props.session) {
-    // Populate form fields
     form.session_number = props.session.session_number || ''
     form.session_title = props.session.session_title || ''
     
-    // CRITICAL: Format date to YYYY-MM-DD for <input type="date">
     if (props.session.date_of_session) {
       form.date_of_session = props.session.date_of_session.split('T')[0]
     }
@@ -147,98 +206,68 @@ watchEffect(() => {
     form.session_type = props.session.session_type || 'Regular'
     form.summary = props.session.summary || ''
     
-    // Load existing images into state
+    // Media hydration
     existingImages.value = props.session.images ? JSON.parse(JSON.stringify(props.session.images)) : []
+    existingVideos.value = props.session.videos ? JSON.parse(JSON.stringify(props.session.videos)) : []
     tempImages.value = []
+    tempVideos.value = []
   } else {
-    // Reset for New Session
     form.session_number = ''; form.session_title = ''; form.summary = ''
     form.date_of_session = new Date().toISOString().split('T')[0]
     form.session_type = 'Regular'
     existingImages.value = []; tempImages.value = []
+    existingVideos.value = []; tempVideos.value = []
   }
 })
 
 const closeModal = () => emit('close')
 
-// const submit = () => {
-//   isLoading.value = true
-//   const data = new FormData()
-
-//   // Append standard fields
-//   Object.entries(form).forEach(([key, val]) => data.append(key, val))
-
-//   // Append EXISTING images (the ones kept)
-//   existingImages.value.forEach((img, i) => {
-//     data.append(`existing_images[${i}][file_path]`, img.file_path)
-//     data.append(`existing_images[${i}][alt]`, img.alt || '')
-//   })
-
-//   // Append NEW images
-//   tempImages.value.forEach((img, i) => {
-//     data.append(`images[${i}][file]`, img.file)
-//     data.append(`images[${i}][alt]`, img.alt || '')
-//   })
-
-//   // Method Spoofing for PUT
-//   if (props.session?.id) data.append('_method', 'PUT')
-  
-//   const url = props.session?.id ? `/admin-sessions/${props.session.id}` : '/admin-sessions'
-
-//   router.post(url, data, {
-//     forceFormData: true,
-//     onSuccess: () => {
-//       emit('submitted')
-//       closeModal()
-//       router.reload()
-//     },
-//     onFinish: () => (isLoading.value = false),
-//   })
-// }
-
 const submit = async () => {
   isLoading.value = true
   const data = new FormData()
 
-  // Append standard fields
+  // Standard fields
   Object.entries(form).forEach(([key, val]) => {
     if (val !== null) data.append(key, String(val))
   })
 
-  // Append EXISTING images (kept images)
+  // IMAGES
   existingImages.value.forEach((img, i) => {
     data.append(`existing_images[${i}][file_path]`, img.file_path)
     data.append(`existing_images[${i}][alt]`, img.alt || '')
   })
-
-  // Append NEW images
   tempImages.value.forEach((img, i) => {
     data.append(`images[${i}][file]`, img.file)
     data.append(`images[${i}][alt]`, img.alt || '')
   })
 
-  const url = props.session?.id
-    ? `/admin-sessions/${props.session.id}`
-    : `/admin-sessions`
+  // VIDEOS
+  existingVideos.value.forEach((vid, i) => {
+    data.append(`existing_videos[${i}][file_path]`, vid.file_path)
+    data.append(`existing_videos[${i}][title]`, vid.title || '')
+  })
+  tempVideos.value.forEach((vid, i) => {
+    data.append(`videos[${i}][file]`, vid.file)
+    data.append(`videos[${i}][title]`, vid.title || '')
+  })
 
-  // ✅ METHOD SPOOFING FOR UPDATE
+  const url = props.session?.id ? `/admin-sessions/${props.session.id}` : `/admin-sessions`
+
   if (props.session?.id) {
     data.append('_method', 'PUT')
   }
 
-  // ✅ SAME AS ORDINANCES (FULL REFRESH)
   router.visit(url, {
-    method: 'post',        // ALWAYS POST
+    method: 'post',
     data,
     forceFormData: true,
-    preserveState: false,  // FORCE DATA RELOAD
+    preserveState: false,
     onFinish: () => {
       isLoading.value = false
       closeModal()
     }
   })
 }
-
 </script>
 
 <style scoped>

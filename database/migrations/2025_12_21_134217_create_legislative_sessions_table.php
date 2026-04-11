@@ -19,6 +19,10 @@ return new class extends Migration
             $table->enum('session_type', ['Regular', 'Special']); // Type: Regular or Special
             $table->text('summary'); // Summary of the session
             $table->json('images')->nullable(); // JSON column for images
+
+            // ✅ Add this line for videos
+            $table->json('videos')->nullable(); // JSON column for multiple videos
+
             $table->timestamps(); // created_at & updated_at
         });
     }

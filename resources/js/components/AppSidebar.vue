@@ -16,7 +16,8 @@ import {
     Settings,
     BookIcon,
     HelpingHand,
-    Network
+    Network,
+    MessageSquare
 } from 'lucide-vue-next';
 import { computed, onMounted, ref, onUnmounted } from 'vue';
 import AppLogo from './AppLogo.vue';
@@ -65,6 +66,19 @@ const navGroups = computed(() => {
                     href: '/resolution-request',
                     icon: ClipboardList,
                     count: pendingResolutions
+                },
+                {
+                    title: 'Feedback',
+                    href: '/admin/feedback',
+                    icon: MessageSquare
+                }
+            ]
+            : authUser.value?.usertype === 'admin'
+            ? [
+                {
+                    title: 'Feedback',
+                    href: '/admin/feedback',
+                    icon: MessageSquare
                 }
             ]
             : [])

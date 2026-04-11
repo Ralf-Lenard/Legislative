@@ -12,7 +12,7 @@ use App\Http\Controllers\ScholarController;
 use App\Http\Controllers\SuperAdminController;
 use App\Models\Notification;
 use App\Http\Controllers\AssistanceController;
-
+use App\Http\Controllers\FeedbackController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Laravel\Fortify\Features;
@@ -59,6 +59,9 @@ Route::get('/library', [BookController::class, 'indexUser']);
 
 // Route::get('/citizens-charter/public-assistance', [AssistanceController::class, 'indexUser'])->name('assistances.public');
 Route::get('/citizens-charter', [AssistanceController::class, 'citizenCharter']);
+
+// Feedback
+Route::post('/feedback', [FeedbackController::class, 'store'])->name('feedback.store');
 
 
 
@@ -142,6 +145,12 @@ Route::middleware(['auth', 'admin_or_super', 'check.banned'])->group(function ()
     Route::post('/admin-assistance', [AssistanceController::class, 'store'])->name('assistances.store');
     Route::put('/admin-assistance/{id}', [AssistanceController::class, 'update'])->name('assistances.update');
     Route::delete('/admin-assistance/{id}', [AssistanceController::class, 'destroy'])->name('assistances.destroy');
+
+    // Feedback
+    Route::get('/admin/feedback', [FeedbackController::class, 'index'])->name('admin.feedback.index');
+
+    // Delete feedback (admin action)
+    Route::delete('/admin/feedback/{feedback}', [FeedbackController::class, 'destroy'])->name('admin.feedback.destroy');
 
 
 

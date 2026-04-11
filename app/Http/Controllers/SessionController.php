@@ -89,7 +89,7 @@ class SessionController extends Controller
     //     ]);
     // }
 
-    public function showUser($id)
+   public function showUser($id)
 {
     $session = LegislativeSession::findOrFail($id);
 
@@ -102,16 +102,27 @@ class SessionController extends Controller
             'session_type' => $session->session_type,
             'summary' => $session->summary,
 
-            // Handle null images safely
+            // Images
             'images' => collect($session->images ?? [])->map(function ($image) {
                 if (!$image || !isset($image['file_path'])) {
-                    return null; // return null if image or file_path is missing
+                    return null;
                 }
                 return [
                     'url' => asset('storage/' . $image['file_path']),
                     'alt' => $image['alt'] ?? 'Session Image',
                 ];
-            })->filter()->values(), // filter out any nulls
+            })->filter()->values(),
+
+            // ✅ Videos (same logic)
+            'videos' => collect($session->videos ?? [])->map(function ($video) {
+                if (!$video || !isset($video['file_path'])) {
+                    return null;
+                }
+                return [
+                    'url' => asset('storage/' . $video['file_path']),
+                    'title' => $video['title'] ?? 'Session Video',
+                ];
+            })->filter()->values(),
 
             'created_at' => $session->created_at,
         ],
@@ -210,24 +221,64 @@ class SessionController extends Controller
     /**
      * Store a newly created session.
      */
+    // public function store(Request $request)
+    // {
+    //     // Capture the validated data into a variable
+    //     $validated = $request->validate([
+    //         'session_number' => 'required|unique:legislative_sessions,session_number',
+    //         'session_title' => 'required|string|max:255',
+    //         'date_of_session' => 'required|date',
+    //         'session_type' => 'required|in:Regular,Special',
+    //         'summary' => 'required|string',
+    //         'images' => 'nullable|array',
+    //         'images.*.file' => 'required|image|mimes:jpg,jpeg,png,webp|max:2048',
+    //         'images.*.alt' => 'required|string|max:255',
+    //     ]);
+
+    //     $images = [];
+    //     if ($request->has('images')) {
+    //         foreach ($request->images as $img) {
+    //             $path = $img['file']->store('sessions', 'public');
+    //             $images[] = [
+    //                 'file_path' => $path,
+    //                 'alt' => $img['alt'],
+    //             ];
+    //         }
+    //     }
+
+    //     // Use the $validated variable instead of calling $request->validated()
+    //     LegislativeSession::create(array_merge($validated, ['images' => $images]));
+
+    //     return redirect()
+    //         ->route('sessions.index')
+    //         ->with('success', 'Session created successfully');
+    // }
+
     public function store(Request $request)
     {
-        // Capture the validated data into a variable
         $validated = $request->validate([
             'session_number' => 'required|unique:legislative_sessions,session_number',
             'session_title' => 'required|string|max:255',
             'date_of_session' => 'required|date',
             'session_type' => 'required|in:Regular,Special',
             'summary' => 'required|string',
+
+            // Images
             'images' => 'nullable|array',
-            'images.*.file' => 'required|image|mimes:jpg,jpeg,png,webp|max:2048',
+            'images.*.file' => 'required|image|mimes:jpg,jpeg,png,webp|max:51200',
             'images.*.alt' => 'required|string|max:255',
+
+            // ✅ Videos (same structure as images)
+            'videos' => 'nullable|array',
+            'videos.*.file' => 'required|file|mimes:mp4,mov,avi,webm|max:512000', // 10MB max
+            'videos.*.title' => 'required|string|max:255',
         ]);
 
+        // Handle Images
         $images = [];
         if ($request->has('images')) {
             foreach ($request->images as $img) {
-                $path = $img['file']->store('sessions', 'public');
+                $path = $img['file']->store('sessions/images', 'public');
                 $images[] = [
                     'file_path' => $path,
                     'alt' => $img['alt'],
@@ -235,31 +286,105 @@ class SessionController extends Controller
             }
         }
 
-        // Use the $validated variable instead of calling $request->validated()
-        LegislativeSession::create(array_merge($validated, ['images' => $images]));
+        // ✅ Handle Videos (same logic)
+        $videos = [];
+        if ($request->has('videos')) {
+            foreach ($request->videos as $vid) {
+                $path = $vid['file']->store('sessions/videos', 'public');
+                $videos[] = [
+                    'file_path' => $path,
+                    'title' => $vid['title'],
+                ];
+            }
+        }
+
+        LegislativeSession::create(array_merge($validated, [
+            'images' => $images,
+            'videos' => $videos, // ✅ save videos
+        ]));
 
         return redirect()
             ->route('sessions.index')
             ->with('success', 'Session created successfully');
     }
 
+    // public function update(Request $request, $id)
+    // {
+    //     $session = LegislativeSession::findOrFail($id);
+
+    //     // Capture the validated data into a variable
+    //     $validated = $request->validate([
+    //         'session_number' => 'required|unique:legislative_sessions,session_number,' . $id,
+    //         'session_title' => 'required|string|max:255',
+    //         'date_of_session' => 'required|date',
+    //         'session_type' => 'required|in:Regular,Special',
+    //         'summary' => 'required|string',
+    //         'images' => 'nullable|array',
+    //         'images.*.file' => 'required_with:images|image|mimes:jpg,jpeg,png,webp|max:2048',
+    //         'images.*.alt' => 'required_with:images|string|max:255',
+    //         'existing_images' => 'nullable|array',
+    //     ]);
+
+    //     $finalImages = [];
+
+    //     // 1. Keep selected existing images
+    //     if ($request->has('existing_images')) {
+    //         foreach ($request->existing_images as $img) {
+    //             $finalImages[] = [
+    //                 'file_path' => $img['file_path'],
+    //                 'alt' => $img['alt'] ?? '',
+    //             ];
+    //         }
+    //     }
+
+    //     // 2. Add newly uploaded images
+    //     if ($request->has('images')) {
+    //         foreach ($request->images as $imgData) {
+    //             $path = $imgData['file']->store('sessions', 'public');
+    //             $finalImages[] = [
+    //                 'file_path' => $path,
+    //                 'alt' => $imgData['alt'],
+    //             ];
+    //         }
+    //     }
+
+    //     // 3. Update using the $validated data and merged images
+    //     $session->update(array_merge($validated, [
+    //         'images' => $finalImages
+    //     ]));
+
+    //     return redirect()
+    //         ->route('sessions.index')
+    //         ->with('success', 'Session updated successfully');
+    // }
+
     public function update(Request $request, $id)
     {
         $session = LegislativeSession::findOrFail($id);
 
-        // Capture the validated data into a variable
         $validated = $request->validate([
             'session_number' => 'required|unique:legislative_sessions,session_number,' . $id,
             'session_title' => 'required|string|max:255',
             'date_of_session' => 'required|date',
             'session_type' => 'required|in:Regular,Special',
             'summary' => 'required|string',
+
+            // Images
             'images' => 'nullable|array',
-            'images.*.file' => 'required_with:images|image|mimes:jpg,jpeg,png,webp|max:2048',
+            'images.*.file' => 'required_with:images|image|mimes:jpg,jpeg,png,webp|max:51200',
             'images.*.alt' => 'required_with:images|string|max:255',
             'existing_images' => 'nullable|array',
+
+            // ✅ Videos
+            'videos' => 'nullable|array',
+            'videos.*.file' => 'required_with:videos|file|mimes:mp4,mov,avi,webm|max:512000',
+            'videos.*.title' => 'required_with:videos|string|max:255',
+            'existing_videos' => 'nullable|array',
         ]);
 
+        // ======================
+        // IMAGES
+        // ======================
         $finalImages = [];
 
         // 1. Keep selected existing images
@@ -275,7 +400,7 @@ class SessionController extends Controller
         // 2. Add newly uploaded images
         if ($request->has('images')) {
             foreach ($request->images as $imgData) {
-                $path = $imgData['file']->store('sessions', 'public');
+                $path = $imgData['file']->store('sessions/images', 'public');
                 $finalImages[] = [
                     'file_path' => $path,
                     'alt' => $imgData['alt'],
@@ -283,9 +408,38 @@ class SessionController extends Controller
             }
         }
 
-        // 3. Update using the $validated data and merged images
+        // ======================
+        // ✅ VIDEOS
+        // ======================
+        $finalVideos = [];
+
+        // 1. Keep selected existing videos
+        if ($request->has('existing_videos')) {
+            foreach ($request->existing_videos as $vid) {
+                $finalVideos[] = [
+                    'file_path' => $vid['file_path'],
+                    'title' => $vid['title'] ?? '',
+                ];
+            }
+        }
+
+        // 2. Add newly uploaded videos
+        if ($request->has('videos')) {
+            foreach ($request->videos as $vidData) {
+                $path = $vidData['file']->store('sessions/videos', 'public');
+                $finalVideos[] = [
+                    'file_path' => $path,
+                    'title' => $vidData['title'],
+                ];
+            }
+        }
+
+        // ======================
+        // UPDATE
+        // ======================
         $session->update(array_merge($validated, [
-            'images' => $finalImages
+            'images' => $finalImages,
+            'videos' => $finalVideos, // ✅ include videos
         ]));
 
         return redirect()
