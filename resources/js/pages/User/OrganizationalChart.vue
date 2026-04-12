@@ -235,7 +235,11 @@
           <!-- Left column: Image and basic info -->
           <div class="md:col-span-4 flex flex-col items-center">
             <div class="w-full aspect-[3/4] md:aspect-[4/5] rounded-2xl overflow-hidden border-[6px] border-yellow-400 shadow-2xl mb-6">
-              <img :src="imageUrl(modalMemberData.image)" :alt="modalMemberData.name" class="w-full h-full object-cover"/>
+             <img 
+                :src="imageUrl(modalMemberData.image)" 
+                :alt="modalMemberData.name" 
+                class="w-full h-full object-cover object-[50%_10%]"
+              />
             </div>
             <div class="text-center">
               <h2 class="text-3xl md:text-4xl font-black text-green-900 leading-tight">{{ modalMemberData.name }}</h2>
@@ -292,7 +296,7 @@
 
         <!-- Profile Image as Bigger Box -->
         <div class="w-64 h-80 md:w-96 md:h-[28rem] mx-auto rounded-2xl overflow-hidden border-4 border-yellow-400 mb-8 shadow-xl">
-          <img :src="imageUrl(modalEmployeeData.image)" :alt="modalEmployeeData.name" class="w-full h-full object-cover">
+          <img :src="imageUrl(modalEmployeeData.image)" :alt="modalEmployeeData.name" class="w-full h-full object-cover object-[50%_10%]">
         </div>
 
         <!-- Name -->
