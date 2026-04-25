@@ -31,7 +31,7 @@
 
                     <div class="flex flex-col gap-4 pt-6 sm:flex-row sm:justify-center lg:justify-start">
                         <a
-                            href="/ordinances"
+                            href="/citizens-charter/ordinances"
                             class="rounded-lg bg-green-800 px-8 py-3 text-center font-bold text-white shadow-lg transition hover:bg-green-900"
                         >
                             Explore
@@ -655,7 +655,7 @@ const features = [
         icon: '📚', // Better icon for Library
         title: 'Legislative Library',
         desc: 'Search through our curated digital archive of books and research materials.',
-        href: '/Library',
+        href: '/library',
     },
 ];
 const contactDetails = [
