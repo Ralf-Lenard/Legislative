@@ -436,6 +436,7 @@
 import { computed, ref, reactive, watch, nextTick, onMounted, onUnmounted } from 'vue';
 import { Head, router, usePage, Link } from '@inertiajs/vue3';
 
+
 import Navbar from '@/components/Home/Navbar.vue';
 import Footer from '@/components/Home/Footer.vue';
 import FlashMessage from '@/components/FlashMessage.vue'; // The toast component handles its own state
@@ -499,50 +500,137 @@ const closeRequestModal = () => {
     showRequestModal.value = false; 
 };
 
+// const requestForm = reactive({
+//     purpose: '',
+//     valid_id_type: '',
+//     valid_id: null,
+// })
+
+// const submitRequestForm = async () => {
+//     if (!selectedOrdinance.value) return
+
+//     const currentOrdinanceId = selectedOrdinance.value.id
+
+//     const formData = new FormData()
+//     formData.append('purpose', requestForm.purpose)
+//     formData.append('valid_id_type', requestForm.valid_id_type)
+//     formData.append('valid_id', requestForm.valid_id)
+
+//     router.post(
+//         `/ordinances/${currentOrdinanceId}/request-access`,
+//         formData,
+//         {
+//             forceFormData: true, // ✅ IMPORTANT for file upload
+//             preserveScroll: true,
+
+//             onFinish: () => {
+//                 // Reset form
+//                 requestForm.purpose = ''
+//                 requestForm.valid_id_type = ''
+//                 requestForm.valid_id = null
+
+//                 showRequestModal.value = false
+
+//                 // Optimistic UI update
+//                 const ordinanceInList = props.ordinances.data.find(
+//                     (o) => o.id === currentOrdinanceId
+//                 )
+
+//                 if (ordinanceInList) {
+//                     ordinanceInList.status = 'pending'
+//                 }
+//             },
+//         }
+//     )
+// }
+
+// ----------------------
+// YOUR EXISTING FORM
+// ----------------------
 const requestForm = reactive({
     purpose: '',
     valid_id_type: '',
     valid_id: null,
 })
 
+// ----------------------
+// RECAPTCHA SETUP
+// ----------------------
+const recaptchaSiteKey = import.meta.env.VITE_RECAPTCHA_SITE_KEY
+
+onMounted(() => {
+    const script = document.createElement('script')
+    script.src = `https://www.google.com/recaptcha/api.js?render=${recaptchaSiteKey}`
+    script.async = true
+    document.head.appendChild(script)
+})
+
+// ----------------------
+// GET CAPTCHA TOKEN
+// ----------------------
+const getRecaptchaToken = () => {
+    return new Promise((resolve, reject) => {
+        window.grecaptcha.ready(() => {
+            window.grecaptcha.execute(recaptchaSiteKey, {
+                action: 'ordinance_request'
+            })
+            .then((token) => resolve(token))
+            .catch((err) => reject(err))
+        })
+    })
+}
+
+// ----------------------
+// SUBMIT FUNCTION
+// ----------------------
 const submitRequestForm = async () => {
     if (!selectedOrdinance.value) return
 
     const currentOrdinanceId = selectedOrdinance.value.id
 
-    const formData = new FormData()
-    formData.append('purpose', requestForm.purpose)
-    formData.append('valid_id_type', requestForm.valid_id_type)
-    formData.append('valid_id', requestForm.valid_id)
+    try {
+        // 🔐 GET CAPTCHA TOKEN
+        const token = await getRecaptchaToken()
 
-    router.post(
-        `/ordinances/${currentOrdinanceId}/request-access`,
-        formData,
-        {
-            forceFormData: true, // ✅ IMPORTANT for file upload
-            preserveScroll: true,
+        const formData = new FormData()
+        formData.append('purpose', requestForm.purpose)
+        formData.append('valid_id_type', requestForm.valid_id_type)
+        formData.append('valid_id', requestForm.valid_id)
 
-            onFinish: () => {
-                // Reset form
-                requestForm.purpose = ''
-                requestForm.valid_id_type = ''
-                requestForm.valid_id = null
+        // 🔐 ADD CAPTCHA TOKEN
+        formData.append('recaptcha_token', token)
 
-                showRequestModal.value = false
+        router.post(
+            `/ordinances/${currentOrdinanceId}/request-access`,
+            formData,
+            {
+                forceFormData: true,
+                preserveScroll: true,
 
-                // Optimistic UI update
-                const ordinanceInList = props.ordinances.data.find(
-                    (o) => o.id === currentOrdinanceId
-                )
+                onFinish: () => {
+                    // Reset form
+                    requestForm.purpose = ''
+                    requestForm.valid_id_type = ''
+                    requestForm.valid_id = null
 
-                if (ordinanceInList) {
-                    ordinanceInList.status = 'pending'
-                }
-            },
-        }
-    )
+                    // Close modal
+                    showRequestModal.value = false
+
+                    // Update UI
+                    const ordinanceInList = props.ordinances.data.find(
+                        (o) => o.id === currentOrdinanceId
+                    )
+
+                    if (ordinanceInList) {
+                        ordinanceInList.status = 'pending'
+                    }
+                },
+            }
+        )
+    } catch (error) {
+        console.error('reCAPTCHA error:', error)
+    }
 }
-
 
 const handleValidIdUpload = (event) => {
     requestForm.valid_id = event.target.files[0]

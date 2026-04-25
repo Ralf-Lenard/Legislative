@@ -12,37 +12,43 @@ use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Laravel\Fortify\Features;
 use Laravel\Fortify\Fortify;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Hash;
 use App\Models\User;
 
 class FortifyServiceProvider extends ServiceProvider
 {
-    /**
-     * Register any application services.
-     */
     public function register(): void
     {
         //
     }
 
-    /**
-     * Bootstrap any application services.
-     */
     public function boot(): void
     {
         $this->configureActions();
         $this->configureViews();
         $this->configureRateLimiting();
 
-        // ✅ ADD THIS BLOCK
+        /*
+        |--------------------------------------------------------------------------
+        | 🔐 CUSTOM AUTH LOGIC (WITH EMAIL VERIFICATION SUPPORT)
+        |--------------------------------------------------------------------------
+        */
         Fortify::authenticateUsing(function (Request $request) {
+
             $user = User::where('email', $request->email)->first();
 
-            if ($user && Hash::check($request->password, $user->password)) {
+            if (
+                $user &&
+                Hash::check($request->password, $user->password)
+            ) {
 
-                // 👉 SEND VERIFICATION EMAIL IF NOT VERIFIED
-                if (!$user->hasVerifiedEmail()) {
+                // ❗ EMAIL VERIFICATION CHECK (recommended for your system)
+                if (! $user->hasVerifiedEmail()) {
                     $user->sendEmailVerificationNotification();
+
+                    // allow login BUT force redirect to verify page
+                    return $user;
                 }
 
                 return $user;
@@ -52,24 +58,33 @@ class FortifyServiceProvider extends ServiceProvider
         });
     }
 
-    /**
-     * Configure Fortify actions.
-     */
+    /*
+    |--------------------------------------------------------------------------
+    | ACTIONS
+    |--------------------------------------------------------------------------
+    */
     private function configureActions(): void
     {
         Fortify::resetUserPasswordsUsing(ResetUserPassword::class);
         Fortify::createUsersUsing(CreateNewUser::class);
     }
 
-    /**
-     * Configure Fortify views.
-     */
+    /*
+    |--------------------------------------------------------------------------
+    | VIEWS (INERTIA)
+    |--------------------------------------------------------------------------
+    */
     private function configureViews(): void
     {
         Fortify::loginView(fn(Request $request) => Inertia::render('auth/Login', [
             'canResetPassword' => Features::enabled(Features::resetPasswords()),
             'canRegister' => Features::enabled(Features::registration()),
             'status' => $request->session()->get('status'),
+            'recaptchaSiteKey' => env('RECAPTCHA_SITE_KEY'),
+        ]));
+
+        Fortify::registerView(fn() => Inertia::render('auth/Register', [
+            'recaptchaSiteKey' => env('RECAPTCHA_SITE_KEY'),
         ]));
 
         Fortify::resetPasswordView(fn(Request $request) => Inertia::render('auth/ResetPassword', [
@@ -85,16 +100,16 @@ class FortifyServiceProvider extends ServiceProvider
             'status' => $request->session()->get('status'),
         ]));
 
-        Fortify::registerView(fn() => Inertia::render('auth/Register'));
-
         Fortify::twoFactorChallengeView(fn() => Inertia::render('auth/TwoFactorChallenge'));
 
         Fortify::confirmPasswordView(fn() => Inertia::render('auth/ConfirmPassword'));
     }
 
-    /**
-     * Configure rate limiting.
-     */
+    /*
+    |--------------------------------------------------------------------------
+    | RATE LIMITING
+    |--------------------------------------------------------------------------
+    */
     private function configureRateLimiting(): void
     {
         RateLimiter::for('two-factor', function (Request $request) {
@@ -102,7 +117,9 @@ class FortifyServiceProvider extends ServiceProvider
         });
 
         RateLimiter::for('login', function (Request $request) {
-            $throttleKey = Str::transliterate(Str::lower($request->input(Fortify::username())) . '|' . $request->ip());
+            $throttleKey = Str::transliterate(
+                Str::lower($request->input(Fortify::username())) . '|' . $request->ip()
+            );
 
             return Limit::perMinute(5)->by($throttleKey);
         });

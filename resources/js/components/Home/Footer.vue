@@ -68,6 +68,15 @@
           <p class="text-sm font-bold text-white mb-1">(045) 628-2127</p>
           <p class="text-sm text-white text-opacity-80">sbocontar@gmail.com</p>
         </div>
+
+         <div>
+          <h4 class="font-extrabold text-[#ffc107] mb-5 text-sm uppercase tracking-wider">Other Links</h4>
+          <ul class="space-y-3">
+            <li><a href="https://concepciontarlac.org/" class="text-white text-opacity-80 hover:text-[#ffc107] transition text-sm">Municipal Concepcion, Tarlac</a></li>
+            <li><a href="https://www.facebook.com/profile.php?id=100076454470296" class="text-white text-opacity-80 hover:text-[#ffc107] transition text-sm">DILG - Concepcion, Tarlac</a></li>
+           
+          </ul>
+        </div>
       </div>
 
       <!-- Bottom -->

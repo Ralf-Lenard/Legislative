@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue';
-import { Form, Head } from "@inertiajs/vue3";
+import { Form, Head, Link } from "@inertiajs/vue3";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
@@ -60,6 +60,13 @@ const toggleConfirmVisibility = () => {
                     <p class="text-sm md:text-base text-gray-600 mt-2 font-medium">
                         Update your legislative portal credentials
                     </p>
+
+                     <!-- 🔥 HOME LINK ADDED HERE -->
+                    <div class="mt-2">
+                        <Link href="/" class="text-xs md:text-sm text-gray-600 font-bold hover:text-green-900 transition">
+                            ← Back to Home
+                        </Link>
+                    </div>
                 </div>
 
                 <Form 

@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Validation\Rule;
 
 class OrdinancesController extends Controller
@@ -403,8 +404,85 @@ class OrdinancesController extends Controller
     // }\
 
 
+    // public function submitRequest(Request $request, $id)
+    // {
+    //     $validIdTypes = [
+    //         'PhilSys National ID',
+    //         'Passport',
+    //         'Driver’s License',
+    //         'UMID',
+    //         'Voter’s ID',
+    //         'Postal ID',
+    //         'PRC ID',
+    //         'Senior Citizen ID',
+    //         'PWD ID',
+    //         'SSS ID',
+    //         'GSIS ID',
+    //         'TIN ID',
+    //         'PhilHealth ID',
+    //     ];
+
+    //     $request->validate([
+    //         'purpose' => 'required|string|max:500',
+
+    //         // ✅ Valid ID validation
+    //         'valid_id_type' => ['required', Rule::in($validIdTypes)],
+    //         'valid_id' => 'required|file|mimes:jpg,jpeg,png,pdf|max:20480', // 2MB max
+    //     ]);
+
+    //     $ordinance = Ordinance::findOrFail($id);
+
+    //     // 📁 Store Valid ID
+    //     $validIdPath = $request->file('valid_id')
+    //         ->store('valid_ids/ordinance_requests', 'public');
+
+    //     $downloadRequest = OrdinanceDownloadRequest::create([
+    //         'user_id' => auth()->id(),
+    //         'ordinance_id' => $id,
+    //         'purpose' => $request->purpose,
+
+    //         // ✅ Save ID data
+    //         'valid_id_type' => $request->valid_id_type,
+    //         'valid_id_path' => $validIdPath,
+
+    //         'status' => 'pending',
+    //     ]);
+
+    //     // 🔔 Notify admins & super admins
+    //     event(new OrdinanceDownloadRequestSubmitted($downloadRequest));
+
+    //     return redirect()
+    //         ->back()
+    //         ->with(
+    //             'success',
+    //             'Request for Ordinance No. ' . $ordinance->ordinance_number . ' submitted successfully.'
+    //         );
+    // }
+
+
+
     public function submitRequest(Request $request, $id)
     {
+        // 🔐 CAPTCHA CHECK (FIRST PRIORITY)
+        $response = Http::asForm()->post('https://www.google.com/recaptcha/api/siteverify', [
+            'secret' => env('RECAPTCHA_SECRET_KEY'),
+            'response' => $request->recaptcha_token,
+            'remoteip' => $request->ip(),
+        ]);
+
+        if (
+            !$response->json('success') ||
+            ($response->json('score') ?? 0) < 0.5
+        ) {
+            return back()->withErrors([
+                'captcha' => 'Suspicious activity detected. Please try again.'
+            ]);
+        }
+
+        // -----------------------------
+        // YOUR ORIGINAL VALIDATION
+        // -----------------------------
+
         $validIdTypes = [
             'PhilSys National ID',
             'Passport',
@@ -424,9 +502,8 @@ class OrdinancesController extends Controller
         $request->validate([
             'purpose' => 'required|string|max:500',
 
-            // ✅ Valid ID validation
             'valid_id_type' => ['required', Rule::in($validIdTypes)],
-            'valid_id' => 'required|file|mimes:jpg,jpeg,png,pdf|max:20480', // 2MB max
+            'valid_id' => 'required|file|mimes:jpg,jpeg,png,pdf|max:20480',
         ]);
 
         $ordinance = Ordinance::findOrFail($id);
@@ -440,7 +517,6 @@ class OrdinancesController extends Controller
             'ordinance_id' => $id,
             'purpose' => $request->purpose,
 
-            // ✅ Save ID data
             'valid_id_type' => $request->valid_id_type,
             'valid_id_path' => $validIdPath,
 

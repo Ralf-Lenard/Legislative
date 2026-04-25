@@ -454,7 +454,7 @@
 </template>
 
 <script setup>
-import { reactive, ref } from 'vue';
+import { reactive, ref, onMounted } from 'vue';
 import { Head, router, usePage, Link } from '@inertiajs/vue3';
 
 import Navbar from '@/components/Home/Navbar.vue';
@@ -511,51 +511,95 @@ const closeRequestModal = () => {
     showRequestModal.value = false; 
 };
 
+
+// ----------------------
+// YOUR EXISTING FORM
+// ----------------------
 const requestForm = reactive({
     purpose: '',
     valid_id_type: '',
     valid_id: null,
 })
 
+// ----------------------
+// RECAPTCHA SETUP
+// ----------------------
+const recaptchaSiteKey = import.meta.env.VITE_RECAPTCHA_SITE_KEY
+
+onMounted(() => {
+    const script = document.createElement('script')
+    script.src = `https://www.google.com/recaptcha/api.js?render=${recaptchaSiteKey}`
+    script.async = true
+    document.head.appendChild(script)
+})
+
+// ----------------------
+// GET CAPTCHA TOKEN
+// ----------------------
+const getRecaptchaToken = () => {
+    return new Promise((resolve, reject) => {
+        window.grecaptcha.ready(() => {
+            window.grecaptcha.execute(recaptchaSiteKey, {
+                action: 'resolution_request'
+            })
+            .then((token) => resolve(token))
+            .catch((err) => reject(err))
+        })
+    })
+}
+
+// ----------------------
+// SUBMIT FUNCTION
+// ----------------------
 const submitRequestForm = async () => {
     if (!selectedResolution.value) return
 
     const currentResolutionId = selectedResolution.value.id
 
-    // ✅ Use FormData to handle file uploads
-    const formData = new FormData()
-    formData.append('purpose', requestForm.purpose)
-    formData.append('valid_id_type', requestForm.valid_id_type)
-    formData.append('valid_id', requestForm.valid_id)
+    try {
+        // 🔐 GET CAPTCHA TOKEN
+        const token = await getRecaptchaToken()
 
-    router.post(
-        `/resolutions/${currentResolutionId}/request-access`,
-        formData,
-        {
-            forceFormData: true, // ✅ Required for file upload
-            preserveScroll: true,
+        // ✅ Use FormData to handle file uploads
+        const formData = new FormData()
+        formData.append('purpose', requestForm.purpose)
+        formData.append('valid_id_type', requestForm.valid_id_type)
+        formData.append('valid_id', requestForm.valid_id)
 
-            onFinish: () => {
-                // Reset form fields
-                requestForm.purpose = ''
-                requestForm.valid_id_type = ''
-                requestForm.valid_id = null
+        // 🔐 ADD CAPTCHA TOKEN
+        formData.append('recaptcha_token', token)
 
-                // Close modal
-                showRequestModal.value = false
+        router.post(
+            `/resolutions/${currentResolutionId}/request-access`,
+            formData,
+            {
+                forceFormData: true, // ✅ Required for file upload
+                preserveScroll: true,
 
-                // Optimistic UI update
-                const resInList = props.resolutions.data.find(
-                    (r) => r.id === currentResolutionId
-                )
-                if (resInList) {
-                    resInList.status = 'pending'
-                }
-            },
-        }
-    )
+                onFinish: () => {
+                    // Reset form fields
+                    requestForm.purpose = ''
+                    requestForm.valid_id_type = ''
+                    requestForm.valid_id = null
+
+                    // Close modal
+                    showRequestModal.value = false
+
+                    // Optimistic UI update
+                    const resInList = props.resolutions.data.find(
+                        (r) => r.id === currentResolutionId
+                    )
+
+                    if (resInList) {
+                        resInList.status = 'pending'
+                    }
+                },
+            }
+        )
+    } catch (error) {
+        console.error('reCAPTCHA error:', error)
+    }
 }
-
 
 const formatDate = (dateString) => {
     if (!dateString) return "N/A";

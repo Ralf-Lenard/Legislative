@@ -668,7 +668,7 @@ const contactDetails = [
     {
         icon: '📧',
         title: 'Email',
-        detail: 'sbo.cpn.tarlac@gmail.com',
+        detail: 'sbocontar@gmail.com',
     },
 ];
 
