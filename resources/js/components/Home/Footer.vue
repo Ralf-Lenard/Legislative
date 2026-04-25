@@ -66,7 +66,7 @@
 
           </div> -->
           <p class="text-sm font-bold text-white mb-1">(045) 628-2127</p>
-          <p class="text-sm text-white text-opacity-80">sbo.cpn.tarlac@gmail.com</p>
+          <p class="text-sm text-white text-opacity-80">sbocontar@gmail.com</p>
         </div>
       </div>
 

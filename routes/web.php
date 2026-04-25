@@ -16,6 +16,7 @@ use App\Http\Controllers\FeedbackController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Laravel\Fortify\Features;
+use Illuminate\Foundation\Auth\EmailVerificationRequest;
 
 // welcome page
 Route::get('/terms-of-service', function () {
@@ -50,26 +51,16 @@ Route::get('/legislative-session-details/{id}', [SessionController::class, 'show
 
 Route::get('/library', [BookController::class, 'indexUser']);
 
-// announcements
-// Route::get('/citizens-charter', function () {
-//     return Inertia::render('User/CitizenChart', [
-//         'canRegister' => Route::has('register'),
-//     ]);
-// });
-
-// Route::get('/citizens-charter/public-assistance', [AssistanceController::class, 'indexUser'])->name('assistances.public');
 Route::get('/citizens-charter', [AssistanceController::class, 'citizenCharter']);
 
 // Feedback
 Route::post('/feedback', [FeedbackController::class, 'store'])->name('feedback.store');
 
-
-
 // =======================
 // PROTECTED ROUTES
 // LOGIN + NOT BANNED
 // =======================
-Route::middleware(['auth', 'check.banned'])->group(function () {
+Route::middleware(['auth', 'check.banned', 'verified'])->group(function () {
 
     // ordinances
     Route::post('/ordinances/{id}/request-access',
@@ -106,7 +97,7 @@ Route::middleware(['auth', 'check.banned'])->group(function () {
 
 
 // ADMIN
-Route::middleware(['auth', 'admin_or_super', 'check.banned'])->group(function () {
+Route::middleware(['auth', 'admin_or_super', 'check.banned', 'verified'])->group(function () {
 
     // ordinances
     Route::get('/admin-ordinances', [OrdinancesController::class, 'index'])->name('ordinances.index');
@@ -170,7 +161,7 @@ Route::middleware(['auth', 'admin_or_super', 'check.banned'])->group(function ()
     });
 
 // super admin
-Route::middleware(['auth', 'super_admin'])->group(function () {
+Route::middleware(['auth', 'super_admin', 'verified'])->group(function () {
     Route::get('/super-admin-users', [SuperAdminController::class, 'index'])->name('superadmin.users');
     Route::post('/super-admin/promote/{id}', [SuperAdminController::class, 'promoteToAdmin'])->name('superadmin.promoteToAdmin');
     Route::post('/super-admin/demote/{id}', [SuperAdminController::class, 'promoteToUser'])->name('superadmin.promoteToUser');
@@ -197,5 +188,11 @@ Route::get('/notifications/unread-count', [NotificationController::class, 'unrea
 Route::delete('/notifications/{id}', [NotificationController::class, 'delete']);
 Route::post('/notifications/clear-all', [NotificationController::class, 'clearAll']);
 
+
+
+Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $request) {
+    $request->fulfill();
+    return redirect('/');
+})->middleware(['auth', 'signed'])->name('verification.verify');
 
 require __DIR__ . '/settings.php';
