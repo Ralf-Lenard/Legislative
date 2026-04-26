@@ -26,8 +26,11 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot()
     {
-        // URL::forceScheme('https');
-        
+        // ✅ Force correct domain + HTTPS
+        URL::forceRootUrl(config('app.url'));
+        URL::forceScheme('https');
+    
+        // ✅ Your existing Inertia share
         Inertia::share([
             'flash' => function () {
                 return [
