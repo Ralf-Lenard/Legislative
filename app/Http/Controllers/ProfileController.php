@@ -41,18 +41,20 @@ class ProfileController extends Controller
         $user->fill($request->only(['name', 'email', 'contact_number', 'birthdate', 'address']));
 
         if ($request->hasFile('profile_photo')) {
-            // Delete old photo from disk if it exists
+            // 1. Handle Old Photo Deletion
             if ($user->profile_photo) {
-                // Clean the path to ensure we are deleting from the 'public' disk root
+                // Strip the '/storage/' prefix if you stored it that way previously
                 $cleanOldPath = str_replace('/storage/', '', $user->profile_photo);
                 Storage::disk('public')->delete($cleanOldPath);
             }
 
-            // Store file and get path: "profile-photos/abc.jpg"
+            // 2. Store the New File
+            // This goes to: public_html/public/storage/profile-photos/
             $path = $request->file('profile_photo')->store('profile-photos', 'public');
 
-            // Save ONLY the relative path
-            $user->profile_photo = $path;
+            // 3. Save the path with the /storage/ prefix
+            // This makes it easy for your Vue/Inertia frontend to render it
+            $user->profile_photo = '/storage/' . $path;
         }
 
         $user->save();

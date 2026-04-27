@@ -222,9 +222,16 @@ const navLinks = [
 ]
 
 const profilePhotoUrl = computed(() => {
-  const photo = user.value?.profile_photo || user.value?.profile_photo_url
-  return photo ? `/storage/${photo.replace('/storage/', '')}` : null
-})
+  const photo = user.value?.profile_photo || user.value?.profile_photo_url;
+  
+  if (!photo) return '/images/default-avatar.png'; // Good to have a fallback!
+
+  // Clean the string: remove leading slashes or 'storage/' if they exist
+  const cleanPath = photo.replace(/^\/?storage\//, '');
+  
+  return `/storage/${cleanPath}`;
+});
+
 
 const goToHome = () => router.visit('/')
 
