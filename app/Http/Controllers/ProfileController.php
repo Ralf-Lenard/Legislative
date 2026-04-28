@@ -68,7 +68,31 @@ class ProfileController extends Controller
     /**
      * Update user password
      */
-    public function updatePassword(Request $request)
+    // public function updatePassword(Request $request)
+    // {
+    //     $request->validate([
+    //         'current_password' => ['required'],
+    //         'password' => ['required', 'confirmed', 'min:8'],
+    //     ]);
+
+    //     $user = Auth::user();
+
+    //     if (!Hash::check($request->current_password, $user->password)) {
+    //         return back()->withErrors([
+    //             'current_password' => 'Current password is incorrect.',
+    //         ]);
+    //     }
+
+    //     $user->update([
+    //         'password' => Hash::make($request->password),
+    //     ]);
+
+    //     return redirect()
+    //         ->route('profile.edit')
+    //         ->with('success', 'Password updated successfully.');
+    // }
+
+     public function updatePasswordUser(Request $request)
     {
         $request->validate([
             'current_password' => ['required'],
@@ -88,7 +112,31 @@ class ProfileController extends Controller
         ]);
 
         return redirect()
-            ->route('profile.edit')
+            ->route('user.profile.edit')
+            ->with('success', 'Password updated successfully.');
+    }
+
+     public function updatePasswordAdmin(Request $request)
+    {
+        $request->validate([
+            'current_password' => ['required'],
+            'password' => ['required', 'confirmed', 'min:8'],
+        ]);
+
+        $user = Auth::user();
+
+        if (!Hash::check($request->current_password, $user->password)) {
+            return back()->withErrors([
+                'current_password' => 'Current password is incorrect.',
+            ]);
+        }
+
+        $user->update([
+            'password' => Hash::make($request->password),
+        ]);
+
+        return redirect()
+            ->route('admin.profile-settings')
             ->with('success', 'Password updated successfully.');
     }
 

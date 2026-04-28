@@ -89,7 +89,7 @@ Route::middleware(['auth', 'check.banned', 'verified'])->group(function () {
     Route::put('/profile/update', [ProfileController::class, 'update'])
         ->name('user.profile.update');
 
-    Route::put('/profile/password', [ProfileController::class, 'updatePassword'])
+    Route::put('user/profile/password', [ProfileController::class, 'updatePasswordUser'])
         ->name('user.profile.password');
 
     Route::get('/document-requests', [ProfileController::class, 'documentRequest'])->name('document.requests');
@@ -150,7 +150,7 @@ Route::middleware(['auth', 'admin_or_super', 'check.banned', 'verified'])->group
     // Update Admin Profile
     Route::post('/admin/profile/update', [ProfileController::class, 'updateAdmin'])->name('admin.profile.update');
     // Admin Password (optional: same as user password route)
-    Route::post('/admin/profile/password', [ProfileController::class, 'updatePassword'])->name('admin.profile.password');
+    Route::post('/admin/profile/update-password', [ProfileController::class, 'updatePasswordAdmin'])->name('admin.profile.password');
 
     Route::get('/home-content', [HomeController::class, 'IndexAdminPageContent'])->name('admin.IndexAdminPageContent');
     Route::post('/page-content', [HomeController::class, 'store'])->name('admin.page-content.store');
