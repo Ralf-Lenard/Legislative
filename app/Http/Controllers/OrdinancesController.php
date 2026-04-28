@@ -463,26 +463,22 @@ class OrdinancesController extends Controller
 
     public function submitRequest(Request $request, $id)
     {
-        // 🔐 CAPTCHA CHECK (FIRST PRIORITY)
+        // 1. CAPTCHA CHECK
         $response = Http::asForm()->post('https://www.google.com/recaptcha/api/siteverify', [
             'secret' => env('RECAPTCHA_SECRET_KEY'),
             'response' => $request->recaptcha_token,
             'remoteip' => $request->ip(),
         ]);
 
-        if (
-            !$response->json('success') ||
-            ($response->json('score') ?? 0) < 0.5
-        ) {
+        $result = $response->json();
+
+        if (!$result['success'] || $result['score'] < 0.5) {
             return back()->withErrors([
-                'captcha' => 'Suspicious activity detected. Please try again.'
+                'captcha' => 'reCAPTCHA verification failed. Suspicious activity detected.'
             ]);
         }
 
-        // -----------------------------
-        // YOUR ORIGINAL VALIDATION
-        // -----------------------------
-
+        // 2. VALIDATION
         $validIdTypes = [
             'PhilSys National ID',
             'Passport',
@@ -500,41 +496,38 @@ class OrdinancesController extends Controller
         ];
 
         $request->validate([
-            'purpose' => 'required|string|max:500',
-
-            'valid_id_type' => ['required', Rule::in($validIdTypes)],
-            'valid_id' => 'required|file|mimes:jpg,jpeg,png,pdf|max:20480',
+            'purpose'       => 'required|string|max:500',
+            'valid_id_type' => ['required', \Illuminate\Validation\Rule::in($validIdTypes)],
+            'valid_id'      => [
+                'required',
+                'file',
+                'mimes:jpg,jpeg,png,pdf',
+                'max:5120' // 5MB Limit (5120 KB)
+            ],
+        ], [
+            // Custom error messages
+            'valid_id.max' => 'The valid ID image may not be larger than 5MB.',
+            'valid_id.mimes' => 'The valid ID must be a file of type: jpg, jpeg, png, pdf.',
         ]);
 
         $ordinance = Ordinance::findOrFail($id);
 
-        // 📁 Store Valid ID
-        $validIdPath = $request->file('valid_id')
-            ->store('valid_ids/ordinance_requests', 'public');
+        // 3. STORE & SAVE
+        $path = $request->file('valid_id')->store('valid_ids/ordinance_requests', 'public');
 
         $downloadRequest = OrdinanceDownloadRequest::create([
-            'user_id' => auth()->id(),
-            'ordinance_id' => $id,
-            'purpose' => $request->purpose,
-
+            'user_id'       => auth()->id(),
+            'ordinance_id'  => $id,
+            'purpose'       => $request->purpose,
             'valid_id_type' => $request->valid_id_type,
-            'valid_id_path' => $validIdPath,
-
-            'status' => 'pending',
+            'valid_id_path' => $path,
+            'status'        => 'pending',
         ]);
 
-        // 🔔 Notify admins & super admins
         event(new OrdinanceDownloadRequestSubmitted($downloadRequest));
 
-        return redirect()
-            ->back()
-            ->with(
-                'success',
-                'Request for Ordinance No. ' . $ordinance->ordinance_number . ' submitted successfully.'
-            );
+        return back()->with('success', 'Request for Ordinance No. ' . $ordinance->ordinance_number . ' submitted successfully.');
     }
-
-
 
     public function approveDownloadRequest($id)
     {

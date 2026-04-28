@@ -107,8 +107,7 @@
             :key="ordinance.id"
             class="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden"
             :class="{
-              'lg:col-span-1': true, // Standard column size for most items
-              // 'lg:col-span-2': ordinance.id % 5 === 1 // Making some cards wider to match the visual variety in the image
+              'lg:col-span-1': true,
             }"
           >
             <div class="bg-green-800 text-white px-5 py-2 font-semibold text-sm">
@@ -127,13 +126,11 @@
               <div class="flex flex-wrap gap-x-6 gap-y-2 text-xs font-medium pt-2 border-t border-gray-100">
                 <span class="text-green-800 flex items-center gap-1">
                   <span class="text-sm">🗓️</span>
-                    Series: {{ new Date(ordinance.date_approved_ordinances).getFullYear() }}
+                  Series: {{ new Date(ordinance.date_approved_ordinances).getFullYear() }}
+                </span>
+              </div>
 
-                    </span>
-                
-                </div>
-
-                <div class="flex justify-between items-center gap-3 pt-3">
+              <div class="flex justify-between items-center gap-3 pt-3">
                 <button
                   @click="openModal(ordinance)"
                   class="px-4 py-2 text-sm text-green-800 font-bold border border-green-800 rounded-lg hover:bg-green-50 transition"
@@ -323,110 +320,108 @@
             </button>
           </div>
 
-
         </div>
       </div>
     </transition>
 
     <transition name="modal">
-  <div
-    v-if="showRequestModal"
-    class="fixed inset-0 flex items-center justify-center bg-black/40 backdrop-blur-sm z-50"
-    @click.self="closeRequestModal"
-  >
-    <div
-      class="bg-white w-full max-w-lg p-8 rounded-xl shadow-xl relative border border-gray-200"
-    >
-      <button
-        class="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
-        @click="closeRequestModal"
+      <div
+        v-if="showRequestModal"
+        class="fixed inset-0 flex items-center justify-center bg-black/40 backdrop-blur-sm z-50"
+        @click.self="closeRequestModal"
       >
-        ✕
-      </button>
-
-      <h2 class="text-2xl font-bold text-green-900">Request Access</h2>
-
-      <p class="mt-2 text-gray-700">
-        State your purpose and upload a valid government-issued ID.
-      </p>
-
-      <form @submit.prevent="submitRequestForm" class="mt-6 space-y-5">
-        <!-- PURPOSE -->
-        <div>
-          <label class="font-semibold block mb-1">
-            Purpose of Request
-          </label>
-
-          <textarea
-            v-model="requestForm.purpose"
-            maxlength="500"
-            required
-            class="w-full h-32 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-800"
-            placeholder="Explain why you need this ordinance..."
-          ></textarea>
-        </div>
-
-        <!-- VALID ID TYPE -->
-        <div>
-          <label class="font-semibold block mb-1">
-            Valid ID Type
-          </label>
-
-          <select
-            v-model="requestForm.valid_id_type"
-            required
-            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-800"
-          >
-            <option value="" disabled>Select a valid ID</option>
-            <option>PhilSys National ID</option>
-            <option>Passport</option>
-            <option>Driver’s License</option>
-            <option>UMID</option>
-            <option>Voter’s ID</option>
-            <option>Postal ID</option>
-            <option>PRC ID</option>
-            <option>Senior Citizen ID</option>
-            <option>PWD ID</option>
-            <option>SSS ID</option>
-            <option>GSIS ID</option>
-            <option>TIN ID</option>
-            <option>PhilHealth ID</option>
-          </select>
-        </div>
-
-        <!-- VALID ID FILE -->
-        <div>
-          <label class="font-semibold block mb-1">
-            Upload Valid ID
-          </label>
-
-          <input
-            type="file"
-            @change="handleValidIdUpload"
-            accept=".jpg,.jpeg,.png,.pdf"
-            required
-            class="w-full px-3 py-2 border border-gray-300 rounded-lg file:mr-4 file:py-2 file:px-4
-                   file:rounded-lg file:border-0 file:bg-green-800 file:text-white
-                   hover:file:bg-green-900 transition"
-          />
-
-          <p class="text-sm text-gray-500 mt-1">
-            Accepted formats: JPG, PNG, PDF (Max 20MB)
-          </p>
-        </div>
-
-        <!-- SUBMIT -->
-        <button
-          type="submit"
-          class="w-full bg-green-800 text-white py-3 rounded-lg font-bold hover:bg-green-900 transition"
+        <div
+          class="bg-white w-full max-w-lg p-8 rounded-xl shadow-xl relative border border-gray-200"
         >
-          Submit Request
-        </button>
-      </form>
-    </div>
-  </div>
-</transition>
+          <button
+            class="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
+            @click="closeRequestModal"
+          >
+            ✕
+          </button>
 
+          <h2 class="text-2xl font-bold text-green-900">Request Access</h2>
+
+          <p class="mt-2 text-gray-700">
+            State your purpose and upload a valid government-issued ID.
+          </p>
+
+          <form @submit.prevent="submitRequestForm" class="mt-6 space-y-5">
+            <!-- PURPOSE -->
+            <div>
+              <label class="font-semibold block mb-1">
+                Purpose of Request
+              </label>
+
+              <textarea
+                v-model="requestForm.purpose"
+                maxlength="500"
+                required
+                class="w-full h-32 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-800"
+                placeholder="Explain why you need this ordinance..."
+              ></textarea>
+            </div>
+
+            <!-- VALID ID TYPE -->
+            <div>
+              <label class="font-semibold block mb-1">
+                Valid ID Type
+              </label>
+
+              <select
+                v-model="requestForm.valid_id_type"
+                required
+                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-800"
+              >
+                <option value="" disabled>Select a valid ID</option>
+                <option>PhilSys National ID</option>
+                <option>Passport</option>
+                <option>Driver's License</option>
+                <option>UMID</option>
+                <option>Voter's ID</option>
+                <option>Postal ID</option>
+                <option>PRC ID</option>
+                <option>Senior Citizen ID</option>
+                <option>PWD ID</option>
+                <option>SSS ID</option>
+                <option>GSIS ID</option>
+                <option>TIN ID</option>
+                <option>PhilHealth ID</option>
+              </select>
+            </div>
+
+            <!-- VALID ID FILE -->
+            <div>
+              <label class="font-semibold block mb-1">
+                Upload Valid ID
+              </label>
+
+              <input
+                type="file"
+                @change="handleValidIdUpload"
+                accept=".jpg,.jpeg,.png,.pdf"
+                required
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg file:mr-4 file:py-2 file:px-4
+                       file:rounded-lg file:border-0 file:bg-green-800 file:text-white
+                       hover:file:bg-green-900 transition"
+              />
+
+              <p class="text-sm text-gray-500 mt-1">
+                Accepted formats: JPG, PNG, PDF (Max 5MB)
+              </p>
+            </div>
+
+            <!-- SUBMIT -->
+            <button
+              type="submit"
+              class="w-full bg-green-800 text-white py-3 rounded-lg font-bold hover:bg-green-900 transition"
+            >
+              Submit Request
+            </button>
+          </form>
+        </div>
+      </div>
+    </transition>
 
     <Footer />
   </div>
@@ -436,10 +431,9 @@
 import { computed, ref, reactive, watch, nextTick, onMounted, onUnmounted } from 'vue';
 import { Head, router, usePage, Link } from '@inertiajs/vue3';
 
-
 import Navbar from '@/components/Home/Navbar.vue';
 import Footer from '@/components/Home/Footer.vue';
-import FlashMessage from '@/components/FlashMessage.vue'; // The toast component handles its own state
+import FlashMessage from '@/components/FlashMessage.vue';
 import { route } from 'ziggy-js';
 
 // -------------------------
@@ -500,142 +494,125 @@ const closeRequestModal = () => {
     showRequestModal.value = false; 
 };
 
-// const requestForm = reactive({
-//     purpose: '',
-//     valid_id_type: '',
-//     valid_id: null,
-// })
-
-// const submitRequestForm = async () => {
-//     if (!selectedOrdinance.value) return
-
-//     const currentOrdinanceId = selectedOrdinance.value.id
-
-//     const formData = new FormData()
-//     formData.append('purpose', requestForm.purpose)
-//     formData.append('valid_id_type', requestForm.valid_id_type)
-//     formData.append('valid_id', requestForm.valid_id)
-
-//     router.post(
-//         `/ordinances/${currentOrdinanceId}/request-access`,
-//         formData,
-//         {
-//             forceFormData: true, // ✅ IMPORTANT for file upload
-//             preserveScroll: true,
-
-//             onFinish: () => {
-//                 // Reset form
-//                 requestForm.purpose = ''
-//                 requestForm.valid_id_type = ''
-//                 requestForm.valid_id = null
-
-//                 showRequestModal.value = false
-
-//                 // Optimistic UI update
-//                 const ordinanceInList = props.ordinances.data.find(
-//                     (o) => o.id === currentOrdinanceId
-//                 )
-
-//                 if (ordinanceInList) {
-//                     ordinanceInList.status = 'pending'
-//                 }
-//             },
-//         }
-//     )
-// }
-
-// ----------------------
-// YOUR EXISTING FORM
-// ----------------------
+// -------------------------
+// REQUEST FORM & reCAPTCHA
+// -------------------------
 const requestForm = reactive({
     purpose: '',
     valid_id_type: '',
     valid_id: null,
-})
+});
 
-// ----------------------
-// RECAPTCHA SETUP
-// ----------------------
-const recaptchaSiteKey = import.meta.env.VITE_RECAPTCHA_SITE_KEY
+const recaptchaSiteKey = import.meta.env.VITE_RECAPTCHA_SITE_KEY;
+
+// FILE UPLOAD HANDLER
+const handleValidIdUpload = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+        requestForm.valid_id = file;
+    }
+};
+
+// reCAPTCHA v3 LOADING (Standard, not Enterprise)
+const loadRecaptcha = () => {
+    return new Promise((resolve, reject) => {
+        if (!recaptchaSiteKey) {
+            reject(new Error('reCAPTCHA site key is not configured'));
+            return;
+        }
+
+        // ✅ Wait until grecaptcha AND ready() exist
+        const waitForReady = () => {
+            if (window.grecaptcha && typeof window.grecaptcha.ready === 'function') {
+                window.grecaptcha.ready(() => resolve());
+            } else {
+                setTimeout(waitForReady, 100);
+            }
+        };
+
+        // If script already added
+        if (document.getElementById('recaptcha-script')) {
+            waitForReady();
+            return;
+        }
+
+        const script = document.createElement('script');
+        script.id = 'recaptcha-script';
+        script.src = `https://www.google.com/recaptcha/api.js?render=${recaptchaSiteKey}`;
+        script.async = true;
+        script.defer = true;
+
+        script.onload = () => {
+            waitForReady();
+        };
+
+        script.onerror = () => {
+            reject(new Error('Failed to load reCAPTCHA script'));
+        };
+
+        document.head.appendChild(script);
+    });
+};
 
 onMounted(() => {
-    const script = document.createElement('script')
-    script.src = `https://www.google.com/recaptcha/api.js?render=${recaptchaSiteKey}`
-    script.async = true
-    document.head.appendChild(script)
-})
+    loadRecaptcha().catch(err => {
+        console.error('[v0] reCAPTCHA load error:', err.message);
+    });
+});
 
-// ----------------------
-// GET CAPTCHA TOKEN
-// ----------------------
-const getRecaptchaToken = () => {
-    return new Promise((resolve, reject) => {
-        window.grecaptcha.ready(() => {
-            window.grecaptcha.execute(recaptchaSiteKey, {
-                action: 'ordinance_request'
-            })
-            .then((token) => resolve(token))
-            .catch((err) => reject(err))
-        })
-    })
-}
+onUnmounted(() => {
+    const badge = document.querySelector('.grecaptcha-badge');
+    if (badge) badge.style.visibility = 'hidden';
+});
 
-// ----------------------
-// SUBMIT FUNCTION
-// ----------------------
+// SUBMIT FORM WITH reCAPTCHA v3
 const submitRequestForm = async () => {
-    if (!selectedOrdinance.value) return
-
-    const currentOrdinanceId = selectedOrdinance.value.id
+    if (!selectedOrdinance.value) return;
 
     try {
-        // 🔐 GET CAPTCHA TOKEN
-        const token = await getRecaptchaToken()
+        // Validate site key before proceeding
+        if (!recaptchaSiteKey) {
+            alert('Security configuration error. Please refresh the page and try again.');
+            return;
+        }
 
-        const formData = new FormData()
-        formData.append('purpose', requestForm.purpose)
-        formData.append('valid_id_type', requestForm.valid_id_type)
-        formData.append('valid_id', requestForm.valid_id)
+        // Ensure reCAPTCHA is ready
+        await loadRecaptcha();
 
-        // 🔐 ADD CAPTCHA TOKEN
-        formData.append('recaptcha_token', token)
+        // Standard reCAPTCHA v3 execute
+        const token = await window.grecaptcha.execute(recaptchaSiteKey, {
+            action: 'ordinance_request'
+        });
 
-        router.post(
-            `/ordinances/${currentOrdinanceId}/request-access`,
-            formData,
-            {
-                forceFormData: true,
-                preserveScroll: true,
+        if (!token) {
+            throw new Error('Failed to generate reCAPTCHA token');
+        }
 
-                onFinish: () => {
-                    // Reset form
-                    requestForm.purpose = ''
-                    requestForm.valid_id_type = ''
-                    requestForm.valid_id = null
+        const formData = new FormData();
+        formData.append('purpose', requestForm.purpose);
+        formData.append('valid_id_type', requestForm.valid_id_type);
+        formData.append('valid_id', requestForm.valid_id);
+        formData.append('recaptcha_token', token);
 
-                    // Close modal
-                    showRequestModal.value = false
-
-                    // Update UI
-                    const ordinanceInList = props.ordinances.data.find(
-                        (o) => o.id === currentOrdinanceId
-                    )
-
-                    if (ordinanceInList) {
-                        ordinanceInList.status = 'pending'
-                    }
-                },
+        router.post(`/ordinances/${selectedOrdinance.value.id}/request-access`, formData, {
+            forceFormData: true,
+            preserveScroll: true,
+            onSuccess: () => {
+                requestForm.purpose = '';
+                requestForm.valid_id_type = '';
+                requestForm.valid_id = null;
+                showRequestModal.value = false;
+            },
+            onError: (errors) => {
+                if (errors.captcha) alert(errors.captcha);
+                if (errors.valid_id) alert(errors.valid_id);
             }
-        )
+        });
     } catch (error) {
-        console.error('reCAPTCHA error:', error)
+        console.error('[v0] reCAPTCHA Error:', error.message);
+        alert('Security check failed. Please refresh the page and try again.');
     }
-}
-
-const handleValidIdUpload = (event) => {
-    requestForm.valid_id = event.target.files[0]
-}
-
+};
 
 // -------------------------
 // DATE FORMAT UTILITY
@@ -665,29 +642,22 @@ const handleDownloadClick = (ordinance) => {
         // Pending / rejected / no request → show modal
         openRequestModal(ordinance);
 
-        // Optionally, call backend to refresh flash (pending/rejected message)
+        // Refresh flash messages
         router.reload({
-            only: ['flash'],      // Only refresh flash messages
+            only: ['flash'],
             preserveScroll: true,
-            preserveState: true,  // Keeps search/filter state
+            preserveState: true,
         });
     }
 };
-
-
-
 </script>
 
-
 <style scoped>
-/* (Your existing scoped styles remain here) */
-.modal-enter-active,
-.modal-leave-active {
+.modal-enter-active, .modal-leave-active {
   transition: opacity 0.25s ease;
 }
 
-.modal-enter-from,
-.modal-leave-to {
+.modal-enter-from, .modal-leave-to {
   opacity: 0;
 }
 

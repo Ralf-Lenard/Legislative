@@ -14,6 +14,7 @@
         <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
         <script src="https://js.pusher.com/8.4.0/pusher.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+         <script src="https://www.google.com/recaptcha/api.js?render=KEY"></script>
 
 
         {{-- Inline script to detect system dark mode preference and apply it immediately --}}
@@ -44,7 +45,7 @@
 
         <title inertia>{{ config('app.name', 'Laravel') }}</title>
 
-        <link rel="icon" href="{{ asset('images/logo.png') }}">
+        <link rel="icon" href="{{ asset('images/logo.jpg') }}">
         <link rel="icon" href="/favicon-new.ico">
         <!-- <link rel="apple-touch-icon" href="/apple-touch-icon.png">  -->
 

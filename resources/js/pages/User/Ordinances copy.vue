@@ -1,539 +1,700 @@
 <template>
-    <div class="bg-white min-h-screen">
-      <Navbar />
-  
-      <section
-        class="pt-28 pb-20 bg-gradient-to-br from-green-900 to-green-700 relative overflow-hidden"
-      >
-        <div
-          class="absolute top-0 right-0 w-96 h-96 bg-yellow-300/10 rounded-full blur-3xl"
-        ></div>
-  
-        <div
-          class="max-w-7xl mx-auto px-4 flex flex-col md:flex-row items-center gap-10"
-        >
-          <div class="flex-1 text-white relative z-10">
-            <span
-              class="text-xs tracking-widest uppercase bg-yellow-400 text-green-900 px-4 py-1 rounded-full font-bold"
+  <Head title="Ordinances" />
+  <div class="bg-white min-h-screen">
+    <Navbar />
+
+    <FlashMessage />
+
+    <section class="pt-28 pb-20 bg-gradient-to-br from-green-900 to-green-700 relative overflow-hidden">
+      <div class="absolute top-0 right-0 w-96 h-96 bg-yellow-300/10 rounded-full blur-3xl z-0"></div>
+
+      <div class="max-w-7xl mx-auto px-4 flex flex-col md:flex-row items-center gap-10 relative z-10">
+        <div class="flex-1 text-white">
+
+          <!-- Back Button -->
+          <Link 
+            href="/citizens-charter" 
+            class="relative z-20 inline-flex items-center text-yellow-400 hover:text-white mb-8 transition-colors font-bold text-xs uppercase tracking-[0.2em]"
+          >
+            <svg 
+              xmlns="http://www.w3.org/2000/svg" 
+              class="h-5 w-5 mr-2" 
+              fill="none" 
+              viewBox="0 0 24 24" 
+              stroke="currentColor"
             >
-              Official Website
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15 19l-7-7 7-7" />
+            </svg>
+            Back to Citizen Charter
+          </Link>
+
+          <div class="text-left">
+            <span class="inline-block text-[10px] md:text-xs tracking-[0.3em] uppercase bg-yellow-400 text-green-950 px-6 py-2 rounded-full font-black mb-8">
+              Official Legislative Measures
             </span>
-  
-            <h1 class="text-5xl md:text-6xl font-extrabold mt-4 leading-tight">
-              Municipal Ordinances
+
+            <h1 class="text-4xl md:text-7xl font-black text-white leading-none tracking-tighter mb-8 uppercase">
+              Municipal <span class="text-yellow-400 italic font-serif">Ordinances</span>
             </h1>
-  
-            <p class="text-lg mt-3 text-gray-100">
-              Crafting laws for a better future.
+
+            <p class="max-w-xl text-green-50/80 text-lg md:text-xl font-medium leading-relaxed">
+              Local laws enacted by the municipal council to regulate policies, services, and community development.
             </p>
           </div>
-  
-            <div class="hidden lg:block">
-             <div class="relative w-full h-96 rounded-2xl overflow-hidden shadow-2xl">
-               <picture>
-                 <source media="(min-width:1024px)" srcset="https://upload.wikimedia.org/wikipedia/commons/7/78/Concepcion_Municipal_Hall%2C_Tarlac%2C_Oct_2023.jpg">
-                 <source media="(min-width:640px)" srcset="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f4/Concepcion_Tarlac_Municipal_Hall_plaza_view_%28Timbol%2C_Concepcion%2C_Tarlac%3B_07-23-2023%29.jpg/1024px-Concepcion_Tarlac_Municipal_Hall_plaza_view_%28Timbol%2C_Concepcion%2C_Tarlac%3B_07-23-2023%29.jpg">
-                 <img src="https://upload.wikimedia.org/wikipedia/commons/c/c0/Concepcion_Tarlac_Municipal_Hall_%28Timbol%2C_Concepcion%2C_Tarlac%3B_07-23-2023%29.jpg" 
-                   alt="Concepcion Municipal Hall" 
-                   class="w-full h-full object-cover">
-               </picture>
-               <div class="absolute bottom-4 right-4 bg-white/90 backdrop-blur-sm px-4 py-2 rounded-lg text-sm font-semibold">
-                 Concepcion, Tarlac
-               </div>
-             </div>
-           </div>
+
         </div>
-      </section>
-  
-      <section class="py-14 px-4 bg-gray-50">
+      </div>
+    </section>
+
+    <section class="py-14 px-4 bg-gray-50">
+      <div class="max-w-7xl mx-auto">
         <div class="max-w-7xl mx-auto">
-          <div class="bg-white p-6 rounded-xl shadow-lg border border-gray-200">
-            <form
-              @submit.prevent="applyFilters"
-              class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 items-end"
-            >
-              <div class="lg:col-span-2">
-                <label class="text-sm font-semibold text-gray-700 mb-2 block"
-                  >Search Filter</label
-                >
-                <div class="relative">
-                  <input
-                    v-model="form.search"
-                    type="text"
-                    class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-800 focus:border-green-800 transition"
-                    placeholder="Ordinance No., Title, or Keyword..."
-                  />
-                </div>
-              </div>
-  
-              <div>
-                <label class="text-sm font-semibold text-gray-700 mb-2 block">Year</label>
-                <select
-                  v-model="form.year"
-                  class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-800 focus:border-green-800 appearance-none custom-select transition"
-                >
-                  <option value="">All Years</option>
-                  <option v-for="year in years" :key="year">{{ year }}</option>
-                </select>
-              </div>
-  
-              <button
-                type="submit"
-                class="w-full h-11 bg-green-800 text-white font-bold rounded-lg shadow hover:bg-green-900 transition mt-4 sm:mt-0"
-              >
-                Apply Filters
-              </button>
-            </form>
-          </div>
-  
-          <div
-            v-if="ordinances.data.length"
-            class="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-12"
+        <div class="bg-white text-black p-6 rounded-xl shadow-lg border border-gray-200">
+          <form
+            @submit.prevent="applyFilters"
+            class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 items-end"
           >
-            <div
-              v-for="ordinance in ordinances.data"
-              :key="ordinance.id"
-              class="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden"
-              :class="{
-                'lg:col-span-1': true, // Standard column size for most items
-                // 'lg:col-span-2': ordinance.id % 5 === 1 // Making some cards wider to match the visual variety in the image
-              }"
-            >
-              <div class="bg-green-800 text-white px-5 py-2 font-semibold text-sm">
-                Ordinance No. {{ ordinance.ordinance_number }}
-              </div>
-  
-              <div class="p-5 space-y-4">
-                <h2 class="text-lg font-bold text-gray-900 line-clamp-2">
-                  {{ ordinance.title_ordinances }}
-                </h2>
-  
-                <p class="text-gray-600 text-sm line-clamp-3">
-                  {{ ordinance.description_ordinances }}
-                </p>
-  
-                <div class="flex flex-wrap gap-x-6 gap-y-2 text-xs font-medium pt-2 border-t border-gray-100">
-                  <span class="text-green-800 flex items-center gap-1">
-                    <span class="text-sm">🗓️</span>
-                      Series: {{ new Date(ordinance.date_approved_ordinances).getFullYear() }}
-  
-                      </span>
-                  
-                  </div>
-  
-                <div class="flex justify-between items-center gap-3 pt-3">
-                  <button
-                    @click="openModal(ordinance)"
-                    class="px-4 py-2 text-sm text-green-800 font-bold border border-green-800 rounded-lg hover:bg-green-50 transition"
-                  >
-                    View Details
-                  </button>
-                  
-                  <button
-                    @click="handleDownloadClick(ordinance)"
-                    class="px-4 py-2 text-sm bg-yellow-400 text-green-900 font-bold rounded-lg hover:bg-yellow-500 transition shadow-md"
-                  >
-                    Download PDF
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-  
-          <div
-            v-else
-            class="text-center mt-16 bg-white p-10 rounded-xl shadow border border-gray-200"
-          >
-            <h3 class="text-2xl font-bold text-gray-700">
-              No Ordinances Found
-            </h3>
-            <p class="mt-2 text-gray-500">
-              Try adjusting your searches or filters.
-            </p>
-  
-            <button
-              @click="clearFilters"
-              class="mt-6 bg-green-800 text-white px-5 py-2.5 rounded-lg hover:bg-green-900 font-semibold"
-            >
-              Clear Filters
-            </button>
-          </div>
-  
-          <div
-            v-if="ordinances.data.length"
-            class="mt-16 flex justify-center"
-          >
-            <nav class="flex gap-2">
-              <template
-                v-for="(link, i) in ordinances.links"
-                :key="i"
-              >
-                <a
-                  v-if="link.url"
-                  :href="link.url"
-                  :class="[
-                    'h-10 w-10 sm:w-auto px-4 py-2 rounded-lg text-sm font-semibold border transition-colors duration-200 flex items-center justify-center',
-                    link.active
-                      ? 'bg-green-800 text-white border-green-800 shadow-md'
-                      : 'border-gray-300 text-gray-700 hover:bg-yellow-400 hover:text-green-900'
-                  ]"
-                  v-html="link.label.replace('Previous', '← Prev').replace('Next', 'Next →')"
-                ></a>
-                
-                <span
-                  v-else
-                  :class="[
-                    'h-10 w-10 sm:w-auto px-4 py-2 rounded-lg text-sm font-semibold border border-gray-300 cursor-default flex items-center justify-center',
-                    link.active ? 'bg-green-800 text-white border-green-800' : 'bg-white text-gray-400'
-                  ]"
-                  v-html="link.label.replace('Previous', '← Prev').replace('Next', 'Next →')"
-                ></span>
-  
-              </template>
-            </nav>
-          </div>
-        </div>
-      </section>
-  
-      <transition name="modal">
-        <div
-          v-if="selectedOrdinance"
-          class="fixed inset-0 flex items-center justify-center bg-black/40 backdrop-blur-sm z-50 p-4"
-          @click.self="closeModal"
-        >
-          <div
-            class="bg-white w-full max-w-2xl rounded-xl shadow-xl border border-gray-200 relative flex flex-col overflow-hidden"
-            style="max-height: 90vh;"
-          >
-            <div class="overflow-y-auto px-6 py-6 flex-1 custom-scrollbar">
-              <button
-                class="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
-                @click="closeModal"
-              >
-                ✕
-              </button>
-  
-              <h2 class="text-2xl font-bold text-green-900">
-                Ordinance No. {{ selectedOrdinance.ordinance_number }}
-              </h2>
-  
-              <h3 class="text-lg font-semibold mt-2">
-                {{ selectedOrdinance.title_ordinances }}
-              </h3>
-  
-              <p class="text-sm text-gray-600 mt-1">
-                Date Approved:
-                <strong>{{ formatDate(selectedOrdinance.date_approved_ordinances) }}</strong>
-              </p>
-  
-              <div
-                class="mt-6 rounded-lg overflow-hidden border border-gray-200 shadow"
-                v-if="selectedOrdinance.image_ordinances"
-              >
-                <img
-                  :src="`/storage/${selectedOrdinance.image_ordinances}`"
-                  class="w-full"
+            <div class="lg:col-span-2">
+              <label class="text-sm font-semibold text-gray-700 mb-2 block">
+                Search Filter
+              </label>
+              <div class="relative">
+                <input
+                  v-model="form.search"
+                  type="text"
+                  class="w-full px-4 py-2.5 border border-gray-300 rounded-lg 
+                        bg-white text-black
+                        focus:ring-2 focus:ring-green-800 focus:border-green-800 transition"
+                  placeholder="Ordinance No., Title, or Keyword..."
                 />
               </div>
-  
-              <div class="mt-6">
-                <h4 class="font-bold mb-1">Description:</h4>
-                <p class="text-gray-700 leading-relaxed">
-                  {{ selectedOrdinance.description_ordinances }}
-                </p>
-              </div>
             </div>
-  
-            <div class="px-6 py-4 border-t border-gray-200 flex justify-end gap-2">
-              <button
-                @click="handleDownloadClick(selectedOrdinance)"
-                class="px-4 py-2 text-sm bg-yellow-400 text-green-900 font-bold rounded-lg hover:bg-yellow-500 transition shadow-md"
+
+            <div>
+              <label class="text-sm font-semibold text-gray-700 mb-2 block">
+                Year
+              </label>
+              <select
+                v-model="form.year"
+                class="w-full px-4 py-2.5 border border-gray-300 rounded-lg 
+                      bg-white text-black
+                      focus:ring-2 focus:ring-green-800 focus:border-green-800 
+                      appearance-none custom-select transition"
               >
-                Download PDF
-              </button>
-  
-  
-              <button
-                @click="closeModal"
-                class="bg-gray-200 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-300 transition"
-              >
-                Close
-              </button>
+                <option value="">All Years</option>
+                <option v-for="year in years" :key="year">
+                  {{ year }}
+                </option>
+              </select>
             </div>
-  
-          </div>
+
+            <button
+              type="submit"
+              class="w-full h-11 bg-green-800 text-white font-bold rounded-lg shadow hover:bg-green-900 transition mt-4 sm:mt-0"
+            >
+              Apply Filters
+            </button>
+          </form>
         </div>
-      </transition>
-  
-      <transition name="modal">
+      </div>
+
         <div
-          v-if="showRequestModal"
-          class="fixed inset-0 flex items-center justify-center bg-black/40 backdrop-blur-sm z-50"
-          @click.self="closeRequestModal"
+          v-if="ordinances.data.length"
+          class="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-12"
         >
           <div
-            class="bg-white w-full max-w-lg p-8 rounded-xl shadow-xl relative border border-gray-200"
+            v-for="ordinance in ordinances.data"
+            :key="ordinance.id"
+            class="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden"
+            :class="{
+              'lg:col-span-1': true, // Standard column size for most items
+              // 'lg:col-span-2': ordinance.id % 5 === 1 // Making some cards wider to match the visual variety in the image
+            }"
           >
+            <div class="bg-green-800 text-white px-5 py-2 font-semibold text-sm">
+              Ordinance No. {{ ordinance.ordinance_number }}
+            </div>
+
+            <div class="p-5 space-y-4">
+              <h2 class="text-lg font-bold text-gray-900 line-clamp-2">
+                {{ ordinance.title_ordinances }}
+              </h2>
+
+              <p class="text-gray-600 text-sm line-clamp-3">
+                {{ ordinance.description_ordinances }}
+              </p>
+
+              <div class="flex flex-wrap gap-x-6 gap-y-2 text-xs font-medium pt-2 border-t border-gray-100">
+                <span class="text-green-800 flex items-center gap-1">
+                  <span class="text-sm">🗓️</span>
+                    Series: {{ new Date(ordinance.date_approved_ordinances).getFullYear() }}
+
+                    </span>
+                
+                </div>
+
+                <div class="flex justify-between items-center gap-3 pt-3">
+                <button
+                  @click="openModal(ordinance)"
+                  class="px-4 py-2 text-sm text-green-800 font-bold border border-green-800 rounded-lg hover:bg-green-50 transition"
+                >
+                  View Details
+                </button>
+
+                <!-- Approved: Download PDF -->
+                <button
+                  v-if="ordinance.status === 'approved'"
+                  @click="handleDownloadClick(ordinance)"
+                  class="px-4 py-2 text-sm bg-yellow-400 text-green-900 font-bold rounded-lg hover:bg-yellow-500 transition shadow-md"
+                >
+                  Download PDF
+                </button>
+
+                <!-- Pending: show disabled Request Pending -->
+                <button
+                  v-else-if="ordinance.status === 'pending'"
+                  disabled
+                  class="px-4 py-2 text-sm bg-gray-300 text-gray-600 font-bold rounded-lg cursor-not-allowed"
+                >
+                  Request Pending
+                </button>
+
+                <!-- Rejected or no request: Request Access -->
+                <button
+                  v-else
+                  @click="openRequestModal(ordinance)"
+                  class="px-4 py-2 text-sm bg-green-800 text-white font-bold rounded-lg hover:bg-green-900 transition shadow-md"
+                >
+                  Request Access
+                </button>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+        <div
+          v-else
+          class="text-center mt-16 bg-white p-10 rounded-xl shadow border border-gray-200"
+        >
+          <h3 class="text-2xl font-bold text-gray-700">
+            No Ordinances Found
+          </h3>
+          <p class="mt-2 text-gray-500">
+            Try adjusting your searches or filters.
+          </p>
+
+          <button
+            @click="clearFilters"
+            class="mt-6 bg-green-800 text-white px-5 py-2.5 rounded-lg hover:bg-green-900 font-semibold"
+          >
+            Clear Filters
+          </button>
+        </div>
+
+        <div
+          v-if="ordinances.data.length"
+          class="mt-16 flex justify-center"
+        >
+        <nav class="flex items-center gap-4">
+          <template v-if="ordinances.links[0]">
+            <a
+              v-if="ordinances.links[0].url"
+              :href="ordinances.links[0].url"
+              class="h-10 px-4 py-2 rounded-lg text-sm font-semibold border border-gray-300 text-gray-700 hover:bg-yellow-400 hover:text-green-900 transition-colors flex items-center justify-center"
+            >
+              ← Prev
+            </a>
+            <span
+              v-else
+              class="h-10 px-4 py-2 rounded-lg text-sm font-semibold border border-gray-300 bg-white text-gray-400 cursor-default flex items-center justify-center"
+            >
+              ← Prev
+            </span>
+          </template>
+
+          <div class="text-sm font-bold text-gray-700">
+            {{ ordinances.current_page }} of {{ ordinances.last_page }}
+          </div>
+
+          <template v-if="ordinances.links[ordinances.links.length - 1]">
+            <a
+              v-if="ordinances.links[ordinances.links.length - 1].url"
+              :href="ordinances.links[ordinances.links.length - 1].url"
+              class="h-10 px-4 py-2 rounded-lg text-sm font-semibold border border-gray-300 text-gray-700 hover:bg-yellow-400 hover:text-green-900 transition-colors flex items-center justify-center"
+            >
+              Next →
+            </a>
+            <span
+              v-else
+              class="h-10 px-4 py-2 rounded-lg text-sm font-semibold border border-gray-300 bg-white text-gray-400 cursor-default flex items-center justify-center"
+            >
+              Next →
+            </span>
+          </template>
+        </nav>
+        </div>
+      </div>
+    </section>
+
+    <transition name="modal">
+      <div
+        v-if="selectedOrdinance"
+        class="fixed inset-0 flex items-center justify-center bg-black/40 backdrop-blur-sm z-50 p-4"
+        @click.self="closeModal"
+      >
+        <div
+          class="bg-white w-full max-w-2xl rounded-xl shadow-xl border border-gray-200 relative flex flex-col overflow-hidden"
+          style="max-height: 90vh;"
+        >
+          <div class="overflow-y-auto px-6 py-6 flex-1 custom-scrollbar">
             <button
               class="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
-              @click="closeRequestModal"
+              @click="closeModal"
             >
               ✕
             </button>
-  
-            <h2 class="text-2xl font-bold text-green-900">Request Access</h2>
-  
-            <p class="mt-2 text-gray-700">
-              State your purpose for requesting this ordinance.
+
+            <h2 class="text-2xl font-bold text-green-900">
+              Ordinance No. {{ selectedOrdinance.ordinance_number }}
+            </h2>
+
+            <h3 class="text-lg font-semibold mt-2">
+              {{ selectedOrdinance.title_ordinances }}
+            </h3>
+
+            <p class="text-sm text-gray-600 mt-1">
+              Date Approved:
+              <strong>{{ formatDate(selectedOrdinance.date_approved_ordinances) }}</strong>
             </p>
-  
-            <form @submit.prevent="submitRequestForm" class="mt-6 space-y-4">
-              <label class="font-semibold">Purpose of Request:</label>
-  
-              <textarea
-                v-model="requestForm.purpose"
-                maxlength="500"
-                required
-                class="w-full h-32 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-800"
-                placeholder="Explain why you need this ordinance..."
-              ></textarea>
-  
-              <button
-                type="submit"
-                class="w-full bg-green-800 text-white py-3 rounded-lg font-bold hover:bg-green-900 transition"
-              >
-                Submit Request
-              </button>
-            </form>
+
+            <div
+              class="mt-6 rounded-lg overflow-hidden border border-gray-200 shadow"
+              v-if="selectedOrdinance.image_ordinances"
+            >
+              <img
+                :src="`/storage/${selectedOrdinance.image_ordinances}`"
+                class="w-full"
+              />
+            </div>
+
+            <div class="mt-6">
+              <h4 class="font-bold mb-1">Description:</h4>
+              <p class="text-gray-700 leading-relaxed">
+                {{ selectedOrdinance.description_ordinances }}
+              </p>
+            </div>
           </div>
+
+          <div class="px-6 py-4 border-t border-gray-200 flex justify-end gap-2">
+            <!-- Approved: Download PDF -->
+            <button
+              v-if="selectedOrdinance.status === 'approved'"
+              @click="handleDownloadClick(selectedOrdinance)"
+              class="px-4 py-2 text-sm bg-yellow-400 text-green-900 font-bold rounded-lg hover:bg-yellow-500 transition shadow-md"
+            >
+              Download PDF
+            </button>
+
+            <!-- Pending: show disabled Request Pending -->
+            <button
+              v-else-if="selectedOrdinance.status === 'pending'"
+              disabled
+              class="px-4 py-2 text-sm bg-gray-300 text-gray-600 font-bold rounded-lg cursor-not-allowed"
+            >
+              Request Pending
+            </button>
+
+            <!-- Rejected or no request: Request Access -->
+            <button
+              v-else
+              @click="openRequestModal(selectedOrdinance)"
+              class="px-4 py-2 text-sm bg-green-800 text-white font-bold rounded-lg hover:bg-green-900 transition shadow-md"
+            >
+              Request Access
+            </button>
+
+            <!-- Close button always visible -->
+            <button
+              @click="closeModal"
+              class="bg-gray-200 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-300 transition"
+            >
+              Close
+            </button>
+          </div>
+
+
         </div>
-      </transition>
-  
-      <Footer />
+      </div>
+    </transition>
+
+    <transition name="modal">
+  <div
+    v-if="showRequestModal"
+    class="fixed inset-0 flex items-center justify-center bg-black/40 backdrop-blur-sm z-50"
+    @click.self="closeRequestModal"
+  >
+    <div
+      class="bg-white w-full max-w-lg p-8 rounded-xl shadow-xl relative border border-gray-200"
+    >
+      <button
+        class="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
+        @click="closeRequestModal"
+      >
+        ✕
+      </button>
+
+      <h2 class="text-2xl font-bold text-green-900">Request Access</h2>
+
+      <p class="mt-2 text-gray-700">
+        State your purpose and upload a valid government-issued ID.
+      </p>
+
+      <form @submit.prevent="submitRequestForm" class="mt-6 space-y-5">
+        <!-- PURPOSE -->
+        <div>
+          <label class="font-semibold block mb-1">
+            Purpose of Request
+          </label>
+
+          <textarea
+            v-model="requestForm.purpose"
+            maxlength="500"
+            required
+            class="w-full h-32 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-800"
+            placeholder="Explain why you need this ordinance..."
+          ></textarea>
+        </div>
+
+        <!-- VALID ID TYPE -->
+        <div>
+          <label class="font-semibold block mb-1">
+            Valid ID Type
+          </label>
+
+          <select
+            v-model="requestForm.valid_id_type"
+            required
+            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-800"
+          >
+            <option value="" disabled>Select a valid ID</option>
+            <option>PhilSys National ID</option>
+            <option>Passport</option>
+            <option>Driver’s License</option>
+            <option>UMID</option>
+            <option>Voter’s ID</option>
+            <option>Postal ID</option>
+            <option>PRC ID</option>
+            <option>Senior Citizen ID</option>
+            <option>PWD ID</option>
+            <option>SSS ID</option>
+            <option>GSIS ID</option>
+            <option>TIN ID</option>
+            <option>PhilHealth ID</option>
+          </select>
+        </div>
+
+        <!-- VALID ID FILE -->
+        <div>
+          <label class="font-semibold block mb-1">
+            Upload Valid ID
+          </label>
+
+          <input
+            type="file"
+            @change="handleValidIdUpload"
+            accept=".jpg,.jpeg,.png,.pdf"
+            required
+            class="w-full px-3 py-2 border border-gray-300 rounded-lg file:mr-4 file:py-2 file:px-4
+                   file:rounded-lg file:border-0 file:bg-green-800 file:text-white
+                   hover:file:bg-green-900 transition"
+          />
+
+          <p class="text-sm text-gray-500 mt-1">
+            Accepted formats: JPG, PNG, PDF (Max 20MB)
+          </p>
+        </div>
+
+        <!-- SUBMIT -->
+        <button
+          type="submit"
+          class="w-full bg-green-800 text-white py-3 rounded-lg font-bold hover:bg-green-900 transition"
+        >
+          Submit Request
+        </button>
+      </form>
     </div>
-  </template>
-  
-  <script setup>
-  import { reactive, ref, watch } from "vue"; // <-- Import 'watch'
-  import { router, usePage } from "@inertiajs/vue3"; // <-- Import 'usePage'
-  
-  import Navbar from "@/components/Home/Navbar.vue";
-  import Footer from "@/components/Home/Footer.vue";
-  
-  // 1. Import Toastify
-  import Toastify from 'toastify-js';
-  // Don't forget to link the Toastify CSS file in your main HTML file or entry point
-  
-  // 2. Access Inertia Page Props
-  const page = usePage(); // This allows watching for flash messages from the server
-  
-  const props = defineProps({
+  </div>
+</transition>
+
+
+    <Footer />
+  </div>
+</template>
+
+<script setup>
+import { computed, ref, reactive, watch, nextTick, onMounted, onUnmounted } from 'vue';
+import { Head, router, usePage, Link } from '@inertiajs/vue3';
+
+
+import Navbar from '@/components/Home/Navbar.vue';
+import Footer from '@/components/Home/Footer.vue';
+import FlashMessage from '@/components/FlashMessage.vue'; // The toast component handles its own state
+import { route } from 'ziggy-js';
+
+// -------------------------
+// PROPS
+// -------------------------
+const props = defineProps({
     ordinances: Object,
     filters: Object,
     years: Array,
-    user: Object, // null if not logged in
-  });
-  
-  // 3. Helper function to show toasts
-  const showToast = (message, type = 'success') => {
-    let backgroundColor = '#166534'; // default to success (green-800)
-    let className = 'toastify-custom-success';
-    if (type === 'error') {
-      backgroundColor = '#DC2626'; // Red
-      className = 'toastify-custom-error';
-    } else if (type === 'warning') {
-      backgroundColor = '#FBBF24'; // Yellow-400
-      className = 'toastify-custom-warning';
-    }
-  
-    Toastify({
-      text: message,
-      duration: 3000,
-      newWindow: true,
-      close: true,
-      gravity: "top", // `top` or `bottom`
-      position: "right", // `left`, `center` or `right`
-      stopOnFocus: true, // Prevents dismissing of toast on hover
-      className: className, // Use custom class for matching design
-      style: {
-        background: backgroundColor,
-      },
-      onClick: function(){} // Callback after click
-    }).showToast();
-  };
-  
-  
-  // 4. WATCHER: Connect Vue to Laravel's Flash Messages
-  watch(
-    () => page.props.flash,
-    (flash) => {
-      if (flash.success) {
-        showToast(flash.success, 'success');
-      }
-      if (flash.error) {
-        showToast(flash.error, 'error');
-      }
-      if (flash.warning) {
-        showToast(flash.warning, 'warning');
-      }
-      // Important: Inertia automatically clears flash messages, 
-      // but a subsequent check/reload might be needed for the UI status update
-    },
-    { deep: true } // Watch for changes inside the flash object
-  );
-  
-  
-  // FILTER FORM
-  const form = reactive({
+    user: Object,
+});
+
+// -------------------------
+// FILTER FORM LOGIC
+// -------------------------
+const form = reactive({
     search: props.filters.search || "",
     year: props.filters.year || "",
-  });
-  
-  // APPLY FILTERS
-  const applyFilters = () => {
-    router.get("/ordinances", form, { 
-      preserveState: true, 
-      replace: true, 
+});
+
+const applyFilters = () => {
+    router.get("/citizens-charter/ordinances", form, { 
+        preserveState: true, 
+        replace: true, 
     });
-  };
-  
-  const clearFilters = () => {
+};
+
+const clearFilters = () => {
     form.search = "";
     form.year = "";
     applyFilters();
-  };
-  
-  // ==========================
-  //      MODAL LOGIC
-  // ==========================
-  const selectedOrdinance = ref(null);
-  
-  const openModal = (ordinance) => {
-    selectedOrdinance.value = ordinance;
-  };
-  
-  const closeModal = () => {
-    selectedOrdinance.value = null;
-  };
-  
-  // ==========================
-  //  REQUEST DOWNLOAD MODAL
-  // ==========================
-  const showRequestModal = ref(false);
-  
-  const openRequestModal = (ordinance) => {
+};
+
+// -------------------------
+// MODAL & REQUEST LOGIC
+// -------------------------
+const selectedOrdinance = ref(null);
+const showRequestModal = ref(false);
+
+const openModal = (ordinance) => { 
+    selectedOrdinance.value = ordinance; 
+};
+
+const closeModal = () => { 
+    selectedOrdinance.value = null; 
+};
+
+const openRequestModal = (ordinance) => {
     if (!props.user) {
-      // Client-side toast for immediate feedback before redirect
-      showToast('Please log in to request access to ordinances.', 'warning'); 
-      router.visit('/login');
-      return;
+        router.visit('/login');
+        return;
     }
-    
     selectedOrdinance.value = ordinance;
     showRequestModal.value = true;
-  };
-  
-  const closeRequestModal = () => {
-    showRequestModal.value = false;
-  };
-  
-  const requestForm = reactive({
-    purpose: "",
-  });
-  
-  // Submit form
-  const submitRequestForm = async () => {
-    if (!selectedOrdinance.value) return;
-  
-    // 5. REMOVED onSuccess/onError Handlers: 
-    // Now, the successful/failed notification relies entirely on the server
-    router.post(
-      `/ordinances/${selectedOrdinance.value.id}/request-access`,
-      {
-        purpose: requestForm.purpose,
-      },
-      {
-        onFinish: () => {
-          // We only close the modal after the server response is received
-          requestForm.purpose = '';
-          showRequestModal.value = false;
-        },
-        preserveScroll: true,
-      }
-    );
-  };
-  
-  // Date format
-  const formatDate = (dateString) => {
+};
+
+const closeRequestModal = () => { 
+    showRequestModal.value = false; 
+};
+
+// const requestForm = reactive({
+//     purpose: '',
+//     valid_id_type: '',
+//     valid_id: null,
+// })
+
+// const submitRequestForm = async () => {
+//     if (!selectedOrdinance.value) return
+
+//     const currentOrdinanceId = selectedOrdinance.value.id
+
+//     const formData = new FormData()
+//     formData.append('purpose', requestForm.purpose)
+//     formData.append('valid_id_type', requestForm.valid_id_type)
+//     formData.append('valid_id', requestForm.valid_id)
+
+//     router.post(
+//         `/ordinances/${currentOrdinanceId}/request-access`,
+//         formData,
+//         {
+//             forceFormData: true, // ✅ IMPORTANT for file upload
+//             preserveScroll: true,
+
+//             onFinish: () => {
+//                 // Reset form
+//                 requestForm.purpose = ''
+//                 requestForm.valid_id_type = ''
+//                 requestForm.valid_id = null
+
+//                 showRequestModal.value = false
+
+//                 // Optimistic UI update
+//                 const ordinanceInList = props.ordinances.data.find(
+//                     (o) => o.id === currentOrdinanceId
+//                 )
+
+//                 if (ordinanceInList) {
+//                     ordinanceInList.status = 'pending'
+//                 }
+//             },
+//         }
+//     )
+// }
+
+// ----------------------
+// YOUR EXISTING FORM
+// ----------------------
+const requestForm = reactive({
+    purpose: '',
+    valid_id_type: '',
+    valid_id: null,
+})
+
+// ----------------------
+// RECAPTCHA SETUP
+// ----------------------
+const recaptchaSiteKey = import.meta.env.VITE_RECAPTCHA_SITE_KEY
+
+onMounted(() => {
+    const script = document.createElement('script')
+    script.src = `https://www.google.com/recaptcha/api.js?render=${recaptchaSiteKey}`
+    script.async = true
+    document.head.appendChild(script)
+})
+
+// ----------------------
+// GET CAPTCHA TOKEN
+// ----------------------
+const getRecaptchaToken = () => {
+    return new Promise((resolve, reject) => {
+        window.grecaptcha.ready(() => {
+            window.grecaptcha.execute(recaptchaSiteKey, {
+                action: 'ordinance_request'
+            })
+            .then((token) => resolve(token))
+            .catch((err) => reject(err))
+        })
+    })
+}
+
+// ----------------------
+// SUBMIT FUNCTION
+// ----------------------
+const submitRequestForm = async () => {
+    if (!selectedOrdinance.value) return
+
+    const currentOrdinanceId = selectedOrdinance.value.id
+
+    try {
+        // 🔐 GET CAPTCHA TOKEN
+        const token = await getRecaptchaToken()
+
+        const formData = new FormData()
+        formData.append('purpose', requestForm.purpose)
+        formData.append('valid_id_type', requestForm.valid_id_type)
+        formData.append('valid_id', requestForm.valid_id)
+
+        // 🔐 ADD CAPTCHA TOKEN
+        formData.append('recaptcha_token', token)
+
+        router.post(
+            `/ordinances/${currentOrdinanceId}/request-access`,
+            formData,
+            {
+                forceFormData: true,
+                preserveScroll: true,
+
+                onFinish: () => {
+                    // Reset form
+                    requestForm.purpose = ''
+                    requestForm.valid_id_type = ''
+                    requestForm.valid_id = null
+
+                    // Close modal
+                    showRequestModal.value = false
+
+                    // Update UI
+                    const ordinanceInList = props.ordinances.data.find(
+                        (o) => o.id === currentOrdinanceId
+                    )
+
+                    if (ordinanceInList) {
+                        ordinanceInList.status = 'pending'
+                    }
+                },
+            }
+        )
+    } catch (error) {
+        console.error('reCAPTCHA error:', error)
+    }
+}
+
+const handleValidIdUpload = (event) => {
+    requestForm.valid_id = event.target.files[0]
+}
+
+
+// -------------------------
+// DATE FORMAT UTILITY
+// -------------------------
+const formatDate = (dateString) => {
     if (!dateString) return "N/A";
     return new Date(dateString).toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
+        year: "numeric",
+        month: "long",
+        day: "numeric",
     });
-  };
-  
-  const handleDownloadClick = (ordinance) => {
+};
+
+// -------------------------
+// DOWNLOAD HANDLER
+// -------------------------
+const handleDownloadClick = (ordinance) => {
     if (!props.user) {
-      showToast('Please log in to download ordinances.', 'warning');
-      router.visit('/login'); // redirect if not logged in
-      return;
+        router.visit('/login');
+        return;
     }
-  
-    if (ordinance.user_request_status === 'approved') {
-      // Download the PDF
-      window.location.href = `/ordinance/download/${ordinance.id}`;
-      showToast('Download started!', 'success'); // Client-side toast for immediate download feedback
-    } else if (ordinance.user_request_status === 'pending') {
-      showToast('Your request is currently pending approval. Thank you for your patience.', 'warning');
+
+    if (ordinance.status === 'approved') {
+        // Approved → download file
+        window.location.href = `/ordinance/download/${ordinance.id}`;
     } else {
-      // Open the request form modal
-      openRequestModal(ordinance);
+        // Pending / rejected / no request → show modal
+        openRequestModal(ordinance);
+
+        // Optionally, call backend to refresh flash (pending/rejected message)
+        router.reload({
+            only: ['flash'],      // Only refresh flash messages
+            preserveScroll: true,
+            preserveState: true,  // Keeps search/filter state
+        });
     }
-  };
-  </script>
-  
-  <style scoped>
-  /* (Your existing scoped styles remain here) */
-  .modal-enter-active,
-  .modal-leave-active {
-    transition: opacity 0.25s ease;
-  }
-  
-  .modal-enter-from,
-  .modal-leave-to {
-    opacity: 0;
-  }
-  
-  .custom-select {
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    appearance: none; 
-    background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%234B5563%22%20d%3D%22M287%20197.8%20146.2%2057%205.4%20197.8z%22%2F%3E%3C%2Fsvg%3E');
-    background-repeat: no-repeat;
-    background-position: right 0.75rem center;
-    background-size: 0.65em auto;
-  }
-  
-  /* Custom Toastify Styles */
-  .toastify-custom-success {
-    color: white !important;
-    border-radius: 0.5rem !important;
-    font-weight: 600 !important;
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05) !important;
-  }
-  
-  .toastify-custom-warning {
-    color: #166534 !important;
-    border-radius: 0.5rem !important;
-    font-weight: 600 !important;
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05) !important;
-  }
-  
-  .toastify-custom-error {
-    color: white !important;
-    border-radius: 0.5rem !important;
-    font-weight: 600 !important;
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05) !important;
-  }
-  </style>
+};
+
+
+
+</script>
+
+
+<style scoped>
+/* (Your existing scoped styles remain here) */
+.modal-enter-active,
+.modal-leave-active {
+  transition: opacity 0.25s ease;
+}
+
+.modal-enter-from,
+.modal-leave-to {
+  opacity: 0;
+}
+
+.custom-select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23374151' stroke-width='2'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E");
+  background-position: right 0.75rem center;
+  background-repeat: no-repeat;
+  background-size: 1rem;
+}
+</style>

@@ -4,50 +4,6 @@
     <Navbar />
 
     <FlashMessage />
-
-    <!-- <section
-      class="pt-28 pb-20 bg-gradient-to-br from-green-900 to-green-700 relative overflow-hidden"
-    >
-      <div
-        class="absolute top-0 right-0 w-96 h-96 bg-yellow-300/10 rounded-full blur-3xl"
-      ></div>
-
-      <div
-        class="max-w-7xl mx-auto px-4 flex flex-col md:flex-row items-center gap-10"
-      >
-        <div class="flex-1 text-white relative z-10">
-          <span
-            class="text-xs tracking-widest uppercase bg-yellow-400 text-green-900 px-4 py-1 rounded-full font-bold"
-          >
-            Official Website
-          </span>
-
-          <h1 class="text-5xl md:text-6xl font-extrabold mt-4 leading-tight">
-            Municipal Resolutions
-          </h1>
-
-          <p class="text-lg mt-3 text-gray-100">
-            Formal expressions of the will and opinion of the municipality.
-          </p>
-        </div>
-
-          <div class="hidden lg:block">
-            <div class="relative w-full h-96 rounded-2xl overflow-hidden shadow-2xl">
-              <picture>
-                <source media="(min-width:1024px)" srcset="https://upload.wikimedia.org/wikipedia/commons/7/78/Concepcion_Municipal_Hall%2C_Tarlac%2C_Oct_2023.jpg">
-                <source media="(min-width:640px)" srcset="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f4/Concepcion_Tarlac_Municipal_Hall_plaza_view_%28Timbol%2C_Concepcion%2C_Tarlac%3B_07-23-2023%29.jpg/1024px-Concepcion_Tarlac_Municipal_Hall_plaza_view_%28Timbol%2C_Concepcion%2C_Tarlac%3B_07-23-2023%29.jpg">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/c/c0/Concepcion_Tarlac_Municipal_Hall_%28Timbol%2C_Concepcion%2C_Tarlac%3B_07-23-2023%29.jpg" 
-                  alt="Concepcion Municipal Hall" 
-                  class="w-full h-full object-cover">
-              </picture>
-              <div class="absolute bottom-4 right-4 bg-white/90 backdrop-blur-sm px-4 py-2 rounded-lg text-sm font-semibold">
-                Concepcion, Tarlac
-              </div>
-            </div>
-          </div>
-      </div>
-    </section> -->
-
     <section class="pt-28 pb-20 bg-gradient-to-br from-green-900 to-green-700 relative overflow-hidden">
       <div class="absolute top-0 right-0 w-96 h-96 bg-yellow-300/10 rounded-full blur-3xl z-0"></div>
 
@@ -433,7 +389,7 @@
                    hover:file:bg-green-900 transition"
           />
           <p class="text-sm text-gray-500 mt-1">
-            Accepted formats: JPG, PNG, PDF (Max 20MB)
+            Accepted formats: JPG, PNG, PDF (Max 5MB)
           </p>
         </div>
 
@@ -512,94 +468,140 @@ const closeRequestModal = () => {
 };
 
 
-// ----------------------
-// YOUR EXISTING FORM
-// ----------------------
 const requestForm = reactive({
     purpose: '',
     valid_id_type: '',
     valid_id: null,
-})
+});
+
+const recaptchaSiteKey = import.meta.env.VITE_RECAPTCHA_SITE_KEY;
+
+// FILE UPLOAD HANDLER
+const handleValidIdUpload = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+        requestForm.valid_id = file;
+    }
+};
 
 // ----------------------
-// RECAPTCHA SETUP
+// reCAPTCHA v3 LOADING
 // ----------------------
-const recaptchaSiteKey = import.meta.env.VITE_RECAPTCHA_SITE_KEY
+const loadRecaptcha = () => {
+    return new Promise((resolve, reject) => {
+        if (!recaptchaSiteKey) {
+            reject(new Error('reCAPTCHA site key is not configured'));
+            return;
+        }
+
+        const waitForReady = () => {
+            if (window.grecaptcha && typeof window.grecaptcha.ready === 'function') {
+                window.grecaptcha.ready(() => resolve());
+            } else {
+                setTimeout(waitForReady, 100);
+            }
+        };
+
+        if (document.getElementById('recaptcha-script')) {
+            waitForReady();
+            return;
+        }
+
+        const script = document.createElement('script');
+        script.id = 'recaptcha-script';
+        script.src = `https://www.google.com/recaptcha/api.js?render=${recaptchaSiteKey}`;
+        script.async = true;
+        script.defer = true;
+
+        script.onload = () => {
+            waitForReady();
+        };
+
+        script.onerror = () => {
+            reject(new Error('Failed to load reCAPTCHA script'));
+        };
+
+        document.head.appendChild(script);
+    });
+};
 
 onMounted(() => {
-    const script = document.createElement('script')
-    script.src = `https://www.google.com/recaptcha/api.js?render=${recaptchaSiteKey}`
-    script.async = true
-    document.head.appendChild(script)
-})
+    loadRecaptcha().catch(err => {
+        console.error('[Resolutions] reCAPTCHA load error:', err.message);
+    });
+});
 
-// ----------------------
-// GET CAPTCHA TOKEN
-// ----------------------
-const getRecaptchaToken = () => {
-    return new Promise((resolve, reject) => {
-        window.grecaptcha.ready(() => {
-            window.grecaptcha.execute(recaptchaSiteKey, {
-                action: 'resolution_request'
-            })
-            .then((token) => resolve(token))
-            .catch((err) => reject(err))
-        })
-    })
-}
+onUnmounted(() => {
+    const badge = document.querySelector('.grecaptcha-badge');
+    if (badge) badge.style.visibility = 'hidden';
+});
 
 // ----------------------
 // SUBMIT FUNCTION
 // ----------------------
 const submitRequestForm = async () => {
-    if (!selectedResolution.value) return
+    // Ensure a resolution is selected
+    if (!selectedResolution.value) return;
 
-    const currentResolutionId = selectedResolution.value.id
+    const currentResolutionId = selectedResolution.value.id;
 
     try {
-        // 🔐 GET CAPTCHA TOKEN
-        const token = await getRecaptchaToken()
+        if (!recaptchaSiteKey) {
+            alert('Security configuration error. Please refresh the page.');
+            return;
+        }
 
-        // ✅ Use FormData to handle file uploads
-        const formData = new FormData()
-        formData.append('purpose', requestForm.purpose)
-        formData.append('valid_id_type', requestForm.valid_id_type)
-        formData.append('valid_id', requestForm.valid_id)
+        // Ensure reCAPTCHA is ready
+        await loadRecaptcha();
 
-        // 🔐 ADD CAPTCHA TOKEN
-        formData.append('recaptcha_token', token)
+        // Generate Token
+        const token = await window.grecaptcha.execute(recaptchaSiteKey, {
+            action: 'resolution_request'
+        });
 
-        router.post(
-            `/resolutions/${currentResolutionId}/request-access`,
-            formData,
-            {
-                forceFormData: true, // ✅ Required for file upload
-                preserveScroll: true,
+        if (!token) {
+            throw new Error('Failed to generate reCAPTCHA token');
+        }
 
-                onFinish: () => {
-                    // Reset form fields
-                    requestForm.purpose = ''
-                    requestForm.valid_id_type = ''
-                    requestForm.valid_id = null
+        // Prepare Data
+        const formData = new FormData();
+        formData.append('purpose', requestForm.purpose);
+        formData.append('valid_id_type', requestForm.valid_id_type);
+        formData.append('valid_id', requestForm.valid_id);
+        formData.append('recaptcha_token', token);
 
-                    // Close modal
-                    showRequestModal.value = false
+        // Submit to Resolutions endpoint
+        router.post(`/resolutions/${currentResolutionId}/request-access`, formData, {
+            forceFormData: true,
+            preserveScroll: true,
+            onSuccess: () => {
+                // Reset form fields
+                requestForm.purpose = '';
+                requestForm.valid_id_type = '';
+                requestForm.valid_id = null;
+                
+                // Close modal
+                showRequestModal.value = false;
 
-                    // Optimistic UI update
-                    const resInList = props.resolutions.data.find(
-                        (r) => r.id === currentResolutionId
-                    )
-
-                    if (resInList) {
-                        resInList.status = 'pending'
-                    }
-                },
+                // Optimistic UI update for the specific resolution in the list
+                const resInList = props.resolutions.data.find(
+                    (r) => r.id === currentResolutionId
+                );
+                if (resInList) {
+                    resInList.status = 'pending';
+                }
+            },
+            onError: (errors) => {
+                if (errors.captcha) alert(errors.captcha);
+                if (errors.valid_id) alert(errors.valid_id);
+                if (errors.purpose) alert(errors.purpose);
             }
-        )
+        });
     } catch (error) {
-        console.error('reCAPTCHA error:', error)
+        console.error('[Resolutions] Submit Error:', error.message);
+        alert('Security check failed. Please try again or refresh the page.');
     }
-}
+};
 
 const formatDate = (dateString) => {
     if (!dateString) return "N/A";
@@ -628,9 +630,6 @@ const handleDownloadClick = (resolution) => {
     }
 };
 
-const handleValidIdUpload = (event) => {
-    requestForm.valid_id = event.target.files[0] || null;
-}
 
 </script>
 

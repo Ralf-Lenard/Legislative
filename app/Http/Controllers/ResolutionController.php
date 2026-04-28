@@ -390,79 +390,73 @@ class ResolutionController extends Controller
 
 
 
-    public function submitResolutionRequest(Request $request, $id)
-    {
-        // 🔐 CAPTCHA CHECK (FIRST LINE)
-        $response = Http::asForm()->post('https://www.google.com/recaptcha/api/siteverify', [
-            'secret' => env('RECAPTCHA_SECRET_KEY'),
-            'response' => $request->recaptcha_token,
-            'remoteip' => $request->ip(),
+   public function submitResolutionRequest(Request $request, $id)
+{
+    $response = Http::asForm()->post('https://www.google.com/recaptcha/api/siteverify', [
+        'secret' => env('RECAPTCHA_SECRET_KEY'),
+        'response' => $request->recaptcha_token,
+        'remoteip' => $request->ip(),
+    ]);
+
+    $result = $response->json();
+
+    if (!$result['success'] || $result['score'] < 0.5) {
+        return back()->withErrors([
+            'captcha' => 'reCAPTCHA verification failed. Suspicious activity detected.'
         ]);
-
-        if (
-            !$response->json('success') ||
-            ($response->json('score') ?? 0) < 0.5
-        ) {
-            return back()->withErrors([
-                'captcha' => 'Suspicious activity detected. Please try again.'
-            ]);
-        }
-
-        // -----------------------------
-        // YOUR ORIGINAL VALIDATION
-        // -----------------------------
-
-        $validIdTypes = [
-            'PhilSys National ID',
-            'Passport',
-            'Driver’s License',
-            'UMID',
-            'Voter’s ID',
-            'Postal ID',
-            'PRC ID',
-            'Senior Citizen ID',
-            'PWD ID',
-            'SSS ID',
-            'GSIS ID',
-            'TIN ID',
-            'PhilHealth ID',
-        ];
-
-        $request->validate([
-            'purpose' => 'required|string|max:500',
-            'valid_id_type' => ['required', Rule::in($validIdTypes)],
-            'valid_id' => 'required|file|mimes:jpg,jpeg,png,pdf|max:20480',
-        ]);
-
-        // Fetch resolution
-        $resolution = Resolution::findOrFail($id);
-
-        // 📁 Store Valid ID
-        $validIdPath = $request->file('valid_id')
-            ->store('valid_ids/resolution_requests', 'public'); // (recommended fix)
-
-        // Create request
-        $downloadRequest = ResolutionDownloadRequest::create([
-            'user_id' => auth()->id(),
-            'resolution_id' => $id,
-            'purpose' => $request->purpose,
-
-            'valid_id_type' => $request->valid_id_type,
-            'valid_id_path' => $validIdPath,
-
-            'status' => 'pending',
-        ]);
-
-        // 🔔 Notify admins
-        event(new ResolutionDownloadRequestSubmitted($downloadRequest));
-
-        return redirect()
-            ->back()
-            ->with(
-                'success',
-                'Request for Resolution No. ' . $resolution->resolutions_number . ' submitted successfully.'
-            );
     }
+
+    $validIdTypes = [
+        'PhilSys National ID', 'Passport', 'Driver’s License', 'UMID',
+        'Voter’s ID', 'Postal ID', 'PRC ID', 'Senior Citizen ID',
+        'PWD ID', 'SSS ID', 'GSIS ID', 'TIN ID', 'PhilHealth ID',
+    ];
+
+    // ---------------------------------------------------------
+    // UPDATED VALIDATION (Max 5120 KB = 5MB)
+    // ---------------------------------------------------------
+    $request->validate([
+        'purpose' => 'required|string|max:500',
+        'valid_id_type' => ['required', \Illuminate\Validation\Rule::in($validIdTypes)],
+        'valid_id' => [
+            'required', 
+            'file', 
+            'mimes:jpg,jpeg,png,pdf', 
+            'max:5120' // 5MB Limit
+        ],
+    ], [
+        // Custom error message for the size limit
+        'valid_id.max' => 'The valid ID image may not be larger than 5MB.',
+        'valid_id.mimes' => 'The valid ID must be a file of type: jpg, jpeg, png, pdf.',
+    ]);
+
+    // Fetch resolution
+    $resolution = Resolution::findOrFail($id);
+
+    // 📁 Store Valid ID
+    $validIdPath = $request->file('valid_id')
+        ->store('valid_ids/resolution_requests', 'public');
+
+    // Create request
+    $downloadRequest = ResolutionDownloadRequest::create([
+        'user_id' => auth()->id(),
+        'resolution_id' => $id,
+        'purpose' => $request->purpose,
+        'valid_id_type' => $request->valid_id_type,
+        'valid_id_path' => $validIdPath,
+        'status' => 'pending',
+    ]);
+
+    // 🔔 Notify admins
+    event(new ResolutionDownloadRequestSubmitted($downloadRequest));
+
+    return redirect()
+        ->back()
+        ->with(
+            'success',
+            'Request for Resolution No. ' . $resolution->resolutions_number . ' submitted successfully.'
+        );
+}
 
 
     /**
