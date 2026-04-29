@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue';
+import { ref, watch, computed } from 'vue';
 import { 
   FileText, 
   MessageSquare, 
@@ -10,6 +10,18 @@ import {
 } from 'lucide-vue-next';
 
 /* ================= TYPES ================= */
+
+const profilePhotoUrl = computed(() => {
+    const photo = props.viewingRequest?.user?.profile_photo;
+    if (!photo) return null;
+    
+    // The previous error was /storage//storage/...
+    // This regex cleans '/storage/', 'storage/', and leading slashes.
+    const cleanPath = photo.replace(/^(\/?storage\/)+|^\//, '');
+    
+    // Now return with exactly ONE prefix
+    return `/storage/${cleanPath}`;
+});
 
 interface ResolutionDownloadRequest {
     id: number;
@@ -94,9 +106,10 @@ watch(() => props.isOpen, (val) => {
                 <div class="w-full border-r border-slate-100 bg-slate-50/50 p-8 md:w-80">
                     <div class="flex flex-col items-center text-center">
                         <div class="relative mb-4">
-                            <img v-if="viewingRequest.user.profile_photo"
-                                :src="`/storage/${viewingRequest.user.profile_photo}`"
-                                class="h-32 w-32 rounded-2xl border-4 border-white object-cover shadow-md" />
+                            <img v-if="profilePhotoUrl"
+                                :src="profilePhotoUrl"
+                                class="h-32 w-32 rounded-2xl border-4 border-white object-cover shadow-md"
+                                alt="Profile Photo" />
                             <div v-else
                                 class="flex h-32 w-32 items-center justify-center rounded-2xl border-4 border-white bg-gradient-to-br from-blue-500 to-indigo-600 text-3xl font-bold text-white shadow-md">
                                 {{ getInitials(viewingRequest.user.name) }}
