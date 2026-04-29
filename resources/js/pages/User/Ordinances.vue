@@ -346,6 +346,11 @@
             State your purpose and upload a valid government-issued ID.
           </p>
 
+          <!-- Error message for reCAPTCHA -->
+          <div v-if="recaptchaError" class="mt-4 p-3 bg-red-100 border border-red-300 text-red-700 rounded-lg text-sm">
+            {{ recaptchaError }}
+          </div>
+
           <form @submit.prevent="submitRequestForm" class="mt-6 space-y-5">
             <!-- PURPOSE -->
             <div>
@@ -414,9 +419,11 @@
             <!-- SUBMIT -->
             <button
               type="submit"
-              class="w-full bg-green-800 text-white py-3 rounded-lg font-bold hover:bg-green-900 transition"
+              :disabled="isSubmitting"
+              class="w-full bg-green-800 text-white py-3 rounded-lg font-bold hover:bg-green-900 transition disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Submit Request
+              <span v-if="isSubmitting">Submitting...</span>
+              <span v-else>Submit Request</span>
             </button>
           </form>
         </div>
@@ -444,6 +451,12 @@ const props = defineProps({
     filters: Object,
     years: Array,
     user: Object,
+    recaptchaSiteKey: String,
+});
+
+// Use prop first, fallback to VITE env variable
+const siteKey = computed(() => {
+    return props.recaptchaSiteKey || import.meta.env.VITE_RECAPTCHA_SITE_KEY;
 });
 
 // -------------------------
@@ -488,10 +501,12 @@ const openRequestModal = (ordinance) => {
     }
     selectedOrdinance.value = ordinance;
     showRequestModal.value = true;
+    recaptchaError.value = null;
 };
 
 const closeRequestModal = () => { 
-    showRequestModal.value = false; 
+    showRequestModal.value = false;
+    recaptchaError.value = null;
 };
 
 // -------------------------
@@ -503,7 +518,9 @@ const requestForm = reactive({
     valid_id: null,
 });
 
-const recaptchaSiteKey = import.meta.env.VITE_RECAPTCHA_SITE_KEY;
+const recaptchaError = ref(null);
+const isSubmitting = ref(false);
+const recaptchaLoaded = ref(false);
 
 // FILE UPLOAD HANDLER
 const handleValidIdUpload = (event) => {
@@ -513,51 +530,73 @@ const handleValidIdUpload = (event) => {
     }
 };
 
-// reCAPTCHA v3 LOADING (Standard, not Enterprise)
+// reCAPTCHA v3 LOADING
 const loadRecaptcha = () => {
     return new Promise((resolve, reject) => {
-        if (!recaptchaSiteKey) {
-            reject(new Error('reCAPTCHA site key is not configured'));
+        const key = siteKey.value;
+        
+        if (!key) {
+            reject(new Error('reCAPTCHA site key is not configured. Please add RECAPTCHA_SITE_KEY to your .env file.'));
             return;
         }
 
-        // ✅ Wait until grecaptcha AND ready() exist
-        const waitForReady = () => {
-            if (window.grecaptcha && typeof window.grecaptcha.ready === 'function') {
-                window.grecaptcha.ready(() => resolve());
-            } else {
-                setTimeout(waitForReady, 100);
-            }
-        };
+        // Already loaded
+        if (window.grecaptcha && window.grecaptcha.execute) {
+            recaptchaLoaded.value = true;
+            window.grecaptcha.ready(resolve);
+            return;
+        }
 
-        // If script already added
-        if (document.getElementById('recaptcha-script')) {
-            waitForReady();
+        // Check if script is already being loaded
+        const existingScript = document.querySelector('script[src*="recaptcha"]');
+        if (existingScript) {
+            const checkReady = setInterval(() => {
+                if (window.grecaptcha && window.grecaptcha.execute) {
+                    clearInterval(checkReady);
+                    recaptchaLoaded.value = true;
+                    window.grecaptcha.ready(resolve);
+                }
+            }, 100);
+            
+            setTimeout(() => {
+                clearInterval(checkReady);
+                if (!window.grecaptcha) {
+                    reject(new Error('reCAPTCHA failed to load'));
+                }
+            }, 10000);
             return;
         }
 
         const script = document.createElement('script');
-        script.id = 'recaptcha-script';
-        script.src = `https://www.google.com/recaptcha/api.js?render=${recaptchaSiteKey}`;
+        script.src = `https://www.google.com/recaptcha/api.js?render=${key}`;
         script.async = true;
         script.defer = true;
 
         script.onload = () => {
-            waitForReady();
+            if (window.grecaptcha) {
+                window.grecaptcha.ready(() => {
+                    recaptchaLoaded.value = true;
+                    resolve();
+                });
+            } else {
+                reject(new Error('reCAPTCHA object not available'));
+            }
         };
 
-        script.onerror = () => {
-            reject(new Error('Failed to load reCAPTCHA script'));
-        };
+        script.onerror = () => reject(new Error('Failed to load reCAPTCHA script'));
 
         document.head.appendChild(script);
     });
 };
 
 onMounted(() => {
-    loadRecaptcha().catch(err => {
-        console.error('[v0] reCAPTCHA load error:', err.message);
-    });
+    if (siteKey.value) {
+        loadRecaptcha().catch(err => {
+            console.warn('reCAPTCHA initialization warning:', err.message);
+        });
+    } else {
+        console.warn('reCAPTCHA site key not provided. Please set RECAPTCHA_SITE_KEY in your .env file.');
+    }
 });
 
 onUnmounted(() => {
@@ -568,103 +607,122 @@ onUnmounted(() => {
 // SUBMIT FORM WITH reCAPTCHA v3
 const submitRequestForm = async () => {
     if (!selectedOrdinance.value) return;
+    
+    isSubmitting.value = true;
+    recaptchaError.value = null;
+
+    const currentOrdinanceId = selectedOrdinance.value.id;
 
     try {
-        // Validate site key before proceeding
-        if (!recaptchaSiteKey) {
-            alert('Security configuration error. Please refresh the page and try again.');
-            return;
+        const key = siteKey.value;
+        
+        if (!key) {
+            throw new Error('reCAPTCHA is not configured. Please contact the administrator.');
         }
 
-        // Ensure reCAPTCHA is ready
+        // Ensure reCAPTCHA is loaded
         await loadRecaptcha();
 
-        // Standard reCAPTCHA v3 execute
-        const token = await window.grecaptcha.execute(recaptchaSiteKey, {
+        // Generate token
+        const token = await window.grecaptcha.execute(key, {
             action: 'ordinance_request'
         });
 
         if (!token) {
-            throw new Error('Failed to generate reCAPTCHA token');
+            throw new Error('Failed to generate reCAPTCHA token. Please try again.');
         }
 
+        // Build form data
         const formData = new FormData();
         formData.append('purpose', requestForm.purpose);
         formData.append('valid_id_type', requestForm.valid_id_type);
         formData.append('valid_id', requestForm.valid_id);
         formData.append('recaptcha_token', token);
 
-        router.post(`/ordinances/${selectedOrdinance.value.id}/request-access`, formData, {
-            forceFormData: true,
-            preserveScroll: true,
-            onSuccess: () => {
-                requestForm.purpose = '';
-                requestForm.valid_id_type = '';
-                requestForm.valid_id = null;
-                showRequestModal.value = false;
-            },
-            onError: (errors) => {
-                if (errors.captcha) alert(errors.captcha);
-                if (errors.valid_id) alert(errors.valid_id);
+        // Submit
+        router.post(
+            `/ordinances/${currentOrdinanceId}/request-access`,
+            formData,
+            {
+                forceFormData: true,
+                preserveScroll: true,
+
+                onFinish: () => {
+                    isSubmitting.value = false;
+                    requestForm.purpose = '';
+                    requestForm.valid_id_type = '';
+                    requestForm.valid_id = null;
+                    showRequestModal.value = false;
+                },
+
+                onError: (errors) => {
+                    isSubmitting.value = false;
+                    if (errors.captcha) {
+                        recaptchaError.value = errors.captcha;
+                    }
+                }
             }
-        });
+        );
+
     } catch (error) {
-        console.error('[v0] reCAPTCHA Error:', error.message);
-        alert('Security check failed. Please refresh the page and try again.');
+        isSubmitting.value = false;
+        recaptchaError.value = error.message;
+        console.error('reCAPTCHA error:', error.message);
     }
 };
 
-// -------------------------
-// DATE FORMAT UTILITY
-// -------------------------
-const formatDate = (dateString) => {
-    if (!dateString) return "N/A";
-    return new Date(dateString).toLocaleDateString("en-US", {
-        year: "numeric",
-        month: "long",
-        day: "numeric",
+// Format date helper
+const formatDate = (dateStr) => {
+    if (!dateStr) return 'N/A';
+    const date = new Date(dateStr);
+    return date.toLocaleDateString('en-PH', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
     });
 };
 
-// -------------------------
-// DOWNLOAD HANDLER
-// -------------------------
+// Handle download click
 const handleDownloadClick = (ordinance) => {
-    if (!props.user) {
-        router.visit('/login');
-        return;
-    }
-
-    if (ordinance.status === 'approved') {
-        // Approved → download file
-        window.location.href = `/ordinance/download/${ordinance.id}`;
-    } else {
-        // Pending / rejected / no request → show modal
-        openRequestModal(ordinance);
-
-        // Refresh flash messages
-        router.reload({
-            only: ['flash'],
-            preserveScroll: true,
-            preserveState: true,
-        });
+    if (ordinance.file_ordinances) {
+        window.open(`/storage/${ordinance.file_ordinances}`, '_blank');
     }
 };
 </script>
 
 <style scoped>
-.modal-enter-active, .modal-leave-active {
-  transition: opacity 0.25s ease;
+.modal-enter-active,
+.modal-leave-active {
+    transition: opacity 0.3s ease;
 }
 
-.modal-enter-from, .modal-leave-to {
-  opacity: 0;
+.modal-enter-from,
+.modal-leave-to {
+    opacity: 0;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 3px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 3px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #a1a1a1;
 }
 
 .custom-select {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23374151' stroke-width='2'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E");
-  background-position: right 0.75rem center;
-  background-repeat: no-repeat;
-  background-size: 1rem;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+    background-position: right 0.5rem center;
+    background-repeat: no-repeat;
+    background-size: 1.5em 1.5em;
 }
 </style>

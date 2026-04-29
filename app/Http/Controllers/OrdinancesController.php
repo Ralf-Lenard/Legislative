@@ -74,6 +74,7 @@ class OrdinancesController extends Controller
             'years' => $years,
             'user' => Auth::user(),
             'canRegister' => Route::has('register'),
+            'recaptchaSiteKey' => env('RECAPTCHA_SITE_KEY'),
         ]);
     }
 

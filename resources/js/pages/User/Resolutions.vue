@@ -4,6 +4,7 @@
     <Navbar />
 
     <FlashMessage />
+
     <section class="pt-28 pb-20 bg-gradient-to-br from-green-900 to-green-700 relative overflow-hidden">
       <div class="absolute top-0 right-0 w-96 h-96 bg-yellow-300/10 rounded-full blur-3xl z-0"></div>
 
@@ -196,7 +197,7 @@
               v-else
               class="h-10 px-4 py-2 rounded-lg text-sm font-semibold border border-gray-300 bg-white text-gray-400 cursor-default flex items-center justify-center"
             >
-              ← Prev
+              �� Prev
             </span>
           </template>
 
@@ -224,6 +225,7 @@
       </div>
     </section>
 
+    <!-- View Details Modal -->
     <transition name="modal">
       <div
         v-if="selectedResolution"
@@ -279,14 +281,16 @@
           </div>
 
           <div class="px-6 py-4 border-t border-gray-200 flex justify-end gap-2">
+            <!-- Approved: Download PDF -->
             <button
-                  v-if="resolution.status === 'approved'"
-                  @click="handleDownloadClick(resolution)"
-                  class="px-4 py-2 text-sm bg-yellow-400 text-green-900 font-bold rounded-lg hover:bg-yellow-500 transition shadow-md"
-                >
-                  Download PDF
-                </button>
+              v-if="selectedResolution.status === 'approved'"
+              @click="handleDownloadClick(selectedResolution)"
+              class="px-4 py-2 text-sm bg-yellow-400 text-green-900 font-bold rounded-lg hover:bg-yellow-500 transition shadow-md"
+            >
+              Download PDF
+            </button>
 
+            <!-- Pending: show disabled Request Pending -->
             <button
               v-else-if="selectedResolution.status === 'pending'"
               disabled
@@ -295,6 +299,7 @@
               Request Pending
             </button>
 
+            <!-- Rejected or no request: Request Access -->
             <button
               v-else
               @click="openRequestModal(selectedResolution)"
@@ -303,6 +308,7 @@
               Request Access
             </button>
 
+            <!-- Close button always visible -->
             <button
               @click="closeModal"
               class="bg-gray-200 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-300 transition"
@@ -314,117 +320,144 @@
       </div>
     </transition>
 
+    <!-- Request Access Modal -->
     <transition name="modal">
-  <div
-    v-if="showRequestModal"
-    class="fixed inset-0 flex items-center justify-center bg-black/40 backdrop-blur-sm z-50"
-    @click.self="closeRequestModal"
-  >
-    <div
-      class="bg-white w-full max-w-lg p-8 rounded-xl shadow-xl relative border border-gray-200"
-    >
-      <!-- CLOSE BUTTON -->
-      <button
-        class="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
-        @click="closeRequestModal"
+      <div
+        v-if="showRequestModal"
+        class="fixed inset-0 flex items-center justify-center bg-black/40 backdrop-blur-sm z-50"
+        @click.self="closeRequestModal"
       >
-        ✕
-      </button>
-
-      <!-- HEADER -->
-      <h2 class="text-2xl font-bold text-green-900">Request Access</h2>
-      <p class="mt-2 text-gray-700">
-        State your purpose and upload a valid government-issued ID.
-      </p>
-
-      <!-- FORM -->
-      <form @submit.prevent="submitRequestForm" class="mt-6 space-y-5">
-        <!-- PURPOSE -->
-        <div>
-          <label class="font-semibold block mb-1">Purpose of Request</label>
-          <textarea
-            v-model="requestForm.purpose"
-            maxlength="500"
-            required
-            class="w-full h-32 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-800"
-            placeholder="Explain why you need this resolution..."
-          ></textarea>
-        </div>
-
-        <!-- VALID ID TYPE -->
-        <div>
-          <label class="font-semibold block mb-1">Valid ID Type</label>
-          <select
-            v-model="requestForm.valid_id_type"
-            required
-            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-800"
-          >
-            <option value="" disabled>Select a valid ID</option>
-            <option>PhilSys National ID</option>
-            <option>Passport</option>
-            <option>Driver’s License</option>
-            <option>UMID</option>
-            <option>Voter’s ID</option>
-            <option>Postal ID</option>
-            <option>PRC ID</option>
-            <option>Senior Citizen ID</option>
-            <option>PWD ID</option>
-            <option>SSS ID</option>
-            <option>GSIS ID</option>
-            <option>TIN ID</option>
-            <option>PhilHealth ID</option>
-          </select>
-        </div>
-
-        <!-- VALID ID FILE -->
-        <div>
-          <label class="font-semibold block mb-1">Upload Valid ID</label>
-          <input
-            type="file"
-            @change="handleValidIdUpload"
-            accept=".jpg,.jpeg,.png,.pdf"
-            required
-            class="w-full px-3 py-2 border border-gray-300 rounded-lg file:mr-4 file:py-2 file:px-4
-                   file:rounded-lg file:border-0 file:bg-green-800 file:text-white
-                   hover:file:bg-green-900 transition"
-          />
-          <p class="text-sm text-gray-500 mt-1">
-            Accepted formats: JPG, PNG, PDF (Max 5MB)
-          </p>
-        </div>
-
-        <!-- SUBMIT -->
-        <button
-          type="submit"
-          class="w-full bg-green-800 text-white py-3 rounded-lg font-bold hover:bg-green-900 transition"
+        <div
+          class="bg-white w-full max-w-lg p-8 rounded-xl shadow-xl relative border border-gray-200"
         >
-          Submit Request
-        </button>
-      </form>
-    </div>
-  </div>
-</transition>
+          <button
+            class="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
+            @click="closeRequestModal"
+          >
+            ✕
+          </button>
+
+          <h2 class="text-2xl font-bold text-green-900">Request Access</h2>
+
+          <p class="mt-2 text-gray-700">
+            State your purpose and upload a valid government-issued ID.
+          </p>
+
+          <!-- Error message for reCAPTCHA -->
+          <div v-if="recaptchaError" class="mt-4 p-3 bg-red-100 border border-red-300 text-red-700 rounded-lg text-sm">
+            {{ recaptchaError }}
+          </div>
+
+          <form @submit.prevent="submitRequestForm" class="mt-6 space-y-5">
+            <!-- PURPOSE -->
+            <div>
+              <label class="font-semibold block mb-1">
+                Purpose of Request
+              </label>
+
+              <textarea
+                v-model="requestForm.purpose"
+                maxlength="500"
+                required
+                class="w-full h-32 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-800"
+                placeholder="Explain why you need this resolution..."
+              ></textarea>
+            </div>
+
+            <!-- VALID ID TYPE -->
+            <div>
+              <label class="font-semibold block mb-1">
+                Valid ID Type
+              </label>
+
+              <select
+                v-model="requestForm.valid_id_type"
+                required
+                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-800"
+              >
+                <option value="" disabled>Select a valid ID</option>
+                <option>PhilSys National ID</option>
+                <option>Passport</option>
+                <option>Driver's License</option>
+                <option>UMID</option>
+                <option>Voter's ID</option>
+                <option>Postal ID</option>
+                <option>PRC ID</option>
+                <option>Senior Citizen ID</option>
+                <option>PWD ID</option>
+                <option>SSS ID</option>
+                <option>GSIS ID</option>
+                <option>TIN ID</option>
+                <option>PhilHealth ID</option>
+              </select>
+            </div>
+
+            <!-- VALID ID FILE -->
+            <div>
+              <label class="font-semibold block mb-1">
+                Upload Valid ID
+              </label>
+
+              <input
+                type="file"
+                @change="handleValidIdUpload"
+                accept=".jpg,.jpeg,.png,.pdf"
+                required
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg file:mr-4 file:py-2 file:px-4
+                       file:rounded-lg file:border-0 file:bg-green-800 file:text-white
+                       hover:file:bg-green-900 transition"
+              />
+
+              <p class="text-sm text-gray-500 mt-1">
+                Accepted formats: JPG, PNG, PDF (Max 5MB)
+              </p>
+            </div>
+
+            <!-- SUBMIT -->
+            <button
+              type="submit"
+              :disabled="isSubmitting"
+              class="w-full bg-green-800 text-white py-3 rounded-lg font-bold hover:bg-green-900 transition disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <span v-if="isSubmitting">Submitting...</span>
+              <span v-else>Submit Request</span>
+            </button>
+          </form>
+        </div>
+      </div>
+    </transition>
 
     <Footer />
   </div>
 </template>
 
 <script setup>
-import { reactive, ref, onMounted } from 'vue';
+import { computed, ref, reactive, onMounted, onUnmounted } from 'vue';
 import { Head, router, usePage, Link } from '@inertiajs/vue3';
 
 import Navbar from '@/components/Home/Navbar.vue';
 import Footer from '@/components/Home/Footer.vue';
 import FlashMessage from '@/components/FlashMessage.vue';
-import resolution from '@/routes/resolution';
 
+// -------------------------
+// PROPS
+// -------------------------
 const props = defineProps({
     resolutions: Object,
     filters: Object,
     years: Array,
     user: Object,
+    recaptchaSiteKey: String,
 });
 
+// Use prop first, fallback to VITE env variable
+const siteKey = computed(() => {
+    return props.recaptchaSiteKey || import.meta.env.VITE_RECAPTCHA_SITE_KEY;
+});
+
+// -------------------------
+// FILTER FORM LOGIC
+// -------------------------
 const form = reactive({
     search: props.filters.search || "",
     year: props.filters.year || "",
@@ -443,6 +476,9 @@ const clearFilters = () => {
     applyFilters();
 };
 
+// -------------------------
+// MODAL & REQUEST LOGIC
+// -------------------------
 const selectedResolution = ref(null);
 const showRequestModal = ref(false);
 
@@ -461,20 +497,26 @@ const openRequestModal = (resolution) => {
     }
     selectedResolution.value = resolution;
     showRequestModal.value = true;
+    recaptchaError.value = null;
 };
 
 const closeRequestModal = () => { 
-    showRequestModal.value = false; 
+    showRequestModal.value = false;
+    recaptchaError.value = null;
 };
 
-
+// -------------------------
+// REQUEST FORM & reCAPTCHA
+// -------------------------
 const requestForm = reactive({
     purpose: '',
     valid_id_type: '',
     valid_id: null,
 });
 
-const recaptchaSiteKey = import.meta.env.VITE_RECAPTCHA_SITE_KEY;
+const recaptchaError = ref(null);
+const isSubmitting = ref(false);
+const recaptchaLoaded = ref(false);
 
 // FILE UPLOAD HANDLER
 const handleValidIdUpload = (event) => {
@@ -484,51 +526,73 @@ const handleValidIdUpload = (event) => {
     }
 };
 
-// ----------------------
 // reCAPTCHA v3 LOADING
-// ----------------------
 const loadRecaptcha = () => {
     return new Promise((resolve, reject) => {
-        if (!recaptchaSiteKey) {
-            reject(new Error('reCAPTCHA site key is not configured'));
+        const key = siteKey.value;
+        
+        if (!key) {
+            reject(new Error('reCAPTCHA site key is not configured. Please add RECAPTCHA_SITE_KEY to your .env file.'));
             return;
         }
 
-        const waitForReady = () => {
-            if (window.grecaptcha && typeof window.grecaptcha.ready === 'function') {
-                window.grecaptcha.ready(() => resolve());
-            } else {
-                setTimeout(waitForReady, 100);
-            }
-        };
+        // Already loaded
+        if (window.grecaptcha && window.grecaptcha.execute) {
+            recaptchaLoaded.value = true;
+            window.grecaptcha.ready(resolve);
+            return;
+        }
 
-        if (document.getElementById('recaptcha-script')) {
-            waitForReady();
+        // Check if script is already being loaded
+        const existingScript = document.querySelector('script[src*="recaptcha"]');
+        if (existingScript) {
+            const checkReady = setInterval(() => {
+                if (window.grecaptcha && window.grecaptcha.execute) {
+                    clearInterval(checkReady);
+                    recaptchaLoaded.value = true;
+                    window.grecaptcha.ready(resolve);
+                }
+            }, 100);
+            
+            setTimeout(() => {
+                clearInterval(checkReady);
+                if (!window.grecaptcha) {
+                    reject(new Error('reCAPTCHA failed to load'));
+                }
+            }, 10000);
             return;
         }
 
         const script = document.createElement('script');
-        script.id = 'recaptcha-script';
-        script.src = `https://www.google.com/recaptcha/api.js?render=${recaptchaSiteKey}`;
+        script.src = `https://www.google.com/recaptcha/api.js?render=${key}`;
         script.async = true;
         script.defer = true;
 
         script.onload = () => {
-            waitForReady();
+            if (window.grecaptcha) {
+                window.grecaptcha.ready(() => {
+                    recaptchaLoaded.value = true;
+                    resolve();
+                });
+            } else {
+                reject(new Error('reCAPTCHA object not available'));
+            }
         };
 
-        script.onerror = () => {
-            reject(new Error('Failed to load reCAPTCHA script'));
-        };
+        script.onerror = () => reject(new Error('Failed to load reCAPTCHA script'));
 
         document.head.appendChild(script);
     });
 };
 
 onMounted(() => {
-    loadRecaptcha().catch(err => {
-        console.error('[Resolutions] reCAPTCHA load error:', err.message);
-    });
+    if (siteKey.value) {
+        loadRecaptcha().catch(err => {
+            console.warn('reCAPTCHA initialization warning:', err.message);
+        });
+    } else {
+        console.warn('reCAPTCHA site key not provided. Please set RECAPTCHA_SITE_KEY in your .env file.');
+    }
 });
 
 onUnmounted(() => {
@@ -536,82 +600,101 @@ onUnmounted(() => {
     if (badge) badge.style.visibility = 'hidden';
 });
 
-// ----------------------
-// SUBMIT FUNCTION
-// ----------------------
+// SUBMIT FORM WITH reCAPTCHA v3
 const submitRequestForm = async () => {
-    // Ensure a resolution is selected
     if (!selectedResolution.value) return;
+    
+    isSubmitting.value = true;
+    recaptchaError.value = null;
 
     const currentResolutionId = selectedResolution.value.id;
 
     try {
-        if (!recaptchaSiteKey) {
-            alert('Security configuration error. Please refresh the page.');
-            return;
+        const key = siteKey.value;
+        
+        if (!key) {
+            throw new Error('reCAPTCHA is not configured. Please contact the administrator.');
         }
 
-        // Ensure reCAPTCHA is ready
+        // Ensure reCAPTCHA is loaded
         await loadRecaptcha();
 
-        // Generate Token
-        const token = await window.grecaptcha.execute(recaptchaSiteKey, {
+        // Generate token
+        const token = await window.grecaptcha.execute(key, {
             action: 'resolution_request'
         });
 
         if (!token) {
-            throw new Error('Failed to generate reCAPTCHA token');
+            throw new Error('Failed to generate reCAPTCHA token. Please try again.');
         }
 
-        // Prepare Data
+        // Build form data
         const formData = new FormData();
         formData.append('purpose', requestForm.purpose);
         formData.append('valid_id_type', requestForm.valid_id_type);
         formData.append('valid_id', requestForm.valid_id);
         formData.append('recaptcha_token', token);
 
-        // Submit to Resolutions endpoint
-        router.post(`/resolutions/${currentResolutionId}/request-access`, formData, {
-            forceFormData: true,
-            preserveScroll: true,
-            onSuccess: () => {
-                // Reset form fields
-                requestForm.purpose = '';
-                requestForm.valid_id_type = '';
-                requestForm.valid_id = null;
-                
-                // Close modal
-                showRequestModal.value = false;
+        // Submit
+        router.post(
+            `/resolutions/${currentResolutionId}/request-access`,
+            formData,
+            {
+                forceFormData: true,
+                preserveScroll: true,
 
-                // Optimistic UI update for the specific resolution in the list
-                const resInList = props.resolutions.data.find(
-                    (r) => r.id === currentResolutionId
-                );
-                if (resInList) {
-                    resInList.status = 'pending';
+                onFinish: () => {
+                    isSubmitting.value = false;
+                    requestForm.purpose = '';
+                    requestForm.valid_id_type = '';
+                    requestForm.valid_id = null;
+                    showRequestModal.value = false;
+                },
+
+                onSuccess: () => {
+                    // Optimistic UI update for the specific resolution in the list
+                    const resInList = props.resolutions.data.find(
+                        (r) => r.id === currentResolutionId
+                    );
+                    if (resInList) {
+                        resInList.status = 'pending';
+                    }
+                },
+
+                onError: (errors) => {
+                    isSubmitting.value = false;
+                    if (errors.captcha) {
+                        recaptchaError.value = errors.captcha;
+                    }
+                    if (errors.valid_id) {
+                        recaptchaError.value = errors.valid_id;
+                    }
+                    if (errors.purpose) {
+                        recaptchaError.value = errors.purpose;
+                    }
                 }
-            },
-            onError: (errors) => {
-                if (errors.captcha) alert(errors.captcha);
-                if (errors.valid_id) alert(errors.valid_id);
-                if (errors.purpose) alert(errors.purpose);
             }
-        });
+        );
+
     } catch (error) {
-        console.error('[Resolutions] Submit Error:', error.message);
-        alert('Security check failed. Please try again or refresh the page.');
+        isSubmitting.value = false;
+        recaptchaError.value = error.message;
+        console.error('reCAPTCHA error:', error.message);
     }
 };
 
-const formatDate = (dateString) => {
-    if (!dateString) return "N/A";
-    return new Date(dateString).toLocaleDateString("en-US", {
-        year: "numeric",
-        month: "long",
-        day: "numeric",
+// Format date helper
+const formatDate = (dateStr) => {
+    if (!dateStr) return 'N/A';
+    const date = new Date(dateStr);
+    return date.toLocaleDateString('en-PH', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
     });
 };
 
+// Handle download click
 const handleDownloadClick = (resolution) => {
     if (!props.user) {
         router.visit('/login');
@@ -629,14 +712,12 @@ const handleDownloadClick = (resolution) => {
         });
     }
 };
-
-
 </script>
 
 <style scoped>
 .modal-enter-active,
 .modal-leave-active {
-  transition: opacity 0.25s ease;
+  transition: opacity 0.3s ease;
 }
 
 .modal-enter-from,
@@ -644,24 +725,28 @@ const handleDownloadClick = (resolution) => {
   opacity: 0;
 }
 
-.custom-select {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23374151' stroke-width='2'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E");
-  background-position: right 0.75rem center;
-  background-repeat: no-repeat;
-  background-size: 1rem;
-}
-
 .custom-scrollbar::-webkit-scrollbar {
   width: 6px;
 }
+
 .custom-scrollbar::-webkit-scrollbar-track {
   background: #f1f1f1;
+  border-radius: 3px;
 }
+
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  background: #d1d5db;
-  border-radius: 10px;
+  background: #c1c1c1;
+  border-radius: 3px;
 }
+
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: #9ca3af;
+  background: #a1a1a1;
+}
+
+.custom-select {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+  background-position: right 0.5rem center;
+  background-repeat: no-repeat;
+  background-size: 1.5em 1.5em;
 }
 </style>
