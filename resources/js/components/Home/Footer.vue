@@ -5,7 +5,7 @@
         class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 gap-10 lg:gap-12 mb-12 pb-12 border-b border-white border-opacity-20"
       >
         <div class="space-y-4 col-span-2 sm:col-span-1">
-          <div class="w-12 h-12 rounded-xl overflow-hidden shadow-lg">
+          <div class="w-12 h-12 rounded-full overflow-hidden shadow-lg">
             <img src="/images/logo.jpg" alt="Logo" class="w-full h-full object-cover" />
           </div>
           
@@ -60,8 +60,7 @@
         <p>© 2026 Sangguniang Bayan, Concepcion, Tarlac. All rights reserved.</p>
         <div class="flex gap-6">
           <a href="/privacy-policy" class="hover:text-[#ffc107] transition">Privacy Policy</a>
-          <a href="#" class="hover:text-[#ffc107] transition">Disclaimer</a>
-          <a href="#" class="hover:text-[#ffc107] transition">Sitemap</a>
+          <a href="/terms-of-service" class="hover:text-[#ffc107] transition">Terms of Service</a>
         </div>
       </div>
     </div>

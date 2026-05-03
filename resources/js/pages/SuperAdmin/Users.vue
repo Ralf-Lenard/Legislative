@@ -140,14 +140,15 @@ const deleteUser = (user) => {
         () => router.delete(`/super-admin-users/${user.id}`));
 };
 </script>
-
 <template>
     <Head title="User Management" />
-    <div class="flex h-screen bg-slate-50">
+    <!-- Explicitly set background to a light slate even if parent has dark modes -->
+    <div class="flex h-screen bg-slate-50 text-slate-900">
         <AppSidebar />
         <main class="relative flex-1 overflow-auto">
             <FlashMessage />
 
+            <!-- Header and Filters -->
             <div class="sticky top-0 z-40 border-b border-slate-200 bg-white shadow-md">
                 <div class="flex items-center justify-between px-8 py-6">
                     <div>
@@ -158,81 +159,78 @@ const deleteUser = (user) => {
 
                 <div class="flex flex-col gap-4 px-8 pb-6">
                     <div class="flex flex-col gap-4 md:flex-row md:items-center">
+                        <!-- Search -->
                         <div class="relative max-w-md flex-1">
                             <Search class="absolute top-1/2 left-3 h-5 w-5 -translate-y-1/2 text-slate-400" />
-                            <input v-model="search" @keyup.enter="applyFilters" type="text" placeholder="Search name or email..." class="w-full rounded-lg border border-slate-300 py-2.5 pl-10 focus:ring-2 focus:ring-emerald-500 outline-none" />
+                            <input v-model="search" @keyup.enter="applyFilters" type="text" placeholder="Search name or email..." class="w-full rounded-lg border border-slate-300 bg-white py-2.5 pl-10 text-slate-900 focus:ring-2 focus:ring-emerald-500 outline-none" />
                         </div>
+                        
+                        <!-- Role Filter -->
                         <div class="relative w-full md:w-48">
                             <select
                                 v-model="role"
                                 @change="applyFilters"
-                                class="w-full rounded-lg border border-slate-300 
-                                    px-4 pr-10 py-2.5 outline-none
-                                    focus:ring-2 focus:ring-emerald-500
-                                    appearance-none bg-white"
+                                class="w-full rounded-lg border border-slate-300 px-4 pr-10 py-2.5 outline-none focus:ring-2 focus:ring-emerald-500 appearance-none bg-white text-slate-900"
                             >
                                 <option value="">All Roles</option>
                                 <option v-for="r in props.roles" :key="r" :value="r">
-                                {{ r.toUpperCase() }}
+                                    {{ r.toUpperCase() }}
                                 </option>
                             </select>
-
-                            <!-- Custom Arrow -->
                             <div class="absolute inset-y-0 right-3 flex items-center pointer-events-none">
                                 <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
                                 </svg>
                             </div>
                         </div>
 
+                        <!-- Status Filter -->
                         <div class="relative w-full md:w-48">
                             <select
                                 v-model="status"
                                 @change="applyFilters"
-                                class="w-full rounded-lg border border-slate-300 
-                                    px-4 pr-10 py-2.5 outline-none
-                                    focus:ring-2 focus:ring-emerald-500
-                                    appearance-none bg-white"
+                                class="w-full rounded-lg border border-slate-300 px-4 pr-10 py-2.5 outline-none focus:ring-2 focus:ring-emerald-500 appearance-none bg-white text-slate-900"
                             >
                                 <option value="">All Status</option>
                                 <option v-for="s in props.status" :key="s" :value="s">
-                                {{ s.toUpperCase() }}
+                                    {{ s.toUpperCase() }}
                                 </option>
                             </select>
-
-                            <!-- Custom Arrow -->
                             <div class="absolute inset-y-0 right-3 flex items-center pointer-events-none">
                                 <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
                                 </svg>
                             </div>
                         </div>
-                        <button v-if="search || role || status" @click="clearFilters" class="flex items-center gap-2 px-4 py-2.5 text-slate-700 border border-slate-300 rounded-lg hover:bg-slate-50">
+
+                        <button v-if="search || role || status" @click="clearFilters" class="flex items-center gap-2 px-4 py-2.5 text-slate-700 border border-slate-300 rounded-lg bg-white hover:bg-slate-50 transition-colors">
                             <X class="h-4 w-4" /> Clear
                         </button>
                     </div>
                 </div>
             </div>
 
+            <!-- Stats Grid -->
             <div class="grid grid-cols-1 gap-6 px-8 pt-8 sm:grid-cols-2 lg:grid-cols-4">
                 <div class="flex items-center justify-between rounded-lg border-l-4 border-emerald-500 bg-white p-5 shadow-lg">
-                    <div><p class="text-xs font-bold text-slate-500 uppercase">Users</p><p class="text-2xl font-bold">{{ props.totalUsers }}</p></div>
+                    <div><p class="text-xs font-bold text-slate-500 uppercase">Users</p><p class="text-2xl font-bold text-slate-900">{{ props.totalUsers }}</p></div>
                     <UserCircle class="h-8 w-8 text-emerald-500 opacity-40" />
                 </div>
                 <div class="flex items-center justify-between rounded-lg border-l-4 border-sky-500 bg-white p-5 shadow-lg">
-                    <div><p class="text-xs font-bold text-slate-500 uppercase">Active</p><p class="text-2xl font-bold">{{ props.activeUsersCount }}</p></div>
+                    <div><p class="text-xs font-bold text-slate-500 uppercase">Active</p><p class="text-2xl font-bold text-slate-900">{{ props.activeUsersCount }}</p></div>
                     <CheckCircle2 class="h-8 w-8 text-sky-500 opacity-40" />
                 </div>
                 <div class="flex items-center justify-between rounded-lg border-l-4 border-indigo-500 bg-white p-5 shadow-lg">
-                    <div><p class="text-xs font-bold text-slate-500 uppercase">Admins</p><p class="text-2xl font-bold">{{ props.adminUsersCount }}</p></div>
+                    <div><p class="text-xs font-bold text-slate-500 uppercase">Admins</p><p class="text-2xl font-bold text-slate-900">{{ props.adminUsersCount }}</p></div>
                     <ShieldCheck class="h-8 w-8 text-indigo-500 opacity-40" />
                 </div>
                 <div class="flex items-center justify-between rounded-lg border-l-4 border-purple-500 bg-white p-5 shadow-lg">
-                    <div><p class="text-xs font-bold text-slate-500 uppercase">New/Month</p><p class="text-2xl font-bold">{{ props.newUsersThisMonth }}</p></div>
+                    <div><p class="text-xs font-bold text-slate-500 uppercase">New/Month</p><p class="text-2xl font-bold text-slate-900">{{ props.newUsersThisMonth }}</p></div>
                     <UserPlus class="h-8 w-8 text-purple-500 opacity-40" />
                 </div>
             </div>
 
+            <!-- Table Section -->
             <div class="p-8">
                 <div class="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
                     <table class="w-full divide-y divide-slate-200">
@@ -244,12 +242,12 @@ const deleteUser = (user) => {
                                 <th class="px-6 py-4 text-center text-xs font-bold text-slate-500 uppercase">Actions</th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-slate-200">
-                            <tr v-for="user in usersData" :key="user.id" class="hover:bg-slate-50">
+                        <tbody class="divide-y divide-slate-200 bg-white">
+                            <tr v-for="user in usersData" :key="user.id" class="hover:bg-slate-50 transition-colors">
                                 <td class="px-6 py-4">
                                     <div class="flex items-center">
-                                        <div class="h-9 w-9 rounded-full bg-slate-200 flex items-center justify-center">
-                                            <UserCircle class="h-5 w-5 text-slate-500" />
+                                        <div class="h-9 w-9 rounded-full bg-slate-100 flex items-center justify-center">
+                                            <UserCircle class="h-5 w-5 text-slate-400" />
                                         </div>
                                         <div class="ml-3">
                                             <div class="text-sm font-bold text-slate-900">{{ user.name }}</div>
@@ -283,13 +281,14 @@ const deleteUser = (user) => {
                         </tbody>
                     </table>
 
-                    <div v-if="props.users.links.length > 3" class="flex items-center justify-between px-6 py-4 bg-slate-50 border-t">
+                    <!-- Pagination -->
+                    <div v-if="props.users.links.length > 3" class="flex items-center justify-between px-6 py-4 bg-slate-50 border-t border-slate-200">
                         <div class="text-sm text-slate-500">
                             Showing <span class="font-bold text-slate-900">{{ props.users.from }}</span> to 
                             <span class="font-bold text-slate-900">{{ props.users.to }}</span> of 
                             <span class="font-bold text-slate-900">{{ props.users.total }}</span>
                         </div>
-                        <nav class="flex rounded-md shadow-sm bg-white border divide-x">
+                        <nav class="flex rounded-md shadow-sm bg-white border border-slate-200 divide-x divide-slate-200">
                             <button v-for="(link, k) in filteredLinks" :key="k" 
                                 @click="paginate(link.url)" 
                                 :disabled="!link.url || link.active"
@@ -306,12 +305,14 @@ const deleteUser = (user) => {
             </div>
         </main>
     </div>
- <transition name="modal-fade">
+
+    <!-- User Details Modal -->
+    <transition name="modal-fade">
         <div v-if="isModalOpen && selectedUser" class="fixed inset-0 z-[60] flex items-center justify-center bg-slate-900/50 p-4 backdrop-blur-sm">
             <div class="relative max-h-[90vh] w-full max-w-2xl scale-100 transform overflow-y-auto rounded-2xl border border-slate-100 bg-white shadow-2xl transition-all">
-                <div class="sticky top-0 z-10 flex items-start justify-between border-b bg-white/95 px-8 py-6 backdrop-blur-md">
+                <div class="sticky top-0 z-10 flex items-start justify-between border-b border-slate-100 bg-white/95 px-8 py-6 backdrop-blur-md">
                     <div class="flex items-center gap-4">
-                        <div class="h-16 w-16 overflow-hidden rounded-full border-2 border-emerald-100 shadow-sm">
+                        <div class="h-16 w-16 overflow-hidden rounded-full border-2 border-emerald-100 bg-white shadow-sm">
                             <img v-if="selectedUser.profile_photo" :src="`/storage/${selectedUser.profile_photo}`" class="h-full w-full object-cover" />
                             <div v-else class="flex h-full w-full items-center justify-center bg-slate-100 text-slate-400">
                                 <UserCircle class="h-8 w-8" />
@@ -327,7 +328,7 @@ const deleteUser = (user) => {
                     </button>
                 </div>
 
-                <div class="space-y-8 p-8">
+                <div class="space-y-8 p-8 bg-white">
                     <div class="rounded-xl border border-emerald-100 bg-emerald-50/30 p-5">
                         <div class="flex items-center gap-3">
                             <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-white shadow-sm">
@@ -381,6 +382,7 @@ const deleteUser = (user) => {
         </div>
     </transition>
 
+    <!-- Confirm Action Modal -->
     <transition name="modal-fade">
         <div v-if="isConfirmModalOpen && confirmAction" class="fixed inset-0 z-[70] flex items-center justify-center bg-slate-900/60 p-4 backdrop-blur-sm">
             <div class="w-full max-w-md overflow-hidden rounded-2xl bg-white shadow-2xl">
@@ -396,17 +398,16 @@ const deleteUser = (user) => {
                         </div>
                     </div>
                 </div>
-                <div class="flex items-center justify-end gap-3 bg-slate-50 px-6 py-4">
+                <div class="flex items-center justify-end gap-3 bg-slate-50 px-6 py-4 border-t border-slate-100">
                     <button @click="closeConfirm" class="rounded-lg px-4 py-2 text-sm font-semibold text-slate-600 transition-colors hover:bg-slate-200">Cancel</button>
-                    <button @click="handleExecuteAction" :class="['rounded-lg px-4 py-2 text-sm font-semibold text-white shadow-sm transition-all active:scale-95', confirmAction.type === 'danger' ? 'bg-red-600 hover:bg-red-700' : confirmAction.type === 'warning' ? 'bg-orange-600 text-white hover:bg-orange-700' : 'bg-emerald-600 hover:bg-emerald-700']">
+                    <button @click="handleExecuteAction" :class="['rounded-lg px-4 py-2 text-sm font-semibold text-white shadow-sm transition-all active:scale-95', confirmAction.type === 'danger' ? 'bg-red-600 hover:bg-red-700' : confirmAction.type === 'warning' ? 'bg-orange-600 hover:bg-orange-700' : 'bg-emerald-600 hover:bg-emerald-700']">
                         Confirm Action
                     </button>
                 </div>
             </div>
         </div>
     </transition>
-    </template>
-
+</template>
     
 <style scoped>
 .modal-fade-enter-active, .modal-fade-leave-active { transition: opacity 0.3s ease; }

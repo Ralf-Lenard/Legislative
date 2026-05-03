@@ -156,14 +156,14 @@ const submit = async () => {
     });
 };
 </script>
-
 <template>
     <Head title="CMS Management" />
-    <div class="flex h-screen bg-slate-50">
+    <div class="flex h-screen bg-slate-50 text-slate-900">
         <AppSidebar />
         <main class="relative flex-1 overflow-auto">
             <FlashMessage />
 
+            <!-- Sticky Header -->
             <div class="sticky top-0 z-20 border-b border-slate-200 bg-white shadow-md">
                 <div class="flex items-center justify-between px-8 py-6">
                     <div>
@@ -191,8 +191,9 @@ const submit = async () => {
 
             <div class="w-full p-8">
                 <form @submit.prevent="submit" class="space-y-8">
+                    <!-- Primary Images Section -->
                     <div class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-                        <div class="flex items-center gap-2 border-b border-slate-100 bg-slate-50/50 px-6 py-4">
+                        <div class="flex items-center gap-2 border-b border-slate-100 bg-slate-50 px-6 py-4">
                             <ImageIcon class="h-5 w-5 text-emerald-600" />
                             <h2 class="font-bold text-slate-800">Primary Images</h2>
                         </div>
@@ -231,6 +232,7 @@ const submit = async () => {
                         </div>
                     </div>
 
+                    <!-- Content Textareas -->
                     <div class="grid grid-cols-1 gap-8 md:grid-cols-2">
                         <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
                             <div class="mb-6 flex items-center gap-2">
@@ -244,7 +246,7 @@ const submit = async () => {
                                         v-model="form.about_us"
                                         rows="6"
                                         placeholder="Enter company description..."
-                                        class="mt-2 min-h-[150px] w-full rounded-xl border-slate-200 bg-slate-50/50 p-4 text-slate-900 transition-all focus:border-emerald-500 focus:bg-white focus:ring-2 focus:ring-emerald-500/20"
+                                        class="mt-2 min-h-[150px] w-full rounded-xl border border-slate-200 bg-slate-50 p-4 text-slate-900 transition-all focus:border-emerald-500 focus:bg-white focus:ring-2 focus:ring-emerald-500/20"
                                     ></textarea>
                                 </div>
                                 <div>
@@ -253,7 +255,7 @@ const submit = async () => {
                                         v-model="form.vice_mayor_message"
                                         rows="6"
                                         placeholder="Enter formal message..."
-                                        class="mt-2 min-h-[150px] w-full rounded-xl border-slate-200 bg-slate-50/50 p-4 text-slate-900 transition-all focus:border-emerald-500 focus:bg-white focus:ring-2 focus:ring-emerald-500/20"
+                                        class="mt-2 min-h-[150px] w-full rounded-xl border border-slate-200 bg-slate-50 p-4 text-slate-900 transition-all focus:border-emerald-500 focus:bg-white focus:ring-2 focus:ring-emerald-500/20"
                                     ></textarea>
                                 </div>
                             </div>
@@ -271,7 +273,7 @@ const submit = async () => {
                                         v-model="form.mission"
                                         rows="6"
                                         placeholder="What is our purpose?"
-                                        class="mt-2 min-h-[150px] w-full rounded-xl border-slate-200 bg-slate-50/50 p-4 text-slate-900 transition-all focus:border-emerald-500 focus:bg-white focus:ring-2 focus:ring-emerald-500/20"
+                                        class="mt-2 min-h-[150px] w-full rounded-xl border border-slate-200 bg-slate-50 p-4 text-slate-900 transition-all focus:border-emerald-500 focus:bg-white focus:ring-2 focus:ring-emerald-500/20"
                                     ></textarea>
                                 </div>
                                 <div>
@@ -280,20 +282,21 @@ const submit = async () => {
                                         v-model="form.vision"
                                         rows="6"
                                         placeholder="What is our future goal?"
-                                        class="mt-2 min-h-[150px] w-full rounded-xl border-slate-200 bg-slate-50/50 p-4 text-slate-900 transition-all focus:border-emerald-500 focus:bg-white focus:ring-2 focus:ring-emerald-500/20"
+                                        class="mt-2 min-h-[150px] w-full rounded-xl border border-slate-200 bg-slate-50 p-4 text-slate-900 transition-all focus:border-emerald-500 focus:bg-white focus:ring-2 focus:ring-emerald-500/20"
                                     ></textarea>
                                 </div>
                             </div>
                         </div>
                     </div>
 
+                    <!-- Image Gallery -->
                     <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
                         <div class="mb-6 flex items-center justify-between">
                             <div class="flex items-center gap-2">
                                 <ImageIcon class="h-5 w-5 text-purple-600" />
                                 <h2 class="font-bold text-slate-800">Image Gallery</h2>
                             </div>
-                            <label class="flex cursor-pointer items-center gap-2 rounded-lg bg-slate-100 px-4 py-2 transition-colors hover:bg-slate-200">
+                            <label class="flex cursor-pointer items-center gap-2 rounded-lg bg-slate-100 px-4 py-2 text-slate-900 transition-colors hover:bg-slate-200">
                                 <Plus class="h-4 w-4" />
                                 <span class="text-sm font-bold">Add Images</span>
                                 <input type="file" multiple class="hidden" @change="handleGalleryChange" />
@@ -301,10 +304,11 @@ const submit = async () => {
                         </div>
 
                         <div class="grid grid-cols-2 gap-4 sm:grid-cols-4 md:grid-cols-6">
+                            <!-- New Gallery Images -->
                             <div
                                 v-for="(file, idx) in form.gallery_images"
                                 :key="'new-' + idx"
-                                class="group relative aspect-square overflow-hidden rounded-xl border-2 border-emerald-400"
+                                class="group relative aspect-square overflow-hidden rounded-xl border-2 border-emerald-400 bg-white"
                             >
                                 <img :src="getFilePreview(file)" class="h-full w-full object-cover" />
                                 <button
@@ -319,6 +323,7 @@ const submit = async () => {
                                 </div>
                             </div>
 
+                            <!-- Existing Gallery Images -->
                             <div
                                 v-for="(img, idx) in props.pageContent?.gallery_images"
                                 :key="'old-' + idx"

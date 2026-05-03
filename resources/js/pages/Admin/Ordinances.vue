@@ -207,11 +207,13 @@ onMounted(() => {
 
 <template>
     <Head title="Ordinances Management" />
-    <div class="flex h-screen bg-slate-50">
+    <!-- Explicitly set light background to prevent system-level dark mode overrides -->
+    <div class="flex h-screen bg-slate-50 text-slate-900">
         <AppSidebar />
         <main class="relative flex-1 overflow-auto">
             <FlashMessage />
 
+            <!-- Header Section -->
             <div class="sticky top-0 z-10 border-b border-slate-200 bg-white shadow-md">
                 <div class="flex items-center justify-between px-8 py-6">
                     <div>
@@ -220,6 +222,7 @@ onMounted(() => {
                     </div>
                 </div>
 
+                <!-- Filters and Actions -->
                 <div class="flex flex-col gap-4 px-8 pb-6">
                     <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                         <div class="flex flex-1 flex-col gap-4 md:flex-row md:items-center md:gap-3">
@@ -230,30 +233,33 @@ onMounted(() => {
                                     @keydown.enter.prevent="handleEnter"
                                     type="text"
                                     placeholder="Search by ordinance number or title..."
-                                    class="w-full rounded-lg border border-slate-300 py-2.5 pr-4 pl-10 shadow-sm transition-all focus:border-transparent focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+                                    class="w-full h-11 rounded-xl border border-slate-300 
+                                        pl-10 pr-4 bg-white text-slate-900
+                                        focus:ring-2 focus:ring-emerald-500 
+                                        focus:outline-none transition"
                                 />
                             </div>
 
                             <div class="relative w-full md:w-48">
                                 <select v-model="year"
                                     @change="applyFilters"
-                                    class="w-full rounded-lg border border-slate-300 
-                                            px-4 pr-10 py-2.5 outline-none
-                                            focus:ring-2 focus:ring-emerald-500
-                                            appearance-none bg-white">
+                                    class="w-full h-11 rounded-xl border border-slate-300 
+                                    px-4 pr-10 bg-white text-slate-700
+                                    focus:ring-2 focus:ring-emerald-500 
+                                    focus:outline-none appearance-none transition">
                                     <option value="">All Years</option>
                                     <option v-for="y in yearsList" :key="y" :value="y">{{ y }}</option>
                                 </select>
                                 <div class="absolute inset-y-0 right-3 flex items-center pointer-events-none">
                                     <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
                                     </svg>
                                 </div>
                             </div>
 
                             <button v-if="search || year"
                                 @click="clearFilters"
-                                class="flex items-center gap-2 rounded-lg border border-slate-300 px-4 py-2.5 font-medium text-slate-700 shadow-sm transition-all hover:bg-slate-50">
+                                class="flex items-center gap-2 rounded-lg border border-slate-300 px-4 py-2.5 font-medium text-slate-700 bg-white shadow-sm transition-all hover:bg-slate-50">
                                 <X class="h-4 w-4"/> Clear
                             </button>
                         </div>
@@ -266,25 +272,27 @@ onMounted(() => {
                 </div>
             </div>
 
+            <!-- Stats Cards -->
             <div class="grid grid-cols-1 gap-6 px-8 pt-8 sm:grid-cols-2 lg:grid-cols-4">
                 <div class="rounded-lg border-l-4 border-emerald-500 bg-white p-5 shadow-lg flex justify-between items-center">
-                    <div><p class="text-sm font-medium text-slate-500">Total</p><p class="text-3xl font-bold">{{ page.props.totalOrdinances }}</p></div>
+                    <div><p class="text-sm font-medium text-slate-500">Total</p><p class="text-3xl font-bold text-slate-900">{{ page.props.totalOrdinances }}</p></div>
                     <FileText class="h-8 w-8 text-emerald-500 opacity-60"/>
                 </div>
                 <div class="rounded-lg border-l-4 border-sky-500 bg-white p-5 shadow-lg flex justify-between items-center">
-                    <div><p class="text-sm font-medium text-slate-500">In {{ yearsList[0] || 'N/A' }}</p><p class="text-3xl font-bold">{{ page.props.latestYearOrdinancesCount }}</p></div>
+                    <div><p class="text-sm font-medium text-slate-500">In {{ yearsList[0] || 'N/A' }}</p><p class="text-3xl font-bold text-slate-900">{{ page.props.latestYearOrdinancesCount }}</p></div>
                     <FileText class="h-8 w-8 text-sky-500 opacity-60"/>
                 </div>
                 <div class="rounded-lg border-l-4 border-indigo-500 bg-white p-5 shadow-lg flex justify-between items-center">
-                    <div><p class="text-sm font-medium text-slate-500">PDFs</p><p class="text-3xl font-bold">{{ page.props.ordinancesWithPdfCount }}</p></div>
+                    <div><p class="text-sm font-medium text-slate-500">PDFs</p><p class="text-3xl font-bold text-slate-900">{{ page.props.ordinancesWithPdfCount }}</p></div>
                     <FileText class="h-8 w-8 text-indigo-500 opacity-60"/>
                 </div>
                 <div class="rounded-lg border-l-4 border-purple-500 bg-white p-5 shadow-lg flex justify-between items-center">
-                    <div><p class="text-sm font-medium text-slate-500">With Image</p><p class="text-3xl font-bold">{{ page.props.ordinancesWithImageCount }}</p></div>
+                    <div><p class="text-sm font-medium text-slate-500">With Image</p><p class="text-3xl font-bold text-slate-900">{{ page.props.ordinancesWithImageCount }}</p></div>
                     <Image class="h-8 w-8 text-purple-500 opacity-60"/>
                 </div>
             </div>
 
+            <!-- Table Section -->
             <div class="p-8">
                 <div class="overflow-hidden rounded-lg border border-slate-100 bg-white shadow-lg">
                     <div v-if="ordinancesList.length === 0" class="py-16 text-center">
@@ -306,15 +314,15 @@ onMounted(() => {
                                 <th class="px-6 py-4 text-center text-xs font-bold text-slate-700 uppercase">Actions</th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-slate-200">
-                            <tr v-for="(ordinance, index) in ordinancesList" :key="ordinance.id" class="hover:bg-emerald-50/50">
-                                <td class="px-6 py-4 text-sm">{{ (page.props.ordinances?.from || 1) + index }}</td>
-                                <td class="px-6 py-4 text-sm font-semibold">{{ ordinance.ordinance_number }}</td>
-                                <td class="px-6 py-4 text-sm">
+                        <tbody class="divide-y divide-slate-200 bg-white">
+                            <tr v-for="(ordinance, index) in ordinancesList" :key="ordinance.id" class="hover:bg-emerald-50/50 transition-colors">
+                                <td class="px-6 py-4 text-sm text-slate-600">{{ (page.props.ordinances?.from || 1) + index }}</td>
+                                <td class="px-6 py-4 text-sm font-semibold text-slate-900">{{ ordinance.ordinance_number }}</td>
+                                <td class="px-6 py-4 text-sm text-slate-900">
                                     <div class="line-clamp-1">{{ ordinance.title_ordinances }}</div>
                                     <a v-if="ordinance.file_path_ordinances" :href="`/storage/${ordinance.file_path_ordinances}`" target="_blank" class="text-xs text-emerald-600 hover:underline">View PDF</a>
                                 </td>
-                                <td class="px-6 py-4 text-sm">
+                                <td class="px-6 py-4 text-sm text-slate-600">
                                     <p :ref="el => descRefs[ordinance.id] = (el as HTMLElement)" :class="showFullDesc === ordinance.id ? '' : 'line-clamp-2'">
                                         {{ ordinance.description_ordinances }}
                                     </p>
@@ -322,18 +330,19 @@ onMounted(() => {
                                         {{ showFullDesc === ordinance.id ? 'Show Less' : 'Show More' }}
                                     </button>
                                 </td>
-                                <td class="px-6 py-4 text-sm">{{ formatDate(ordinance.date_approved_ordinances) }}</td>
+                                <td class="px-6 py-4 text-sm text-slate-600">{{ formatDate(ordinance.date_approved_ordinances) }}</td>
                                 <td class="px-6 py-4 text-center">
                                     <div class="flex justify-center gap-2">
-                                        <button @click="openViewModal(ordinance)" class="p-2 bg-emerald-50 text-emerald-600 rounded-full hover:bg-emerald-100"><Eye class="h-4 w-4"/></button>
-                                        <button @click="openModal(ordinance)" class="p-2 bg-sky-50 text-sky-600 rounded-full hover:bg-sky-100"><Edit class="h-4 w-4"/></button>
-                                        <button @click="openDeleteDialog(ordinance)" class="p-2 bg-red-50 text-red-600 rounded-full hover:bg-red-100"><Trash2 class="h-4 w-4"/></button>
+                                        <button @click="openViewModal(ordinance)" class="p-2 bg-emerald-50 text-emerald-600 rounded-full hover:bg-emerald-100 transition-colors"><Eye class="h-4 w-4"/></button>
+                                        <button @click="openModal(ordinance)" class="p-2 bg-sky-50 text-sky-600 rounded-full hover:bg-sky-100 transition-colors"><Edit class="h-4 w-4"/></button>
+                                        <button @click="openDeleteDialog(ordinance)" class="p-2 bg-red-50 text-red-600 rounded-full hover:bg-red-100 transition-colors"><Trash2 class="h-4 w-4"/></button>
                                     </div>
                                 </td>
                             </tr>
                         </tbody>
                     </table>
 
+                    <!-- Pagination -->
                     <div v-if="page.props.ordinances.links.length > 3" 
                          class="flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-slate-200 bg-slate-50 px-6 py-4">
                         
@@ -345,12 +354,10 @@ onMounted(() => {
 
                         <nav class="inline-flex -space-x-px rounded-lg bg-white shadow-sm border border-slate-200" aria-label="Pagination">
                             <template v-for="(link, key) in filteredLinks" :key="key">
-                                
                                 <div v-if="link.label === '...'" 
-                                     class="relative inline-flex items-center px-3 py-2 text-slate-400">
+                                     class="relative inline-flex items-center px-3 py-2 text-slate-400 bg-white">
                                     <MoreHorizontal class="h-4 w-4" />
                                 </div>
-
                                 <button
                                     v-else
                                     :disabled="!link.url || link.active"
@@ -358,8 +365,8 @@ onMounted(() => {
                                     class="relative inline-flex items-center justify-center min-w-[40px] h-10 px-3 text-sm font-semibold transition-all first:rounded-l-lg last:rounded-r-lg"
                                     :class="[
                                         link.active 
-                                            ? 'z-10 bg-emerald-600 text-white' 
-                                            : 'text-slate-500 hover:bg-slate-50 hover:text-emerald-600',
+                                            ? 'z-10 bg-emerald-600 text-white border-emerald-600' 
+                                            : 'bg-white text-slate-500 hover:bg-slate-50 hover:text-emerald-600',
                                         !link.url ? 'opacity-30 cursor-not-allowed' : 'cursor-pointer',
                                         key !== 0 ? 'border-l border-slate-200' : ''
                                     ]"
@@ -368,19 +375,19 @@ onMounted(() => {
                                     <ChevronRight v-else-if="link.label.includes('Next')" class="h-4 w-4" />
                                     <span v-else>{{ link.label }}</span>
                                 </button>
-
                             </template>
                         </nav>
                     </div>
-                    
                 </div>
             </div>
 
+            <!-- Modals -->
             <OrdinanceModal v-model:isOpen="isModalOpen" :ordinance="editingOrdinance" @close="isModalOpen = false"/>
             <DeleteModal :is-open="isDeleteDialogOpen" :ordinance="deletingOrdinance" @close="isDeleteDialogOpen = false"/>
             <ViewModal :is-open="isViewOpen" :ordinance="selectedOrdinance" @close="isViewOpen = false" />
             
-            <div v-if="isImageViewerOpen" class="fixed inset-0 z-[9999] flex items-center justify-center bg-black/70 p-4" @click.self="closeImageViewer">
+            <!-- Image Viewer Overlay -->
+            <div v-if="isImageViewerOpen" class="fixed inset-0 z-[9999] flex items-center justify-center bg-black/80 p-4" @click.self="closeImageViewer">
                 <div class="relative max-w-3xl w-full">
                     <img :src="viewerImageSrc" class="mx-auto max-h-[80vh] rounded-lg shadow-2xl"/>
                 </div>

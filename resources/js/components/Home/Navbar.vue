@@ -4,8 +4,8 @@
       <div class="flex justify-between items-center h-16 md:h-20">
 
         <div class="flex items-center gap-3 cursor-pointer group" @click="goToHome">
-          <div class="w-9 h-9 md:w-11 md:h-11 rounded-xl overflow-hidden shadow-md group-hover:scale-105 transition-transform shrink-0">
-            <img src="/images/logo.jpg" alt="Logo" class="w-full h-full object-cover" />
+         <div class="w-9 h-9 md:w-11 md:h-11 rounded-full overflow-hidden shadow-md group-hover:scale-105 transition-transform shrink-0">
+              <img src="/images/logo.jpg" alt="Logo" class="w-full h-full object-cover" />
           </div>
           <div class="flex flex-col justify-center leading-tight">
             <h1 class="text-base md:text-lg font-extrabold text-gray-900 tracking-tight">

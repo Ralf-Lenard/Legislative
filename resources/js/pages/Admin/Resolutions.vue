@@ -215,11 +215,13 @@ onMounted(() => {
 
 <template>
     <Head title="Resolutions Management" />
-    <div class="flex h-screen bg-slate-50">
+    <!-- Explicit light background and text for the entire container -->
+    <div class="flex h-screen bg-slate-50 text-slate-900">
         <AppSidebar />
         <main class="relative flex-1 overflow-auto">
             <FlashMessage />
 
+            <!-- Header Section -->
             <div class="sticky top-0 z-40 border-b border-slate-200 bg-white shadow-md">
                 <div class="flex items-center justify-between px-8 py-6">
                     <div>
@@ -228,6 +230,7 @@ onMounted(() => {
                     </div>
                 </div>
 
+                <!-- Search and Filters Bar -->
                 <div class="flex flex-col gap-4 px-8 pb-6">
                     <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                         <div class="flex flex-1 flex-col gap-4 md:flex-row md:items-center md:gap-3">
@@ -237,29 +240,26 @@ onMounted(() => {
                                     @keydown.enter.prevent="handleEnter"
                                     type="text"
                                     placeholder="Search by resolution number, title, or author..."
-                                    class="w-full rounded-lg border border-slate-300 py-2.5 pr-4 pl-10 shadow-sm transition-all focus:border-transparent focus:ring-2 focus:ring-emerald-500 focus:outline-none"/>
+                                    class="w-full rounded-lg border border-slate-300 bg-white text-slate-900 py-2.5 pr-4 pl-10 shadow-sm transition-all focus:border-transparent focus:ring-2 focus:ring-emerald-500 focus:outline-none"/>
                             </div>
 
                             <div class="relative w-full md:w-48">
                                 <select v-model="year"
                                     @change="applyFilters"
-                                    class="w-full rounded-lg border border-slate-300 
-                                            px-4 pr-10 py-2.5 outline-none
-                                            focus:ring-2 focus:ring-emerald-500
-                                            appearance-none bg-white">
+                                    class="w-full rounded-lg border border-slate-300 py-2.5 px-4 pr-10 outline-none focus:ring-2 focus:ring-emerald-500 appearance-none bg-white text-slate-700">
                                     <option value="">All Years</option>
                                     <option v-for="y in yearsList" :key="y" :value="y">{{ y }}</option>
                                 </select>
                                 <div class="absolute inset-y-0 right-3 flex items-center pointer-events-none">
                                     <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
                                     </svg>
                                 </div>
                             </div>
 
                             <button v-if="search || year"
                                 @click="clearFilters"
-                                class="flex items-center gap-2 rounded-lg border border-slate-300 px-4 py-2.5 font-medium text-slate-700 shadow-sm transition-all hover:bg-slate-50">
+                                class="flex items-center gap-2 rounded-lg border border-slate-300 bg-white px-4 py-2.5 font-medium text-slate-700 shadow-sm transition-all hover:bg-slate-50">
                                 <X class="h-4 w-4"/> Clear
                             </button>
                         </div>
@@ -272,6 +272,7 @@ onMounted(() => {
                 </div>
             </div>
 
+            <!-- Stats Grid -->
             <div class="grid grid-cols-1 gap-6 px-8 pt-8 sm:grid-cols-2 lg:grid-cols-4">
                 <div class="flex items-center justify-between rounded-lg border-l-4 border-emerald-500 bg-white p-5 shadow-lg">
                     <div><p class="text-sm font-medium text-slate-500">Total Resolutions</p><p class="mt-2 text-3xl font-bold text-slate-900">{{ page.props.totalResolutions }}</p></div>
@@ -291,6 +292,7 @@ onMounted(() => {
                 </div>
             </div>
 
+            <!-- Table Container -->
             <div class="p-8">
                 <div class="overflow-hidden rounded-lg border border-slate-100 bg-white shadow-lg">
                     <div v-if="resolutionsList.length === 0" class="py-16 text-center">
@@ -312,12 +314,12 @@ onMounted(() => {
                                 <th class="px-6 py-4 text-center text-xs font-bold text-slate-700 uppercase">Actions</th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-slate-200">
+                        <tbody class="divide-y divide-slate-200 bg-white">
                             <tr v-for="(resolution, index) in resolutionsList" :key="resolution.id" class="transition-colors hover:bg-emerald-50/50">
                                 <td class="px-6 py-4 text-sm font-medium text-slate-600">{{ (paginationMeta?.from || 1) + index }}</td>
                                 <td class="px-6 py-4 text-sm font-semibold text-slate-900">{{ resolution.resolutions_number }}</td>
                                 <td class="px-6 py-4 text-sm text-slate-700">
-                                    <div class="line-clamp-1">{{ resolution.title_resolutions }}</div>
+                                    <div class="line-clamp-1 font-medium text-slate-900">{{ resolution.title_resolutions }}</div>
                                     <a v-if="resolution.file_path_resolutions" :href="`/storage/${resolution.file_path_resolutions}`" target="_blank" class="mt-1 flex items-center gap-1 text-xs text-emerald-600 hover:underline">
                                         <FileText class="h-3 w-3"/> View PDF
                                     </a>
@@ -333,15 +335,16 @@ onMounted(() => {
                                 <td class="px-6 py-4 text-sm text-slate-600">{{ formatDate(resolution.date_approved_resolutions) }}</td>
                                 <td class="px-6 py-4 text-center">
                                     <div class="flex items-center justify-center gap-2">
-                                        <button @click="openViewModal(resolution)" class="h-8 w-8 flex items-center justify-center rounded-full bg-emerald-50 text-emerald-600 hover:bg-emerald-100"><Eye class="h-4 w-4"/></button>
-                                        <button @click="openModal(resolution)" class="h-8 w-8 flex items-center justify-center rounded-full bg-sky-50 text-sky-600 hover:bg-sky-100"><Edit class="h-4 w-4"/></button>
-                                        <button @click="openDeleteDialog(resolution)" class="h-8 w-8 flex items-center justify-center rounded-full bg-red-50 text-red-600 hover:bg-red-100"><Trash2 class="h-4 w-4"/></button>
+                                        <button @click="openViewModal(resolution)" class="h-8 w-8 flex items-center justify-center rounded-full bg-emerald-50 text-emerald-600 hover:bg-emerald-100 transition-colors"><Eye class="h-4 w-4"/></button>
+                                        <button @click="openModal(resolution)" class="h-8 w-8 flex items-center justify-center rounded-full bg-sky-50 text-sky-600 hover:bg-sky-100 transition-colors"><Edit class="h-4 w-4"/></button>
+                                        <button @click="openDeleteDialog(resolution)" class="h-8 w-8 flex items-center justify-center rounded-full bg-red-50 text-red-600 hover:bg-red-100 transition-colors"><Trash2 class="h-4 w-4"/></button>
                                     </div>
                                 </td>
                             </tr>
                         </tbody>
                     </table>
 
+                    <!-- Pagination -->
                     <div v-if="page.props.resolutions.links.length > 3" 
                          class="flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-slate-200 bg-slate-50 px-6 py-4">
                         
@@ -353,12 +356,10 @@ onMounted(() => {
 
                         <nav class="inline-flex -space-x-px rounded-lg bg-white shadow-sm border border-slate-200" aria-label="Pagination">
                             <template v-for="(link, key) in filteredLinks" :key="key">
-                                
                                 <div v-if="link.label === '...'" 
-                                     class="relative inline-flex items-center px-3 py-2 text-slate-400">
+                                     class="relative inline-flex items-center px-3 py-2 text-slate-400 bg-white">
                                     <MoreHorizontal class="h-4 w-4" />
                                 </div>
-
                                 <button
                                     v-else
                                     :disabled="!link.url || link.active"
@@ -366,8 +367,8 @@ onMounted(() => {
                                     class="relative inline-flex items-center justify-center min-w-[40px] h-10 px-3 text-sm font-semibold transition-all first:rounded-l-lg last:rounded-r-lg"
                                     :class="[
                                         link.active 
-                                            ? 'z-10 bg-emerald-600 text-white' 
-                                            : 'text-slate-500 hover:bg-slate-50 hover:text-emerald-600',
+                                            ? 'z-10 bg-emerald-600 text-white border-emerald-600' 
+                                            : 'bg-white text-slate-500 hover:bg-slate-50 hover:text-emerald-600',
                                         !link.url ? 'opacity-30 cursor-not-allowed' : 'cursor-pointer',
                                         key !== 0 ? 'border-l border-slate-200' : ''
                                     ]"
@@ -376,23 +377,24 @@ onMounted(() => {
                                     <ChevronRight v-else-if="link.label.includes('Next')" class="h-4 w-4" />
                                     <span v-else>{{ link.label }}</span>
                                 </button>
-
                             </template>
                         </nav>
                     </div>
                 </div>
             </div>
 
+            <!-- Modal Components -->
             <ResolutionModal v-model:isOpen="isModalOpen" :resolution="editingResolution" @close="isModalOpen = false"/>
             <DeleteModal :is-open="isDeleteDialogOpen" :resolution="deletingResolution" @close="isDeleteDialogOpen = false"/>
             <ViewModal :is-open="isViewOpen" :resolution="selectedResolution" @close="isViewOpen = false" />
 
+            <!-- Image Viewer Overlay -->
             <div v-if="isImageViewerOpen" class="fixed inset-0 z-[9999] flex items-center justify-center bg-black/70 backdrop-blur-sm p-4" @click.self="closeImageViewer">
                 <div class="relative max-w-3xl w-full">
-                    <button @click="closeImageViewer" class="absolute -top-3 -right-3 z-50 rounded-full bg-white p-2 shadow-lg hover:bg-slate-100">
+                    <button @click="closeImageViewer" class="absolute -top-3 -right-3 z-50 rounded-full bg-white p-2 shadow-lg hover:bg-slate-100 transition-colors">
                         <X class="h-5 w-5 text-slate-700" />
                     </button>
-                    <img :src="viewerImageSrc" class="mx-auto max-h-[80vh] rounded-lg shadow-2xl object-contain"/>
+                    <img :src="viewerImageSrc" class="mx-auto max-h-[80vh] rounded-lg shadow-2xl object-contain bg-white"/>
                 </div>
             </div>
         </main>

@@ -395,42 +395,48 @@
             <div class="mx-auto max-w-7xl">
                 <div class="grid grid-cols-1 gap-12 lg:grid-cols-2">
                     
-                    <div class="rounded-3xl border border-gray-100 bg-white p-8 shadow-xl md:p-12">
-                        <div class="mb-8">
-                            <span class="inline-block rounded-full bg-green-100 px-4 py-2 text-[10px] font-bold tracking-widest text-green-900 uppercase">
-                                Public Consultation
-                            </span>
-                            <h2 class="mt-4 text-3xl font-black text-gray-900 md:text-4xl">Submit Feedback</h2>
-                            <p class="mt-2 text-gray-600">Share your suggestions, concerns, or commendations regarding municipal services.</p>
+                   <div class="rounded-3xl border border-gray-100 bg-white p-8 shadow-xl md:p-12 text-gray-900">
+                    <div class="mb-8">
+                        <span class="inline-block rounded-full bg-green-100 px-4 py-2 text-[10px] font-bold tracking-widest text-green-900 uppercase">
+                            Public Consultation
+                        </span>
+                        <h2 class="mt-4 text-3xl font-black md:text-4xl">Submit Feedback</h2>
+                        <p class="mt-2 text-gray-600">
+                            Share your suggestions, concerns, or commendations regarding municipal services.
+                        </p>
+                    </div>
+
+                    <form @submit.prevent="submitFeedback" class="space-y-6">
+                        <div>
+                            <label class="block text-xs font-bold uppercase text-gray-500 mb-2 ml-1">
+                                Feedback Category
+                            </label>
+                            <select v-model="feedbackForm.category" required
+                                class="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-4 text-sm focus:border-green-800 focus:bg-white focus:ring-0">
+                                <option value="" disabled>Select a category</option>
+                                <option value="suggestion">Legislative Suggestion</option>
+                                <option value="concern">Community Concern</option>
+                                <option value="commendation">Commendation</option>
+                                <option value="other">Others</option>
+                            </select>
                         </div>
 
-                        <form @submit.prevent="submitFeedback" class="space-y-6">
-                            <div>
-                                <label class="block text-xs font-bold uppercase text-gray-500 mb-2 ml-1">Feedback Category</label>
-                                <select v-model="feedbackForm.category" required
-                                    class="w-full rounded-xl border-gray-200 bg-gray-50 px-4 py-4 text-sm transition focus:border-green-800 focus:bg-white focus:ring-0">
-                                    <option value="" disabled>Select a category</option>
-                                    <option value="suggestion">Legislative Suggestion</option>
-                                    <option value="concern">Community Concern</option>
-                                    <option value="commendation">Commendation</option>
-                                    <option value="other">Others</option>
-                                </select>
-                            </div>
+                        <div>
+                            <label class="block text-xs font-bold uppercase text-gray-500 mb-2 ml-1">
+                                Your Message
+                            </label>
+                            <textarea v-model="feedbackForm.message" rows="6" required
+                                class="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-4 text-sm focus:border-green-800 focus:bg-white focus:ring-0"
+                                placeholder="Please provide as much detail as possible to help us take action..."></textarea>
+                        </div>
 
-                            <div>
-                                <label class="block text-xs font-bold uppercase text-gray-500 mb-2 ml-1">Your Message</label>
-                                <textarea v-model="feedbackForm.message" rows="6" required
-                                    class="w-full rounded-xl border-gray-200 bg-gray-50 px-4 py-4 text-sm transition focus:border-green-800 focus:bg-white focus:ring-0" 
-                                    placeholder="Please provide as much detail as possible to help us take action..."></textarea>
-                            </div>
-
-                            <button type="submit" 
-                                class="group flex w-full items-center justify-center gap-3 rounded-xl bg-green-800 py-4 font-bold text-white shadow-lg transition-all hover:bg-green-900 active:scale-95">
-                                Submit Feedback
-                                <span class="transition-transform group-hover:translate-x-1">📩</span>
-                            </button>
-                        </form>
-                    </div>
+                        <button type="submit"
+                            class="group flex w-full items-center justify-center gap-3 rounded-xl bg-green-800 py-4 font-bold text-white shadow-lg transition-all hover:bg-green-900 active:scale-95">
+                            Submit Feedback
+                            <span class="transition-transform group-hover:translate-x-1">📩</span>
+                        </button>
+                    </form>
+                </div>
 
                     <div class="flex flex-col justify-center space-y-8">
                         <div class="relative overflow-hidden rounded-3xl bg-green-900 p-8 text-white md:p-12">

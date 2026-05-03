@@ -177,6 +177,7 @@ onMounted(() => {
         <main class="relative flex-1 overflow-auto">
             <FlashMessage />
 
+            <!-- Header and Filter Section -->
             <div class="sticky top-0 z-40 border-b border-slate-200 bg-white shadow-md">
                 <div class="flex items-center justify-between px-8 py-6">
                     <div>
@@ -195,7 +196,7 @@ onMounted(() => {
                                     type="text"
                                     placeholder="Search title or author..."
                                     @keydown.enter.prevent="handleEnter"
-                                    class="w-full rounded-xl border border-slate-300 py-2.5 pr-4 pl-10 shadow-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+                                    class="w-full rounded-xl border border-slate-300 bg-white py-2.5 pr-4 pl-10 text-slate-900 shadow-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none"
                                 />
                             </div>
 
@@ -203,7 +204,7 @@ onMounted(() => {
                                 <select 
                                     v-model="categoryFilter"
                                     class="w-full rounded-lg border border-slate-300 
-                                            px-4 pr-10 py-2.5 outline-none
+                                            px-4 pr-10 py-2.5 outline-none text-slate-900
                                             focus:ring-2 focus:ring-emerald-500
                                             appearance-none bg-white">
                                     <option value="">All Categories</option>
@@ -213,14 +214,14 @@ onMounted(() => {
                                 </select>
                                 <div class="absolute inset-y-0 right-3 flex items-center pointer-events-none">
                                     <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
                                     </svg>
                                 </div>
                             </div>
 
                             <button v-if="search || categoryFilter"
                                 @click="clearFilters"
-                                class="flex items-center gap-2 rounded-xl border border-slate-300 px-4 py-2.5 font-medium text-slate-700 shadow-sm transition-all hover:bg-slate-50">
+                                class="flex items-center gap-2 rounded-xl border border-slate-300 bg-white px-4 py-2.5 font-medium text-slate-700 shadow-sm transition-all hover:bg-slate-50">
                                 <X class="h-4 w-4"/> Clear
                             </button>
                         </div>
@@ -233,6 +234,7 @@ onMounted(() => {
                 </div>
             </div>
 
+            <!-- Stats Grid -->
             <div class="grid grid-cols-1 gap-6 px-8 pt-8 sm:grid-cols-2 lg:grid-cols-3">
                 <div class="flex items-center justify-between rounded-xl border-l-4 border-indigo-500 bg-white p-5 shadow-lg">
                     <div>
@@ -265,6 +267,7 @@ onMounted(() => {
                 </div>
             </div>
 
+            <!-- Table Section -->
             <div class="p-8">
                 <div class="overflow-x-auto rounded-xl border border-slate-100 bg-white shadow-lg">
                     <div v-if="booksList.length === 0" class="py-16 text-center">
@@ -321,6 +324,7 @@ onMounted(() => {
                         </tbody>
                     </table>
 
+                    <!-- Pagination -->
                     <div v-if="props.books.links.length > 3" 
                          class="flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-slate-200 bg-slate-50 px-6 py-4">
                         
@@ -332,7 +336,6 @@ onMounted(() => {
 
                         <nav class="inline-flex -space-x-px rounded-lg bg-white shadow-sm border border-slate-200" aria-label="Pagination">
                             <template v-for="(link, key) in filteredLinks" :key="key">
-                                
                                 <div v-if="link.label === '...'" 
                                      class="relative inline-flex items-center px-3 py-2 text-slate-400">
                                     <MoreHorizontal class="h-4 w-4" />

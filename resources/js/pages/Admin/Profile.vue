@@ -142,10 +142,9 @@ const updatePassword = () => {
     );
 };
 </script>
-
 <template>
     <Head title="Profile Settings" />
-    <div class="flex h-screen bg-slate-50">
+    <div class="flex h-screen bg-slate-50 text-slate-900">
         <AppSidebar />
 
         <main class="relative flex-1 overflow-auto">
@@ -184,7 +183,7 @@ const updatePassword = () => {
             <div class="grid grid-cols-1 gap-6 p-8 lg:grid-cols-3">
                 <!-- Profile Card -->
                 <div
-                    class="relative col-span-1 rounded-xl bg-white p-6 text-center shadow-lg"
+                    class="relative col-span-1 rounded-xl bg-white p-6 text-center shadow-lg border border-slate-100"
                 >
                     <div
                         class="relative mx-auto h-40 w-40 cursor-pointer"
@@ -245,11 +244,11 @@ const updatePassword = () => {
 
                 <!-- Profile Form -->
                 <div class="col-span-2 space-y-6">
-                    <div class="rounded-xl bg-white p-6 shadow-lg">
+                    <div class="rounded-xl bg-white p-6 shadow-lg border border-slate-100">
                         <h2
                             class="mb-6 flex items-center gap-3 text-xl font-bold text-slate-900"
                         >
-                            <User class="h-6 w-6" /> Profile Information
+                            <User class="h-6 w-6 text-emerald-600" /> Profile Information
                         </h2>
                         <form
                             @submit.prevent="updateProfile"
@@ -263,7 +262,7 @@ const updatePassword = () => {
                                 <input
                                     v-model="form.name"
                                     type="text"
-                                    class="w-full rounded-xl border border-slate-200 px-4 py-2 focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+                                    class="w-full rounded-xl border border-slate-200 bg-white px-4 py-2 text-slate-900 focus:ring-2 focus:ring-emerald-500 focus:outline-none"
                                 />
                             </div>
                             <div>
@@ -274,7 +273,7 @@ const updatePassword = () => {
                                 <input
                                     v-model="form.email"
                                     type="email"
-                                    class="w-full rounded-xl border border-slate-200 px-4 py-2 focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+                                    class="w-full rounded-xl border border-slate-200 bg-white px-4 py-2 text-slate-900 focus:ring-2 focus:ring-emerald-500 focus:outline-none"
                                 />
                             </div>
                             <div>
@@ -285,7 +284,7 @@ const updatePassword = () => {
                                 <input
                                     v-model="form.contact_number"
                                     type="text"
-                                    class="w-full rounded-xl border border-slate-200 px-4 py-2 focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+                                    class="w-full rounded-xl border border-slate-200 bg-white px-4 py-2 text-slate-900 focus:ring-2 focus:ring-emerald-500 focus:outline-none"
                                 />
                             </div>
                             <div>
@@ -296,7 +295,7 @@ const updatePassword = () => {
                                 <input
                                     v-model="form.birthdate"
                                     type="date"
-                                    class="w-full rounded-xl border border-slate-200 px-4 py-2 focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+                                    class="w-full rounded-xl border border-slate-200 bg-white px-4 py-2 text-slate-900 focus:ring-2 focus:ring-emerald-500 focus:outline-none"
                                 />
                             </div>
                             <div class="md:col-span-2">
@@ -307,13 +306,13 @@ const updatePassword = () => {
                                 <textarea
                                     v-model="form.address"
                                     rows="2"
-                                    class="w-full resize-none rounded-xl border border-slate-200 px-4 py-2 focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+                                    class="w-full resize-none rounded-xl border border-slate-200 bg-white px-4 py-2 text-slate-900 focus:ring-2 focus:ring-emerald-500 focus:outline-none"
                                 ></textarea>
                             </div>
                             <div class="flex justify-end md:col-span-2">
                                 <button
                                     type="submit"
-                                    class="rounded-xl bg-emerald-600 px-6 py-2 font-bold text-white transition-all hover:bg-emerald-700"
+                                    class="rounded-xl bg-emerald-600 px-6 py-2 font-bold text-white transition-all hover:bg-emerald-700 shadow-md hover:shadow-lg"
                                 >
                                     Save Profile
                                 </button>
@@ -322,11 +321,11 @@ const updatePassword = () => {
                     </div>
 
                     <!-- Password Form -->
-                    <div class="rounded-xl bg-white p-6 shadow-lg">
+                    <div class="rounded-xl bg-white p-6 shadow-lg border border-slate-100">
                         <h2
                             class="mb-6 flex items-center gap-3 text-xl font-bold text-slate-900"
                         >
-                            <Lock class="h-6 w-6" /> Change Password
+                            <Lock class="h-6 w-6 text-slate-700" /> Change Password
                         </h2>
                         <form
                             @submit.prevent="updatePassword"
@@ -340,7 +339,7 @@ const updatePassword = () => {
                                 <input
                                     v-model="passwordForm.current_password"
                                     type="password"
-                                    class="w-full rounded-xl border border-slate-200 px-4 py-2 focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+                                    class="w-full rounded-xl border border-slate-200 bg-white px-4 py-2 text-slate-900 focus:ring-2 focus:ring-emerald-500 focus:outline-none"
                                 />
                             </div>
                             <div>
@@ -351,7 +350,7 @@ const updatePassword = () => {
                                 <input
                                     v-model="passwordForm.password"
                                     type="password"
-                                    class="w-full rounded-xl border border-slate-200 px-4 py-2 focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+                                    class="w-full rounded-xl border border-slate-200 bg-white px-4 py-2 text-slate-900 focus:ring-2 focus:ring-emerald-500 focus:outline-none"
                                 />
                             </div>
                             <div>
@@ -362,13 +361,13 @@ const updatePassword = () => {
                                 <input
                                     v-model="passwordForm.password_confirmation"
                                     type="password"
-                                    class="w-full rounded-xl border border-slate-200 px-4 py-2 focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+                                    class="w-full rounded-xl border border-slate-200 bg-white px-4 py-2 text-slate-900 focus:ring-2 focus:ring-emerald-500 focus:outline-none"
                                 />
                             </div>
                             <div class="flex justify-end md:col-span-2">
                                 <button
                                     type="submit"
-                                    class="rounded-xl bg-slate-900 px-6 py-2 font-bold text-white transition-all hover:bg-slate-800"
+                                    class="rounded-xl bg-slate-900 px-6 py-2 font-bold text-white transition-all hover:bg-slate-800 shadow-md"
                                 >
                                     Update Password
                                 </button>

@@ -5,6 +5,7 @@
 
         <FlashMessage />
 
+        <!-- Hero Section -->
         <section class="relative overflow-hidden bg-gray-50 px-4 pt-28 pb-16">
             <div
                 class="absolute top-0 right-0 h-[400px] w-[400px] rounded-full bg-yellow-400/20 blur-3xl"
@@ -25,10 +26,12 @@
             </div>
         </section>
 
+        <!-- Content Section -->
         <section class="px-4 py-12">
             <div
                 class="mx-auto grid max-w-5xl grid-cols-1 gap-10 lg:grid-cols-3"
             >
+                <!-- Sidebar / Photo -->
                 <div class="space-y-6">
                     <div
                         class="relative overflow-hidden rounded-3xl border border-gray-100 bg-white p-8 text-center shadow-xl"
@@ -191,12 +194,13 @@
                     </div>
                 </div>
 
+                <!-- Forms -->
                 <div class="space-y-8 lg:col-span-2">
                     <div
                         class="rounded-3xl border border-gray-100 bg-white p-8 shadow-lg"
                     >
                         <h2
-                            class="mb-8 flex items-center gap-3 text-2xl font-black"
+                            class="mb-8 flex items-center gap-3 text-2xl font-black text-gray-900"
                         >
                             <span
                                 class="h-8 w-2 rounded-full bg-green-900"
@@ -293,11 +297,12 @@
                         </form>
                     </div>
 
+                    <!-- Security Section -->
                     <div
                         class="rounded-3xl border border-gray-100 bg-white p-8 shadow-lg"
                     >
                         <h2
-                            class="mb-8 flex items-center gap-3 text-2xl font-black text-gray-400"
+                            class="mb-8 flex items-center gap-3 text-2xl font-black text-gray-900"
                         >
                             <span
                                 class="h-8 w-2 rounded-full bg-yellow-400"
@@ -542,7 +547,8 @@ const updatePassword = async () => {
 @reference "tailwindcss";
 
 .input {
-    @apply w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 transition-all outline-none focus:border-green-900 focus:bg-white focus:ring-4 focus:ring-green-900/10;
+    /* Added text-gray-900 to fix the visibility issue */
+    @apply w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-gray-900 transition-all outline-none placeholder:text-gray-400 focus:border-green-900 focus:bg-white focus:ring-4 focus:ring-green-900/10;
 }
 
 .label {

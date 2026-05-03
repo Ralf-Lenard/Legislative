@@ -198,7 +198,6 @@ const submitRejection = () => {
     });
 };
 </script>
-
 <template>
     <Head title="Resolution Requests" />
     <div class="flex h-screen bg-slate-50">
@@ -206,11 +205,13 @@ const submitRejection = () => {
         <main class="relative flex-1 overflow-auto">
             <FlashMessage />
 
+            <!-- Header Section -->
             <div class="sticky top-0 z-40 border-b border-slate-200 bg-white shadow-md">
                 <div class="flex items-center justify-between px-8 py-6">
                     <h1 class="text-3xl font-extrabold text-slate-900">Resolution Requests</h1>
                 </div>
 
+                <!-- Filters -->
                 <div class="flex flex-col gap-4 px-8 pb-6">
                     <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                         <div class="flex flex-1 flex-col gap-4 md:flex-row md:items-center md:gap-3">
@@ -221,7 +222,7 @@ const submitRejection = () => {
                                     @keyup.enter="handleEnter"
                                     type="text"
                                     placeholder="Search by user or resolution..."
-                                    class="w-full rounded-lg border border-slate-300 py-2.5 pr-4 pl-10 shadow-sm transition-all focus:border-transparent focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+                                    class="w-full rounded-lg border border-slate-300 py-2.5 pr-4 pl-10 shadow-sm transition-all focus:border-transparent focus:ring-2 focus:ring-emerald-500 focus:outline-none bg-white text-slate-900"
                                 />
                             </div>
 
@@ -229,17 +230,17 @@ const submitRejection = () => {
                                 <select
                                     v-model="statusFilter"
                                     class="w-full rounded-lg border border-slate-300 
-                                            px-4 pr-10 py-2.5 outline-none
-                                            focus:ring-2 focus:ring-emerald-500
-                                            appearance-none bg-white">
+                                           px-4 pr-10 py-2.5 outline-none
+                                           focus:ring-2 focus:ring-emerald-500
+                                           appearance-none bg-white text-slate-900">
                                     <option value="">All Statuses</option>
                                     <option value="pending">Pending</option>
                                     <option value="approved">Approved</option>
                                     <option value="rejected">Rejected</option>
-                            </select>
+                                </select>
                                 <div class="absolute inset-y-0 right-3 flex items-center pointer-events-none">
                                     <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
                                     </svg>
                                 </div>
                             </div>
@@ -247,7 +248,7 @@ const submitRejection = () => {
                             <button
                                 v-if="search || statusFilter"
                                 @click="clearFilters"
-                                class="flex items-center gap-2 rounded-lg border border-slate-300 px-4 py-2.5 font-medium text-slate-700 hover:bg-slate-50"
+                                class="flex items-center gap-2 rounded-lg border border-slate-300 px-4 py-2.5 font-medium text-slate-700 hover:bg-slate-50 bg-white"
                             >
                                 <X class="h-4 w-4" />
                                 Clear
@@ -257,6 +258,7 @@ const submitRejection = () => {
                 </div>
             </div>
 
+            <!-- Stats Grid -->
             <div class="grid grid-cols-1 gap-6 px-8 pt-8 sm:grid-cols-2 lg:grid-cols-4">
                 <div v-for="(val, label) in stats" :key="label" 
                      class="rounded-lg border-l-4 bg-white p-5 shadow-lg capitalize"
@@ -266,6 +268,7 @@ const submitRejection = () => {
                 </div>
             </div>
 
+            <!-- Table Section -->
             <div class="p-8">
                 <div class="overflow-hidden rounded-lg border border-slate-100 bg-white shadow-lg">
                     <div v-if="requestsList.length === 0" class="py-16 text-center text-slate-600">
@@ -284,8 +287,8 @@ const submitRejection = () => {
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-200">
-                            <tr v-for="(request, index) in requestsList" :key="request.id" class="hover:bg-emerald-50/50">
-                                <td class="px-6 py-4 text-sm">{{ (page.props.requests.from || 1) + index }}</td>
+                            <tr v-for="(request, index) in requestsList" :key="request.id" class="hover:bg-emerald-50/50 transition-colors">
+                                <td class="px-6 py-4 text-sm text-slate-600">{{ (page.props.requests.from || 1) + index }}</td>
                                 <td class="px-6 py-4 text-sm font-medium text-slate-900">{{ request.user.name }}</td>
                                 <td class="px-6 py-4 text-sm text-slate-600">{{ request.resolution.title_resolutions }}</td>
                                 <td class="px-6 py-4 text-sm">
@@ -309,6 +312,7 @@ const submitRejection = () => {
                         </tbody>
                     </table>
 
+                    <!-- Pagination -->
                     <div v-if="page.props.requests.links.length > 3" 
                          class="flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-slate-200 bg-slate-50 px-6 py-4">
                         
@@ -350,13 +354,14 @@ const submitRejection = () => {
         </main>
     </div>
 
+    <!-- Modals (Ensure they stay light themed) -->
     <div v-if="isApproveModalOpen" class="fixed inset-0 z-[9999] flex items-center justify-center p-4">
         <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" @click="isApproveModalOpen = false"></div>
         <div class="relative w-full max-w-md rounded-lg bg-white p-6 shadow-xl" @click.stop>
-            <h2 class="mb-4 text-lg font-semibold">Confirm Approval</h2>
+            <h2 class="mb-4 text-lg font-semibold text-slate-900">Confirm Approval</h2>
             <p class="mb-6 text-sm text-slate-600">Approve request for <strong>{{ approvingRequest?.user.name }}</strong>?</p>
             <div class="flex justify-end gap-3">
-                <button @click="isApproveModalOpen = false" class="rounded-lg bg-slate-100 px-4 py-2 text-slate-700 font-medium">Cancel</button>
+                <button @click="isApproveModalOpen = false" class="rounded-lg bg-slate-100 px-4 py-2 text-slate-700 font-medium hover:bg-slate-200">Cancel</button>
                 <button @click="submitApproval" class="rounded-lg bg-emerald-600 px-4 py-2 font-semibold text-white hover:bg-emerald-700">Yes, Approve</button>
             </div>
         </div>
@@ -365,10 +370,10 @@ const submitRejection = () => {
     <div v-if="isRejectModalOpen" class="fixed inset-0 z-[9999] flex items-center justify-center p-4">
         <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" @click="isRejectModalOpen = false"></div>
         <div class="relative w-full max-w-md rounded-lg bg-white p-6 shadow-xl" @click.stop>
-            <h2 class="mb-4 text-lg font-semibold">Reject Request</h2>
-            <textarea v-model="rejectionReason" rows="4" class="w-full rounded-lg border p-2 focus:ring-2 focus:ring-red-500 focus:outline-none" placeholder="Enter reason for rejection..."></textarea>
+            <h2 class="mb-4 text-lg font-semibold text-slate-900">Reject Request</h2>
+            <textarea v-model="rejectionReason" rows="4" class="w-full rounded-lg border border-slate-300 p-2 focus:ring-2 focus:ring-red-500 focus:outline-none bg-white text-slate-900" placeholder="Enter reason for rejection..."></textarea>
             <div class="mt-4 flex justify-end gap-3">
-                <button @click="isRejectModalOpen = false" class="rounded-lg bg-slate-100 px-4 py-2 font-medium">Cancel</button>
+                <button @click="isRejectModalOpen = false" class="rounded-lg bg-slate-100 px-4 py-2 font-medium text-slate-700 hover:bg-slate-200">Cancel</button>
                 <button @click="submitRejection" class="rounded-lg bg-red-600 px-4 py-2 font-semibold text-white hover:bg-red-700">Reject Request</button>
             </div>
         </div>

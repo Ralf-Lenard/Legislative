@@ -223,14 +223,14 @@ onMounted(() => {
 // Watch year change to auto-trigger like in Ordinance page
 watch(yearFilter, () => applyFilters());
 </script>
-
 <template>
     <Head title="Sessions Management" />
-    <div class="flex h-screen bg-slate-50">
+    <div class="flex h-screen bg-slate-50 text-slate-900">
         <AppSidebar />
         <main class="relative flex-1 overflow-auto">
             <FlashMessage />
 
+            <!-- Header Section -->
             <div class="sticky top-0 z-40 border-b border-slate-200 bg-white shadow-md">
                 <div class="flex items-center justify-between px-8 py-6">
                     <div>
@@ -239,126 +239,146 @@ watch(yearFilter, () => applyFilters());
                     </div>
                 </div>
 
+                <!-- Search and Filters Bar -->
                 <div class="flex flex-col gap-4 px-8 pb-6">
-                    <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-                        <div class="flex flex-1 flex-col gap-4 md:flex-row md:items-center md:gap-3">
-                            <div class="relative max-w-md flex-1">
-                                <Search class="absolute top-1/2 left-3 h-5 w-5 -translate-y-1/2 text-slate-400" />
+                    <div class="flex flex-wrap gap-4 items-center justify-between">
+                        <div class="flex flex-1 flex-wrap gap-3 items-center">
+                            
+                            <!-- Search Input -->
+                            <div class="relative w-full max-w-md">
+                                <Search class="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
                                 <input
                                     v-model="search"
                                     @keydown.enter.prevent="handleEnter"
                                     type="text"
                                     placeholder="Search number, title, or summary..."
-                                    class="w-full rounded-xl border border-slate-300 py-2.5 pr-4 pl-10 shadow-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+                                    class="w-full h-11 rounded-xl border border-slate-300 pl-10 pr-4 bg-white text-slate-900 focus:ring-2 focus:ring-emerald-500 focus:outline-none transition shadow-sm"
                                 />
                             </div>
 
-                            <div class="relative w-full md:w-48">
+                            <!-- Year Filter -->
+                            <div class="relative w-full md:w-44">
                                 <select
                                     v-model="yearFilter"
                                     @change="applyFilters"
-                                    class="w-full rounded-lg border border-slate-300 
-                                            px-4 pr-10 py-2.5 outline-none
-                                            focus:ring-2 focus:ring-emerald-500
-                                            appearance-none bg-white"
+                                    class="w-full h-11 rounded-xl border border-slate-300 px-4 pr-10 bg-white text-slate-700 focus:ring-2 focus:ring-emerald-500 focus:outline-none appearance-none transition shadow-sm font-medium"
                                 >
                                     <option value="">All Years</option>
                                     <option v-for="year in yearsList" :key="year" :value="year">{{ year }}</option>
                                 </select>
-                                <div class="absolute inset-y-0 right-3 flex items-center pointer-events-none">
-                                    <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-                                    </svg>
-                                </div>
+                                <ChevronDown class="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-500 pointer-events-none" />
                             </div>
 
+                            <!-- Clear Button -->
                             <button
                                 v-if="search || yearFilter"
                                 @click="clearFilters"
-                                class="flex items-center gap-2 rounded-xl border border-slate-300 px-4 py-2.5 font-medium text-slate-700 hover:bg-slate-50"
+                                class="flex items-center gap-2 h-11 rounded-xl border border-slate-300 px-4 font-medium text-slate-700 bg-white hover:bg-slate-50 transition shadow-sm"
                             >
                                 <X class="h-4 w-4" /> Clear
                             </button>
                         </div>
 
-                        <button
-                            @click="openModal()"
-                            class="flex items-center gap-2 rounded-xl bg-emerald-600 px-5 py-2.5 font-semibold text-white shadow-lg shadow-emerald-500/30 transition-all hover:bg-emerald-700"
-                        >
-                            <Plus class="h-5 w-5" /> New Session
+                        <!-- Add Action -->
+                        <button @click="openModal()"
+                            class="flex items-center gap-2 rounded-xl bg-emerald-600 px-6 py-2.5 font-bold text-white shadow-lg shadow-emerald-500/30 hover:bg-emerald-700 transition-all active:scale-95">
+                            <Plus class="h-5 w-5"/> New Session
                         </button>
                     </div>
                 </div>
             </div>
 
+            <!-- Stats Grid -->
             <div class="grid grid-cols-1 gap-6 px-8 pt-8 sm:grid-cols-2 lg:grid-cols-3">
-                <div class="flex items-center justify-between rounded-xl border-l-4 border-emerald-500 bg-white p-5 shadow-lg">
+                <!-- Total Card -->
+                <div class="flex items-center justify-between rounded-xl border-l-4 border-emerald-600 bg-white p-5 shadow-lg transition-all">
                     <div>
+                        <p class="text-[10px] font-bold uppercase tracking-wider text-emerald-600">Database</p>
                         <p class="text-sm font-medium text-slate-500">Total Records</p>
-                        <p class="mt-2 text-3xl font-bold text-slate-900">{{ paginationMeta?.total || 0 }}</p>
+                        <p class="mt-1 text-3xl font-bold text-slate-900">{{ paginationMeta?.total || 0 }}</p>
                     </div>
-                    <Layout class="h-8 w-8 text-emerald-500 opacity-60" />
+                    <div class="rounded-full bg-emerald-50 p-2.5 text-emerald-600">
+                        <Layout class="h-6 w-6"/>
+                    </div>
                 </div>
-                <div class="flex items-center justify-between rounded-xl border-l-4 border-sky-500 bg-white p-5 shadow-lg">
+
+                <!-- Regular Card -->
+                <div class="flex items-center justify-between rounded-xl border-l-4 border-sky-600 bg-white p-5 shadow-lg transition-all">
                     <div>
+                        <p class="text-[10px] font-bold uppercase tracking-wider text-sky-600">Scheduled</p>
                         <p class="text-sm font-medium text-slate-500">Regular Sessions</p>
-                        <p class="mt-2 text-3xl font-bold text-slate-900">{{ regularSessionsCount }}</p>
+                        <p class="mt-1 text-3xl font-bold text-slate-900">{{ regularSessionsCount }}</p>
                     </div>
-                    <Calendar class="h-8 w-8 text-sky-500 opacity-60" />
+                    <div class="rounded-full bg-sky-50 p-2.5 text-sky-600">
+                        <Calendar class="h-6 w-6"/>
+                    </div>
                 </div>
-                <div class="flex items-center justify-between rounded-xl border-l-4 border-purple-500 bg-white p-5 shadow-lg">
+
+                <!-- Special Card -->
+                <div class="flex items-center justify-between rounded-xl border-l-4 border-purple-600 bg-white p-5 shadow-lg transition-all">
                     <div>
+                        <p class="text-[10px] font-bold uppercase tracking-wider text-purple-600">Urgent</p>
                         <p class="text-sm font-medium text-slate-500">Special Sessions</p>
-                        <p class="mt-2 text-3xl font-bold text-slate-900">{{ specialSessionsCount }}</p>
+                        <p class="mt-1 text-3xl font-bold text-slate-900">{{ specialSessionsCount }}</p>
                     </div>
-                    <Clock class="h-8 w-8 text-purple-500 opacity-60" />
+                    <div class="rounded-full bg-purple-50 p-2.5 text-purple-600">
+                        <Clock class="h-6 w-6"/>
+                    </div>
                 </div>
             </div>
 
+            <!-- Table Section -->
             <div class="p-8">
-                <div class="overflow-x-auto rounded-xl border border-slate-100 bg-white shadow-lg">
-                    <div v-if="!sessionsList.length" class="py-16 text-center">
-                        <div class="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-emerald-50">
-                            <FileText class="h-7 w-7 text-emerald-500" />
+                <div class="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-xl">
+                    <div v-if="!sessionsList.length" class="py-20 text-center">
+                        <div class="inline-flex h-16 w-16 items-center justify-center rounded-full bg-slate-100 text-slate-400 mb-4">
+                            <FileX class="h-8 w-8"/>
                         </div>
-                        <p class="text-lg font-semibold text-slate-700">No sessions found</p>
+                        <p class="text-lg font-bold text-slate-700">No sessions found</p>
+                        <p class="text-sm text-slate-500">Adjust your filters or add a new session record.</p>
                     </div>
 
-                    <table v-else class="min-w-full divide-y divide-slate-200">
-                        <thead class="bg-slate-100/80">
+                    <table v-else class="w-full divide-y divide-slate-200">
+                        <thead class="bg-slate-50">
                             <tr>
-                                <th class="px-6 py-4 text-left text-xs font-bold tracking-wider text-slate-700 uppercase">Number</th>
-                                <th class="px-6 py-4 text-left text-xs font-bold tracking-wider text-slate-700 uppercase">Session Title</th>
-                                <th class="px-6 py-4 text-left text-xs font-bold tracking-wider text-slate-700 uppercase">Date</th>
-                                <th class="px-6 py-4 text-left text-xs font-bold tracking-wider text-slate-700 uppercase">Type</th>
-                                <th class="px-6 py-4 text-center text-xs font-bold tracking-wider text-slate-700 uppercase">Actions</th>
+                                <th class="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider text-slate-600">Number</th>
+                                <th class="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider text-slate-600">Session Title</th>
+                                <th class="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider text-slate-600">Date</th>
+                                <th class="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider text-slate-600">Type</th>
+                                <th class="px-6 py-4 text-center text-xs font-bold uppercase tracking-wider text-slate-600">Actions</th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-slate-200">
-                            <tr v-for="session in sessionsList" :key="session.id" class="transition-colors hover:bg-emerald-50/50">
-                                <td class="px-6 py-4 text-sm font-medium text-slate-600">{{ session.session_number }}</td>
-                                <td class="px-6 py-4 text-sm font-semibold text-slate-900">
-                                    <div class="max-w-xs truncate">{{ session.session_title }}</div>
-                                </td>
-                                <td class="px-6 py-4 text-sm text-slate-700">{{ formatDate(session.date_of_session) }}</td>
+                        <tbody class="divide-y divide-slate-200 bg-white">
+                            <tr v-for="session in sessionsList" :key="session.id" class="transition-colors hover:bg-slate-50/80">
                                 <td class="px-6 py-4">
-                                    <span
-                                        :class="session.session_type === 'Regular' ? 'bg-blue-100 text-blue-800' : 'bg-purple-100 text-purple-800'"
-                                        class="inline-flex rounded-full px-3 py-1 text-xs font-medium"
-                                    >
+                                    <span class="text-sm font-bold text-slate-900">{{ session.session_number }}</span>
+                                </td>
+                                <td class="px-6 py-4">
+                                    <div class="max-w-xs truncate text-sm font-bold text-slate-800" :title="session.session_title">
+                                        {{ session.session_title }}
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 text-sm font-medium text-slate-600">
+                                    {{ formatDate(session.date_of_session) }}
+                                </td>
+                                <td class="px-6 py-4">
+                                    <span :class="session.session_type === 'Regular' 
+                                        ? 'text-sky-700 bg-sky-50 border-sky-100' 
+                                        : 'text-purple-700 bg-purple-50 border-purple-100'" 
+                                        class="inline-block rounded-md border px-2.5 py-1 text-[10px] font-black uppercase tracking-tight">
                                         {{ session.session_type }}
                                     </span>
                                 </td>
-                                <td class="px-6 py-4 text-center">
+                                <td class="px-6 py-4">
                                     <div class="flex items-center justify-center gap-2">
-                                        <button @click="openViewModal(session)" class="flex h-8 w-8 items-center justify-center rounded-full bg-emerald-50 text-emerald-600 transition-all hover:bg-emerald-100" title="View Details">
-                                            <Eye class="h-4 w-4" />
+                                        <button @click="openViewModal(session)" class="h-9 w-9 flex items-center justify-center rounded-lg bg-slate-100 text-slate-600 hover:bg-emerald-600 hover:text-white transition-all shadow-sm" title="View Details">
+                                            <Eye class="h-4.5 w-4.5"/>
                                         </button>
-                                        <button @click="openModal(session)" class="flex h-8 w-8 items-center justify-center rounded-full bg-sky-50 text-sky-600 transition-all hover:bg-sky-100">
-                                            <Edit class="h-4 w-4" />
+                                        <button @click="openModal(session)" class="h-9 w-9 flex items-center justify-center rounded-lg bg-slate-100 text-slate-600 hover:bg-sky-600 hover:text-white transition-all shadow-sm" title="Edit Session">
+                                            <Edit class="h-4.5 w-4.5"/>
                                         </button>
-                                        <button @click="openDeleteDialog(session)" class="flex h-8 w-8 items-center justify-center rounded-full bg-red-50 text-red-600 transition-all hover:bg-red-100">
-                                            <Trash2 class="h-4 w-4" />
+                                        <button @click="openDeleteDialog(session)" class="h-9 w-9 flex items-center justify-center rounded-lg bg-slate-100 text-slate-600 hover:bg-red-600 hover:text-white transition-all shadow-sm" title="Delete">
+                                            <Trash2 class="h-4.5 w-4.5"/>
                                         </button>
                                     </div>
                                 </td>
@@ -366,47 +386,39 @@ watch(yearFilter, () => applyFilters());
                         </tbody>
                     </table>
 
+                    <!-- Pagination -->
                     <div v-if="page.props.sessions.links.length > 3" 
-                         class="flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-slate-200 bg-slate-50 px-6 py-4">
-                        
-                        <div class="text-sm text-slate-500">
-                            Showing <span class="font-bold text-slate-900">{{ page.props.sessions.from }}</span> to 
-                            <span class="font-bold text-slate-900">{{ page.props.sessions.to }}</span> of 
-                            <span class="font-bold text-slate-900">{{ page.props.sessions.total }}</span>
+                         class="flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-slate-200 bg-slate-50 px-8 py-5">
+                        <div class="text-sm font-medium text-slate-500">
+                            Showing <span class="text-slate-900 font-bold">{{ page.props.sessions.from }}</span> to 
+                            <span class="text-slate-900 font-bold">{{ page.props.sessions.to }}</span> of 
+                            <span class="text-slate-900 font-bold">{{ page.props.sessions.total }}</span> sessions
                         </div>
-
-                        <nav class="inline-flex -space-x-px rounded-lg bg-white shadow-sm border border-slate-200" aria-label="Pagination">
+                        
+                        <nav class="flex items-center gap-1">
                             <template v-for="(link, key) in filteredLinks" :key="key">
-                                
-                                <div v-if="link.label === '...'" 
-                                     class="relative inline-flex items-center px-3 py-2 text-slate-400">
-                                    <MoreHorizontal class="h-4 w-4" />
+                                <div v-if="link.label === '...'" class="px-3 text-slate-400">
+                                    <MoreHorizontal class="h-4 w-4"/>
                                 </div>
-
-                                <button
-                                    v-else
+                                <button v-else
                                     :disabled="!link.url || link.active"
                                     @click="paginate(link.url)"
-                                    class="relative inline-flex items-center justify-center min-w-[40px] h-10 px-3 text-sm font-semibold transition-all first:rounded-l-lg last:rounded-r-lg"
-                                    :class="[
-                                        link.active 
-                                            ? 'z-10 bg-emerald-600 text-white' 
-                                            : 'text-slate-500 hover:bg-slate-50 hover:text-emerald-600',
-                                        !link.url ? 'opacity-30 cursor-not-allowed' : 'cursor-pointer',
-                                        key !== 0 ? 'border-l border-slate-200' : ''
-                                    ]"
+                                    class="h-10 min-w-[40px] rounded-lg px-3 text-sm font-bold transition-all border shadow-sm"
+                                    :class="link.active 
+                                        ? 'bg-emerald-600 border-emerald-600 text-white shadow-emerald-200' 
+                                        : 'bg-white border-slate-200 text-slate-600 hover:border-emerald-500 hover:text-emerald-600'"
                                 >
-                                    <ChevronLeft v-if="link.label.includes('Previous')" class="h-4 w-4" />
-                                    <ChevronRight v-else-if="link.label.includes('Next')" class="h-4 w-4" />
+                                    <ChevronLeft v-if="link.label.includes('Previous')" class="h-4 w-4 mx-auto" />
+                                    <ChevronRight v-else-if="link.label.includes('Next')" class="h-4 w-4 mx-auto" />
                                     <span v-else>{{ link.label }}</span>
                                 </button>
-
                             </template>
                         </nav>
                     </div>
                 </div>
             </div>
 
+            <!-- Modals -->
             <SessionModal :is-open="isModalOpen" :session="editingSession" @close="isModalOpen = false" />
             <DeleteModal :is-open="isDeleteDialogOpen" :session="deletingSession" @close="isDeleteDialogOpen = false" :session-id="deletingSession?.id" />
             <ViewModal :is-open="isViewModalOpen" :session="viewingSession" @close="isViewModalOpen = false" />

@@ -150,7 +150,6 @@ const openDeleteModal = (item) => {
     isDeleteModalOpen.value = true;
 };
 </script>
-
 <template>
     <Head title="Feedback Management" />
     <div class="flex h-screen bg-slate-50">
@@ -158,6 +157,7 @@ const openDeleteModal = (item) => {
         <main class="relative flex-1 overflow-auto">
             <FlashMessage />
 
+            <!-- Header Section -->
             <div class="sticky top-0 z-40 border-b border-slate-200 bg-white shadow-md">
                 <div class="flex items-center justify-between px-8 py-6">
                     <div>
@@ -166,17 +166,18 @@ const openDeleteModal = (item) => {
                     </div>
                 </div>
 
+                <!-- Search and Filters -->
                 <div class="px-8 pb-6">
                     <div class="flex flex-col gap-4 md:flex-row md:items-center">
                         <div class="relative max-w-md flex-1">
                             <Search class="absolute top-1/2 left-3 h-5 w-5 -translate-y-1/2 text-slate-400" />
                             <input v-model="search" @keydown.enter="runNavigation(1)" type="text"
                                 placeholder="Search messages..."
-                                class="w-full rounded-xl border border-slate-300 py-2.5 pl-10 focus:ring-2 focus:ring-indigo-500 outline-none shadow-sm" />
+                                class="w-full rounded-xl border border-slate-300 py-2.5 pl-10 focus:ring-2 focus:ring-indigo-500 outline-none shadow-sm bg-white text-slate-900 placeholder-slate-400" />
                         </div>
 
                         <select v-model="categoryFilter" 
-                            class="w-full md:w-48 rounded-xl border border-slate-300 px-4 py-2.5 focus:ring-2 focus:ring-indigo-500 outline-none bg-white shadow-sm">
+                            class="w-full md:w-48 rounded-xl border border-slate-300 px-4 py-2.5 focus:ring-2 focus:ring-indigo-500 outline-none bg-white text-slate-900 shadow-sm">
                             <option value="">All Categories</option>
                             <option value="suggestion">Suggestions</option>
                             <option value="concern">Concerns</option>
@@ -185,13 +186,14 @@ const openDeleteModal = (item) => {
                         </select>
 
                         <button v-if="search || categoryFilter" @click="clearFilters"
-                            class="flex items-center gap-2 rounded-xl border border-slate-300 px-4 py-2.5 font-medium text-slate-700 hover:bg-slate-50 transition-colors">
+                            class="flex items-center gap-2 rounded-xl border border-slate-300 px-4 py-2.5 font-medium text-slate-700 bg-white hover:bg-slate-50 transition-colors shadow-sm">
                             <X class="h-4 w-4" /> Clear
                         </button>
                     </div>
                 </div>
             </div>
 
+            <!-- Dashboard Stats -->
             <div class="grid grid-cols-1 gap-6 px-8 pt-8 sm:grid-cols-2 lg:grid-cols-3">
                 <div class="flex items-center justify-between rounded-xl border-l-4 border-indigo-500 bg-white p-5 shadow-lg">
                     <div>
@@ -220,6 +222,7 @@ const openDeleteModal = (item) => {
                 </div>
             </div>
 
+            <!-- Table Section -->
             <div class="p-8">
                 <div class="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-lg">
                     <div v-if="!feedbackList.length" class="py-20 text-center">
@@ -238,7 +241,7 @@ const openDeleteModal = (item) => {
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-200">
-                            <tr v-for="item in feedbackList" :key="item.id" class="hover:bg-indigo-50/30 transition-colors">
+                            <tr v-for="item in feedbackList" :key="item.id" class="hover:bg-indigo-50/30 transition-colors bg-white">
                                 <td class="px-6 py-4">
                                     <div class="flex items-center gap-3">
                                         <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border shadow-sm"
@@ -265,7 +268,7 @@ const openDeleteModal = (item) => {
                                     </div>
                                 </td>
                                 <td class="px-6 py-4">
-                                    <span :class="getCategoryClass(item.category)" class="rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-wider">
+                                    <span :class="getCategoryClass(item.category)" class="rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-wider shadow-sm">
                                         {{ item.category }}
                                     </span>
                                 </td>
@@ -277,18 +280,13 @@ const openDeleteModal = (item) => {
                                 </td>
                                 <td class="px-6 py-4">
                                     <div class="flex items-center justify-center gap-2">
-                                        <button 
-                                            @click="openDetails(item)"
+                                        <button @click="openDetails(item)"
                                             class="h-9 w-9 inline-flex items-center justify-center rounded-full bg-indigo-50 text-indigo-600 hover:bg-indigo-100 transition-colors shadow-sm"
-                                            title="View Details"
-                                        >
+                                            title="View Details">
                                             <Eye class="h-4 w-4" />
                                         </button>
-
-                                        <button 
-                                            @click="openDeleteModal(item)" 
-                                            class="h-9 w-9 inline-flex items-center justify-center rounded-full bg-rose-50 text-rose-600 hover:bg-rose-100 transition-colors"
-                                        >
+                                        <button @click="openDeleteModal(item)" 
+                                            class="h-9 w-9 inline-flex items-center justify-center rounded-full bg-rose-50 text-rose-600 hover:bg-rose-100 transition-colors shadow-sm">
                                             <Trash2 class="h-4 w-4" />
                                         </button>
                                     </div>
@@ -297,6 +295,7 @@ const openDeleteModal = (item) => {
                         </tbody>
                     </table>
 
+                    <!-- Pagination -->
                     <div v-if="page.props.feedback.links.length > 3" 
                          class="flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-slate-200 bg-slate-50 px-6 py-4">
                         
@@ -308,12 +307,10 @@ const openDeleteModal = (item) => {
 
                         <nav class="inline-flex -space-x-px rounded-lg bg-white shadow-sm border border-slate-200" aria-label="Pagination">
                             <template v-for="(link, key) in filteredLinks" :key="key">
-                                
                                 <div v-if="link.label === '...'" 
                                      class="relative inline-flex items-center px-3 py-2 text-slate-400">
                                     <MoreHorizontal class="h-4 w-4" />
                                 </div>
-
                                 <button
                                     v-else
                                     :disabled="!link.url || link.active"
@@ -321,8 +318,8 @@ const openDeleteModal = (item) => {
                                     class="relative inline-flex items-center justify-center min-w-[40px] h-10 px-3 text-sm font-semibold transition-all first:rounded-l-lg last:rounded-r-lg"
                                     :class="[
                                         link.active 
-                                            ? 'z-10 bg-emerald-600 text-white' 
-                                            : 'text-slate-500 hover:bg-slate-50 hover:text-emerald-600',
+                                            ? 'z-10 bg-emerald-600 text-white border-emerald-600' 
+                                            : 'text-slate-500 bg-white hover:bg-slate-50 hover:text-emerald-600',
                                         !link.url ? 'opacity-30 cursor-not-allowed' : 'cursor-pointer',
                                         key !== 0 ? 'border-l border-slate-200' : ''
                                     ]"
@@ -331,7 +328,6 @@ const openDeleteModal = (item) => {
                                     <ChevronRight v-else-if="link.label.includes('Next')" class="h-4 w-4" />
                                     <span v-else>{{ link.label }}</span>
                                 </button>
-
                             </template>
                         </nav>
                     </div>
@@ -340,6 +336,7 @@ const openDeleteModal = (item) => {
         </main>
     </div>
 
+    <!-- Modals -->
     <FeedbackDetailsModal 
         :is-open="isModalOpen" 
         :feedback="selectedFeedback" 

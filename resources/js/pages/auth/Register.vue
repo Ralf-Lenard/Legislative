@@ -78,13 +78,6 @@ const handleSubmit = async (submit: Function) => {
         
         <div class="absolute inset-0 bg-black/40 backdrop-blur-[2px]"></div>
 
-        <div class="relative z-10 w-full max-w-[850px] mb-2 px-2">
-            <Link href="/" class="inline-flex items-center text-white/80 hover:text-white transition-colors text-xs font-bold uppercase tracking-wider">
-                <ChevronLeft class="w-4 h-4 mr-1" />
-                Back to Home
-            </Link>
-        </div>
-
         <div class="relative w-full max-w-[850px] backdrop-blur-xl bg-white/85 text-black border border-white/40 shadow-2xl rounded-[1.5rem] md:rounded-[2rem] overflow-hidden flex flex-col max-h-[90vh]">
             
             <div class="h-1.5 bg-[#FFCA52] w-full shrink-0"></div>
