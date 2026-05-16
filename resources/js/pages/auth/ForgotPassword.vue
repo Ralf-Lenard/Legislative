@@ -33,7 +33,7 @@
     
                     <!-- Logo -->
                     <div class="flex justify-center mb-6">
-                        <img src="/images/lg.jpg"
+                        <img src="/images/logo.jpg"
                             class="w-20 h-20 object-cover rounded-full border-4 border-white shadow-lg"
                             alt="Municipality Logo" />
                     </div>

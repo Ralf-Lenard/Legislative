@@ -86,7 +86,7 @@ const handleSubmit = async (submit: Function) => {
                 
                 <div class="text-center mb-4">
                     <div class="flex justify-center mb-2">
-                        <img src="/images/lg.jpg" class="w-14 h-14 object-cover rounded-full border-2 border-white shadow-sm" alt="Municipality Logo" />
+                        <img src="/images/logo.jpg" class="w-14 h-14 object-cover rounded-full border-2 border-white shadow-sm" alt="Municipality Logo" />
                     </div>
                     <h1 class="text-xl md:text-2xl font-black text-gray-900">
                         Create Your <span class="text-green-800">Account</span>

@@ -90,7 +90,7 @@ const handleSubmit = async (submit: Function) => {
             <div class="px-6 py-8 md:px-12 md:py-14 text-center">
                 
                 <div class="flex justify-center mb-4 md:mb-6">
-                    <img src="/images/lg.jpg"
+                    <img src="/images/logo.jpg"
                         class="w-16 h-16 md:w-24 md:h-24 object-cover rounded-full border-4 border-white shadow-lg"
                         alt="Municipality Logo" />
                 </div>
