@@ -138,7 +138,7 @@ class BookController extends Controller
             'author' => 'required|string|max:255',
             'category' => 'nullable|string|max:255',
             'published_year' => 'nullable|integer',
-            'description' => 'nullable|string',
+            'description' => 'nullable|string|max:10000',
             'image' => 'nullable|image|max:20480', // max 20MB
         ]);
     
@@ -173,7 +173,7 @@ class BookController extends Controller
             'author' => 'required|string|max:255',
             'category' => 'nullable|string|max:255',
             'published_year' => 'nullable|integer',
-            'description' => 'nullable|string',
+            'description' => 'nullable|string|max:10000',
             'image' => 'nullable|image|max:20480', // max 20MB
             'keep_image' => 'nullable|string',
         ]);

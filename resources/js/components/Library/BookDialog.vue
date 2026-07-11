@@ -92,52 +92,6 @@
           ></textarea>
         </div>
 
-        <!-- Image Upload -->
-        <div>
-          <label class="mb-2 block text-sm font-semibold text-slate-900">
-            Upload Cover Image
-          </label>
-
-          <div
-            @dragover.prevent="isImageDragging = true"
-            @dragleave.prevent="isImageDragging = false"
-            @drop.prevent="handleFileDrop($event)"
-            class="relative rounded-xl border-2 border-dashed p-6 transition-colors duration-200"
-            :class="{
-              'border-sky-500 bg-sky-50': isImageDragging,
-              'border-slate-300 hover:border-sky-400': !isImageDragging
-            }"
-          >
-            <input
-              id="book-image-upload"
-              type="file"
-              accept="image/*"
-              @change="handleFileChange($event)"
-              class="absolute inset-0 h-full w-full cursor-pointer opacity-0"
-            />
-            <div class="flex flex-col items-center justify-center text-center">
-              <svg class="mb-2 h-8 w-8 text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1M4 16l8-8 4 4 8-8"/>
-              </svg>
-              <p class="text-sm font-medium text-slate-700">
-                <label for="book-image-upload" class="cursor-pointer font-bold text-sky-600 hover:underline">
-                  Click to browse
-                </label> or drag and drop
-              </p>
-              <p class="mt-1 text-xs text-slate-500">JPG, PNG, GIF (max 20MB)</p>
-            </div>
-          </div>
-
-          <div v-if="form.image || oldImage" class="mt-4">
-            <p class="mb-2 text-xs text-slate-500">Cover Preview:</p>
-            <img
-              :src="getImagePreview()"
-              class="h-24 w-16 rounded-lg border-2 border-slate-200 object-cover shadow-md"
-            />
-          </div>
-        </div>
-
         <!-- Buttons -->
         <div class="mt-8 flex justify-end gap-3 border-t border-slate-200 pt-6">
           <button

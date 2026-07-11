@@ -169,52 +169,83 @@
     <transition name="modal">
       <div
         v-if="selectedOrdinance && !showRequestModal"
-        class="fixed inset-0 flex items-center justify-center bg-black/40 backdrop-blur-sm z-50 p-4"
+        class="fixed inset-0 flex items-center justify-center bg-gray-500/30 z-50 p-4"
         @click.self="closeModal"
       >
         <div
-          class="bg-white w-full max-w-2xl rounded-xl shadow-xl border border-gray-200 relative flex flex-col overflow-hidden"
+          class="relative flex flex-col w-full max-w-2xl overflow-hidden bg-white border border-gray-200 rounded-xl shadow-xl"
           style="max-height: 90vh;"
         >
-          <div class="overflow-y-auto px-6 py-6 flex-1 custom-scrollbar">
-            <button class="absolute top-4 right-4 text-gray-500 hover:text-gray-700" @click="closeModal">✕</button>
+          <div class="flex-1 px-6 py-6 overflow-y-auto custom-scrollbar">
+            <button
+              class="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
+              @click="closeModal"
+            >
+              ✕
+            </button>
 
-            <h2 class="text-2xl font-bold text-green-900">Ordinance No. {{ selectedOrdinance.ordinance_number }}</h2>
-            <h3 class="text-lg font-semibold mt-2">{{ selectedOrdinance.title_ordinances }}</h3>
-            <p class="text-sm text-gray-600 mt-1">
-              Date Approved: <strong>{{ formatDate(selectedOrdinance.date_approved_ordinances) }}</strong>
+            <h2 class="text-2xl font-bold text-green-900">
+              Ordinance No. {{ selectedOrdinance.ordinance_number }}
+            </h2>
+
+            <h3 class="mt-2 text-lg font-semibold text-gray-900">
+              {{ selectedOrdinance.title_ordinances }}
+            </h3>
+
+            <p class="mt-1 text-sm text-gray-600">
+              Date Approved:
+              <strong>{{ formatDate(selectedOrdinance.date_approved_ordinances) }}</strong>
             </p>
 
-            <div class="mt-6 rounded-lg overflow-hidden border border-gray-200 shadow" v-if="selectedOrdinance.image_ordinances">
-              <img :src="`/storage/${selectedOrdinance.image_ordinances}`" class="w-full" />
+            <div
+              v-if="selectedOrdinance.image_ordinances"
+              class="mt-6 overflow-hidden border border-gray-200 rounded-lg shadow"
+            >
+              <img
+                :src="`/storage/${selectedOrdinance.image_ordinances}`"
+                class="w-full"
+              />
             </div>
 
             <div class="mt-6">
-              <h4 class="font-bold mb-1">Description:</h4>
-              <p class="text-gray-700 leading-relaxed">{{ selectedOrdinance.description_ordinances }}</p>
+              <h4 class="mb-1 font-bold text-gray-900">Description:</h4>
+              <p class="leading-relaxed text-gray-700">
+                {{ selectedOrdinance.description_ordinances }}
+              </p>
             </div>
           </div>
 
-          <div class="px-6 py-4 border-t border-gray-200 flex justify-end gap-2">
+          <div class="flex justify-end gap-2 px-6 py-4 border-t border-gray-200">
             <button
               v-if="selectedOrdinance.status === 'approved'"
               @click="handleDownloadClick(selectedOrdinance)"
-              class="px-4 py-2 text-sm bg-yellow-400 text-green-900 font-bold rounded-lg hover:bg-yellow-500 transition shadow-md"
-            >Download PDF</button>
+              class="px-4 py-2 text-sm font-bold text-green-900 transition bg-yellow-400 rounded-lg shadow-md hover:bg-yellow-500"
+            >
+              Download PDF
+            </button>
 
             <button
               v-else-if="selectedOrdinance.status === 'pending'"
               disabled
-              class="px-4 py-2 text-sm bg-gray-300 text-gray-600 font-bold rounded-lg cursor-not-allowed"
-            >Request Pending</button>
+              class="px-4 py-2 text-sm font-bold text-gray-600 bg-gray-300 rounded-lg cursor-not-allowed"
+            >
+              Request Pending
+            </button>
 
             <button
               v-else
               @click="openRequestModal(selectedOrdinance)"
-              class="px-4 py-2 text-sm bg-green-800 text-white font-bold rounded-lg hover:bg-green-900 transition shadow-md"
-            >Request Access</button>
+              class="px-4 py-2 text-sm font-bold text-white transition bg-green-800 rounded-lg shadow-md hover:bg-green-900"
+            >
+              Request Access
+            </button>
 
-            <button @click="closeModal" class="bg-gray-200 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-300 transition">Close</button>
+            <button
+              @click="closeModal"
+              class="px-6 py-2 text-gray-700 transition bg-gray-200 rounded-lg hover:bg-gray-300"
+            >
+              Close
+            </button>
           </div>
         </div>
       </div>

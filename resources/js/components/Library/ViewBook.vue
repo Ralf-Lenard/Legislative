@@ -10,25 +10,6 @@
                 <!-- Header -->
                 <div class="mb-6 border-b pb-6 text-center">
                     <!-- Large Cover Image -->
-                    <div
-                        class="mx-auto mb-5 h-64 w-44 overflow-hidden rounded-2xl border border-slate-200 shadow-xl"
-                    >
-                        <img
-                            v-if="book.image"
-                            :src="
-                                book.image.startsWith('http')
-                                    ? book.image
-                                    : `/storage/${book.image}`
-                            "
-                            class="h-full w-full object-cover"
-                        />
-                        <div
-                            v-else
-                            class="flex h-full w-full items-center justify-center bg-slate-100 text-slate-400"
-                        >
-                            <BookIcon class="h-10 w-10" />
-                        </div>
-                    </div>
 
                     <!-- Title & Author -->
                     <h2 class="text-2xl font-extrabold text-slate-900">

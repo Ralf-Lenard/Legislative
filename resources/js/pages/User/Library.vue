@@ -3,23 +3,6 @@
     <div class="bg-white min-h-screen">
       <Navbar />
   
-      <!-- <section class="pt-24 sm:pt-28 pb-16 sm:pb-20 bg-gradient-to-br from-green-900 to-green-700 relative overflow-hidden">
-        <div class="absolute top-0 right-0 w-72 sm:w-96 h-72 sm:h-96 bg-yellow-300/10 rounded-full blur-3xl"></div>
-        
-        <div class="max-w-7xl mx-auto px-4 text-center md:text-left">
-          <span class="text-xs tracking-widest uppercase bg-yellow-400 text-green-900 px-4 py-1 rounded-full font-bold">
-            Digital Resources
-          </span>
-  
-          <h1 class="text-3xl sm:text-5xl md:text-6xl font-extrabold mt-4 leading-tight text-white">
-            Municipal Library
-          </h1>
-  
-          <p class="text-sm sm:text-lg mt-3 text-gray-100 max-w-xl mx-auto md:mx-0">
-            Explore our collection of books and research materials.
-          </p>
-        </div>
-      </section> -->
        <section class="pt-28 pb-20 bg-gradient-to-br from-green-900 to-green-700 relative overflow-hidden">
       <div class="absolute top-0 right-0 w-96 h-96 bg-yellow-300/10 rounded-full blur-3xl z-0"></div>
 
@@ -98,17 +81,10 @@
             <div
               v-for="book in books.data"
               :key="book.id"
-              class="bg-white rounded-xl shadow-md border border-gray-200 overflow-hidden hover:shadow-2xl transition duration-300 flex flex-col group"
+              class="bg-white rounded-xl shadow-md border border-gray-200 overflow-hidden hover:shadow-2xl transition duration-300 flex flex-col justify-between h-full group"
             >
-              <div class="relative w-full h-[260px] sm:h-[300px] overflow-hidden bg-gray-100">
-                <img 
-                  :src="book.image ? `/storage/${book.image}` : '/images/book-placeholder.jpg'" 
-                  :alt="book.title"
-                  class="w-full h-full object-cover transition duration-500 group-hover:scale-105"
-                />
-              </div>
-  
-              <div class="p-4 flex flex-col flex-grow">
+              <!-- Content Section wraps top elements -->
+              <div class="p-5 flex flex-col flex-grow">
                 <span class="text-[10px] font-bold text-green-700 uppercase tracking-wider">
                   {{ book.category }}
                 </span>
@@ -120,10 +96,13 @@
                 <p class="text-[11px] text-gray-500 font-medium mt-2">
                   👤 {{ book.author }}
                 </p>
-  
+              </div>
+
+              <!-- Button Container locks neatly to the bottom -->
+              <div class="px-5 pb-5 pt-0">
                 <button
                   @click="openModal(book)"
-                  class="mt-4 w-full py-2 text-xs font-bold uppercase tracking-wider text-white bg-green-800 rounded-lg hover:bg-yellow-500 hover:text-green-900 transition"
+                  class="w-full py-2 text-xs font-bold uppercase tracking-wider text-white bg-green-800 rounded-lg hover:bg-yellow-500 hover:text-green-900 transition"
                 >
                   View Details
                 </button>
@@ -186,33 +165,25 @@
         v-if="isModalOpen"
         class="fixed inset-0 z-[100] flex items-center justify-center p-4"
       >
+        <!-- Neutral Background Backdrop (Removed Green Color) -->
         <div
-          class="fixed inset-0 bg-green-900/60 backdrop-blur-md"
+          class="fixed inset-0 bg-black/65 backdrop-blur-md"
           @click="closeModal"
         ></div>
   
         <div
-          class="relative bg-white rounded-2xl sm:rounded-3xl shadow-2xl w-full max-w-5xl max-h-[90vh] overflow-y-auto flex flex-col md:flex-row"
+          class="relative bg-white rounded-2xl sm:rounded-3xl shadow-2xl w-full max-w-3xl max-h-[90vh] overflow-y-auto flex flex-col"
         >
           <!-- CLOSE BUTTON -->
           <button
             @click="closeModal"
-            class="absolute top-4 right-4 z-50 w-10 h-10 flex items-center justify-center rounded-full bg-white/30 backdrop-blur-md text-white md:text-gray-600 md:bg-gray-100 hover:bg-red-500 hover:text-white transition"
+            class="absolute top-4 right-4 z-50 w-10 h-10 flex items-center justify-center rounded-full bg-gray-100 text-gray-600 hover:bg-red-500 hover:text-white transition"
           >
             ✕
           </button>
   
-          <!-- IMAGE -->
-          <div class="w-full md:w-5/12 h-[250px] sm:h-[350px] md:h-auto bg-gray-200">
-            <img 
-              :src="selectedBook.image ? `/storage/${selectedBook.image}` : '/images/book-placeholder.jpg'" 
-              :alt="selectedBook.title"
-              class="w-full h-full object-cover"
-            />
-          </div>
-  
           <!-- CONTENT -->
-          <div class="w-full md:w-7/12 p-6 sm:p-10 flex flex-col">
+          <div class="w-full p-6 sm:p-10 flex flex-col">
             
             <span class="text-xs font-bold text-green-700 bg-green-100 px-3 py-1 rounded-full uppercase tracking-widest w-fit">
               {{ selectedBook.category }}
@@ -265,7 +236,7 @@
   <script setup>
   import Footer from '@/components/Home/Footer.vue'
   import Navbar from '@/components/Home/Navbar.vue'
-  import { Head, router, usePage, Link } from '@inertiajs/vue3' // Added Link import
+  import { Head, router, usePage, Link } from '@inertiajs/vue3'
   import { computed, reactive, ref } from 'vue'
   
   const page = usePage()
@@ -293,7 +264,6 @@
   }
   
   const applyFilters = () => {
-    // Corrected: passing 'filters' object instead of 'form'
     router.get("/library", filters, { 
         preserveState: true, 
         replace: true, 

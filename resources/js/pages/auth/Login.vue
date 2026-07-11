@@ -47,17 +47,17 @@ onMounted(() => {
 // ----------------------
 // GET TOKEN
 // ----------------------
-const getRecaptchaToken = () => {
+const getRecaptchaToken = (): Promise<string> => {
     return new Promise((resolve, reject) => {
-        if (!window.grecaptcha) {
+        if (!(window as any).grecaptcha) {
             reject('reCAPTCHA not loaded')
             return
         }
 
-        window.grecaptcha.ready(() => {
-            window.grecaptcha.execute(recaptchaSiteKey, { action: 'login' })
-                .then((token) => resolve(token))
-                .catch((err) => reject(err))
+        (window as any).grecaptcha.ready(() => {
+            (window as any).grecaptcha.execute(recaptchaSiteKey, { action: 'login' })
+                .then((token: string) => resolve(token))
+                .catch((err: any) => reject(err))
         });
     });
 };
@@ -65,10 +65,14 @@ const getRecaptchaToken = () => {
 // ----------------------
 // SUBMIT
 // ----------------------
-const handleSubmit = async (submit: Function) => {
-    const token = await getRecaptchaToken();
-    form.recaptcha_token = token;
-    submit();
+const handleSubmit = async (submitFn: () => void) => {
+    try {
+        const token = await getRecaptchaToken();
+        form.recaptcha_token = token;
+        submitFn();
+    } catch (error) {
+        console.error("Authentication or reCAPTCHA validation failed:", error);
+    }
 };
 </script>
 
@@ -101,7 +105,6 @@ const handleSubmit = async (submit: Function) => {
                         <span class="block text-green-800">Concepcion Tarlac</span>
                     </h1>
 
-                    <!-- 🔥 HOME LINK ADDED HERE -->
                     <div class="mt-2">
                         <Link href="/" class="text-xs md:text-sm text-gray-600 font-bold hover:text-green-900 transition">
                             ← Back to Home
@@ -109,11 +112,16 @@ const handleSubmit = async (submit: Function) => {
                     </div>
                 </div>
 
+                <!--
+                  FIX: @submit.prevent with no handler stops the native form submission.
+                  The button is now type="button" and calls handleSubmit(submit) directly,
+                  where `submit` is correctly the Inertia slot prop function — not the DOM event.
+                -->
                 <Form
                     v-bind="store.form()"
                     :reset-on-success="['password']"
                     v-slot="{ errors, processing, submit }"
-                    @submit.prevent="handleSubmit(submit)"
+                    @submit.prevent
                     class="flex flex-col gap-4 md:gap-5 text-left"
                 >
 
@@ -126,6 +134,7 @@ const handleSubmit = async (submit: Function) => {
                         <div class="relative group">
                             <Mail class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-700 group-focus-within:text-green-800 transition-colors" />
                             <Input
+                                v-model="form.email"
                                 type="email"
                                 name="email"
                                 required
@@ -151,6 +160,7 @@ const handleSubmit = async (submit: Function) => {
                             <Lock class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-700 group-focus-within:text-green-800 transition-colors" />
 
                             <Input
+                                v-model="form.password"
                                 :type="passwordType"
                                 name="password"
                                 required
@@ -175,7 +185,7 @@ const handleSubmit = async (submit: Function) => {
                     <!-- Remember -->
                     <div class="flex justify-between items-center">
                         <label class="flex items-center gap-2 text-xs md:text-sm text-gray-700 font-semibold cursor-pointer">
-                            <Checkbox name="remember" />
+                            <Checkbox name="remember" v-model:checked="form.remember" />
                             Remember Me
                         </label>
 
@@ -186,13 +196,15 @@ const handleSubmit = async (submit: Function) => {
                         </TextLink>
                     </div>
 
-                    <!-- Submit -->
-                    <Button type="submit"
+                    <!-- Submit — FIX: type="button" + @click passes the slot's `submit` fn correctly -->
+                    <Button
+                        type="button"
+                        @click="handleSubmit(submit)"
                         class="w-full h-12 md:h-14 mt-2 text-sm md:text-base font-black tracking-widest
                         bg-green-900 text-white hover:bg-[#FFCA52] hover:text-green-950 
                         rounded-xl transition-all duration-300 shadow-xl"
-                        :disabled="processing">
-
+                        :disabled="processing"
+                    >
                         <Spinner v-if="processing" />
                         <span v-else class="uppercase">Login Securely</span>
                     </Button>
@@ -207,7 +219,8 @@ const handleSubmit = async (submit: Function) => {
 
                 </Form>
             </div>
-             <!-- Footer -->
+            
+            <!-- Footer -->
             <div class="bg-gray-50/50 py-3 md:py-4 px-6 md:px-8 border-t border-white/30 text-center">
                 <p class="text-[8px] md:text-[10px] text-gray-500 font-bold tracking-[0.15em] md:tracking-[0.2em] uppercase">
                     Transparency • Integrity • Public Service

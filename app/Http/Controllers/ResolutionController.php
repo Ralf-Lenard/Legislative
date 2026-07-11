@@ -181,7 +181,7 @@ class ResolutionController extends Controller
     {
         $validated = $request->validate([
             'resolutions_number' => 'required|unique:resolutions',
-            'title_resolutions' => 'required',
+            'title_resolutions' => 'required|string',
             'description_resolutions' => 'nullable',
             'date_approved_resolutions' => 'nullable|date',
 
@@ -219,7 +219,7 @@ class ResolutionController extends Controller
 
         $validated = $request->validate([
             'resolutions_number' => 'required|unique:resolutions,resolutions_number,' . $id,
-            'title_resolutions' => 'required',
+            'title_resolutions' => 'required|string',
             'description_resolutions' => 'nullable',
             'date_approved_resolutions' => 'nullable|date',
 

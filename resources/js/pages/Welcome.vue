@@ -55,8 +55,8 @@
                             alt="Welcome"
                             class="h-full w-full object-cover"
                         />
-                        <div
-                            class="absolute right-4 bottom-4 rounded-lg bg-white/90 px-4 py-2 text-xs md:text-sm font-semibold backdrop-blur-sm"
+                       <div
+                            class="absolute right-4 bottom-4 rounded-lg bg-white px-4 py-2 text-xs md:text-sm font-semibold text-gray-900"
                         >
                             Concepcion, Tarlac
                         </div>
@@ -344,7 +344,7 @@
                             class="text-xs font-bold tracking-widest text-green-900 uppercase"
                             >Contact</span
                         >
-                        <h2 class="mt-2 text-3xl md:text-4xl font-black">Get In Touch</h2>
+                       <h2 class="text-2xl md:text-3xl font-bold text-green-900">Get In Touch</h2>
                         <p class="mt-2 text-sm md:text-base text-gray-600">
                             We are here to serve. Reach out for inquiries and
                             assistance.
@@ -365,10 +365,10 @@
                                 }}</span>
                             </div>
                             <div>
-                                <p class="text-base md:text-lg font-bold">
+                                <p class="text-base md:text-lg font-bold text-gray-900">
                                     {{ contact.title }}
                                 </p>
-                                <p class="text-xs md:text-sm text-gray-600">
+                                <p class="text-xs md:text-sm text-gray-700">
                                     {{ contact.detail }}
                                 </p>
                             </div>

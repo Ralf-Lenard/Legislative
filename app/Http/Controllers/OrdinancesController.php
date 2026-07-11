@@ -230,7 +230,7 @@ class OrdinancesController extends Controller
     {
         $validated = $request->validate([
             'ordinance_number' => 'required|unique:ordinances',
-            'title_ordinances' => 'required',
+            'title_ordinances' => 'required|string',
             'description_ordinances' => 'nullable',
             'date_approved_ordinances' => 'nullable|date',
 
@@ -268,7 +268,7 @@ class OrdinancesController extends Controller
 
         $validated = $request->validate([
             'ordinance_number' => 'required|unique:ordinances,ordinance_number,' . $id,
-            'title_ordinances' => 'required',
+            'title_ordinances' => 'required|string',
             'description_ordinances' => 'nullable',
             'date_approved_ordinances' => 'nullable|date',
 
