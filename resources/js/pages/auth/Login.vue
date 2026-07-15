@@ -15,7 +15,7 @@ import { register } from "@/routes";
 import { request } from "@/routes/password";
 
 // ----------------------
-// PROPS
+// PROPS (FIXED ACCESS)
 // ----------------------
 const props = defineProps<{
     status?: string;
@@ -35,92 +35,40 @@ const togglePasswordVisibility = () => {
 const form = store.form();
 
 // ----------------------
-// RECAPTCHA LOAD (hardened)
+// RECAPTCHA LOAD
 // ----------------------
-const recaptchaReadyPromise = ref<Promise<void> | null>(null);
-
 onMounted(() => {
-    if (!recaptchaSiteKey) {
-        console.warn('reCAPTCHA site key missing — skipping load.');
-        return;
-    }
-
-    // Avoid injecting the script twice (HMR, re-mounts, Inertia nav, etc.)
-    const existing = document.querySelector<HTMLScriptElement>(
-        'script[src^="https://www.google.com/recaptcha/api.js"]'
-    );
-
-    recaptchaReadyPromise.value = new Promise((resolve, reject) => {
-        const onReady = () => {
-            if (!window.grecaptcha) {
-                reject(new Error('grecaptcha did not attach to window'));
-                return;
-            }
-            window.grecaptcha.ready(() => resolve());
-        };
-
-        if (existing) {
-            if (window.grecaptcha) {
-                onReady();
-            } else {
-                existing.addEventListener('load', onReady, { once: true });
-                existing.addEventListener(
-                    'error',
-                    () => reject(new Error('Failed to load reCAPTCHA script')),
-                    { once: true }
-                );
-            }
-            return;
-        }
-
-        const script = document.createElement('script');
-        script.src = `https://www.google.com/recaptcha/api.js?render=${recaptchaSiteKey}`;
-        script.async = true;
-        script.defer = true;
-        script.onload = onReady;
-        script.onerror = () => reject(new Error('Failed to load reCAPTCHA script'));
-        document.head.appendChild(script);
-    });
+    const script = document.createElement('script');
+    script.src = `https://www.google.com/recaptcha/api.js?render=${recaptchaSiteKey}`;
+    script.async = true;
+    document.head.appendChild(script);
 });
 
 // ----------------------
-// GET TOKEN (hardened, with retry)
+// GET TOKEN
 // ----------------------
-const getRecaptchaToken = async (): Promise<string> => {
-    if (!recaptchaSiteKey) {
-        throw new Error('reCAPTCHA site key is not configured.');
-    }
-    if (!recaptchaReadyPromise.value) {
-        throw new Error('reCAPTCHA failed to initialize.');
-    }
+const getRecaptchaToken = () => {
+    return new Promise((resolve, reject) => {
+        if (!window.grecaptcha) {
+            reject('reCAPTCHA not loaded')
+            return
+        }
 
-    // Make sure the widget has actually finished registering before executing
-    await recaptchaReadyPromise.value;
-
-    try {
-        return await window.grecaptcha.execute(recaptchaSiteKey, { action: 'login' });
-    } catch (err) {
-        // One retry to absorb transient client-registration timing issues
-        await new Promise((r) => setTimeout(r, 300));
-        return await window.grecaptcha.execute(recaptchaSiteKey, { action: 'login' });
-    }
+        window.grecaptcha.ready(() => {
+            window.grecaptcha.execute(recaptchaSiteKey, { action: 'login' })
+                .then((token) => resolve(token))
+                .catch((err) => reject(err))
+        });
+    });
 };
 
 // ----------------------
 // SUBMIT
 // ----------------------
-const recaptchaError = ref('');
-
 const handleSubmit = async (submit: Function) => {
-    recaptchaError.value = '';
-    try {
-        const token = await getRecaptchaToken();
-        form.recaptcha_token = token;
-        submit();
-    } catch (err) {
-        console.error('reCAPTCHA error:', err);
-        recaptchaError.value = 'Could not verify you are human. Please refresh and try again.';
-    }
+    const token = await getRecaptchaToken();
+    form.recaptcha_token = token;
+    submit();
 };
 </script>
 
@@ -129,18 +77,18 @@ const handleSubmit = async (submit: Function) => {
 
     <div class="min-h-svh w-full flex items-center justify-center bg-cover bg-center bg-no-repeat relative px-4 py-8 text-black"
         style="background-image: url('/images/lg.jpg')">
-
+        
         <div class="absolute inset-0 bg-black/40 backdrop-blur-[2px]"></div>
 
         <div class="absolute top-0 right-0 h-[200px] md:h-[400px] w-[200px] md:w-[400px] rounded-full bg-yellow-400 opacity-20 blur-3xl pointer-events-none"></div>
         <div class="absolute bottom-0 left-0 h-[200px] md:h-[400px] w-[200px] md:w-[400px] rounded-full bg-green-900 opacity-20 blur-3xl pointer-events-none"></div>
 
         <div class="relative w-full sm:max-w-[450px] md:max-w-[500px] backdrop-blur-xl bg-white/85 text-black border border-white/40 shadow-2xl rounded-[1.5rem] md:rounded-[2.5rem] overflow-hidden transition-all duration-300">
-
+            
             <div class="h-1.5 md:h-2 bg-[#FFCA52] w-full"></div>
 
             <div class="px-6 py-8 md:px-12 md:py-14 text-center">
-
+                
                 <div class="flex justify-center mb-4 md:mb-6">
                     <img src="/images/logo.jpg"
                         class="w-16 h-16 md:w-24 md:h-24 object-cover rounded-full border-4 border-white shadow-lg"
@@ -153,6 +101,7 @@ const handleSubmit = async (submit: Function) => {
                         <span class="block text-green-800">Concepcion Tarlac</span>
                     </h1>
 
+                    <!-- 🔥 HOME LINK ADDED HERE -->
                     <div class="mt-2">
                         <Link href="/" class="text-xs md:text-sm text-gray-600 font-bold hover:text-green-900 transition">
                             ← Back to Home
@@ -182,9 +131,9 @@ const handleSubmit = async (submit: Function) => {
                                 required
                                 autocomplete="email"
                                 placeholder="example@gmail.com"
-                                class="bg-white text-black border-gray-200
-                                        h-11 md:h-13 pl-11 md:pl-12 rounded-xl
-                                        focus:ring-2 focus:ring-green-800 focus:bg-white
+                                class="bg-white text-black border-gray-200 
+                                        h-11 md:h-13 pl-11 md:pl-12 rounded-xl 
+                                        focus:ring-2 focus:ring-green-800 focus:bg-white 
                                         transition-all text-sm md:text-base"
                             />
                         </div>
@@ -207,9 +156,9 @@ const handleSubmit = async (submit: Function) => {
                                 required
                                 autocomplete="current-password"
                                 placeholder="••••••••"
-                                class="bg-white text-black border-gray-200
-                                        h-11 md:h-13 pl-11 md:pl-12 rounded-xl
-                                        focus:ring-2 focus:ring-green-800 focus:bg-white
+                                class="bg-white text-black border-gray-200 
+                                        h-11 md:h-13 pl-11 md:pl-12 rounded-xl 
+                                        focus:ring-2 focus:ring-green-800 focus:bg-white 
                                         transition-all text-sm md:text-base"
                             />
 
@@ -237,13 +186,10 @@ const handleSubmit = async (submit: Function) => {
                         </TextLink>
                     </div>
 
-                    <!-- reCAPTCHA error -->
-                    <InputError v-if="recaptchaError" :message="recaptchaError" />
-
                     <!-- Submit -->
                     <Button type="submit"
                         class="w-full h-12 md:h-14 mt-2 text-sm md:text-base font-black tracking-widest
-                        bg-green-900 text-white hover:bg-[#FFCA52] hover:text-green-950
+                        bg-green-900 text-white hover:bg-[#FFCA52] hover:text-green-950 
                         rounded-xl transition-all duration-300 shadow-xl"
                         :disabled="processing">
 
