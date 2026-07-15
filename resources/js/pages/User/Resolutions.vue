@@ -77,17 +77,17 @@
           </div>
         </div>
 
-        <div v-if="resolutions.data.length" class="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-12">
+        <div v-if="resolutions.data.length" class="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-12 items-stretch">
           <div
             v-for="resolution in resolutions.data"
             :key="resolution.id"
-            class="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden lg:col-span-1"
+            class="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden lg:col-span-1 flex flex-col h-full"
           >
             <div class="bg-green-800 text-white px-5 py-2 font-semibold text-sm">
               Resolution No. {{ resolution.resolutions_number }}
             </div>
 
-            <div class="p-5 space-y-4">
+            <div class="p-5 flex flex-col flex-1 space-y-4">
               <h2 class="text-lg font-bold text-gray-900 line-clamp-2">{{ resolution.title_resolutions }}</h2>
               <p class="text-gray-600 text-sm line-clamp-3">{{ resolution.description_resolutions }}</p>
 
@@ -98,7 +98,7 @@
                 </span>
               </div>
 
-              <div class="flex justify-between items-center gap-3 pt-3">
+              <div class="flex justify-between items-center gap-3 pt-3 mt-auto">
                 <button
                   @click="openModal(resolution)"
                   class="px-4 py-2 text-sm text-green-800 font-bold border border-green-800 rounded-lg hover:bg-green-50 transition"
