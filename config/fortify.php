@@ -147,11 +147,16 @@ return [
         Features::registration(),
         Features::resetPasswords(),
         Features::emailVerification(),
-        Features::twoFactorAuthentication([
-            'confirm' => true,
-            'confirmPassword' => true,
-            // 'window' => 0
-        ]),
+        // Two-factor authentication disabled — its "pre-check" step in
+        // Fortify's login pipeline was calling authenticateUsing() twice
+        // per login request, which broke single-use reCAPTCHA v3 tokens.
+        // Re-enable only if you also handle that double-verification case
+        // (the Cache::remember guard in FortifyServiceProvider covers it).
+        // Features::twoFactorAuthentication([
+        //     'confirm' => true,
+        //     'confirmPassword' => true,
+        //     // 'window' => 0
+        // ]),
     ],
 
 ];

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
-import { Head, Link, useForm } from "@inertiajs/vue3";
+import { Form, Head, Link } from "@inertiajs/vue3";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
@@ -15,7 +15,7 @@ import { register } from "@/routes";
 import { request } from "@/routes/password";
 
 // ----------------------
-// PROPS
+// PROPS (FIXED ACCESS)
 // ----------------------
 const props = defineProps<{
     status?: string;
@@ -32,103 +32,43 @@ const togglePasswordVisibility = () => {
     passwordType.value = passwordType.value === 'password' ? 'text' : 'password';
 };
 
-// ----------------------
-// FORM STATE (we own submission end-to-end, no <Form> component)
-// ----------------------
-const form = useForm({
-    email: '',
-    password: '',
-    remember: false,
-    recaptcha_token: '',
-});
-
-// store.form() gives us the { action, method } pair the route needs
-const loginRoute = store.form();
+const form = store.form();
 
 // ----------------------
 // RECAPTCHA LOAD
 // ----------------------
-// Loaded at most once, even if this component mounts again (e.g. after an
-// Inertia SPA navigation back to /login). Sharing the same promise avoids
-// injecting the <script> tag twice and racing multiple grecaptcha clients.
-let recaptchaScriptPromise: Promise<void> | null = null;
-
-const loadRecaptchaScript = (): Promise<void> => {
-    if (!recaptchaSiteKey) {
-        return Promise.reject('Missing reCAPTCHA site key — check recaptchaSiteKey is being passed from the backend and RECAPTCHA_SITE_KEY is set in .env');
-    }
-
-    if (window.grecaptcha) {
-        return Promise.resolve();
-    }
-
-    if (recaptchaScriptPromise) {
-        return recaptchaScriptPromise;
-    }
-
-    recaptchaScriptPromise = new Promise((resolve, reject) => {
-        const existing = document.querySelector<HTMLScriptElement>('script[data-recaptcha-loader]');
-        if (existing) {
-            existing.addEventListener('load', () => resolve());
-            existing.addEventListener('error', () => reject('Failed to load reCAPTCHA script'));
-            return;
-        }
-
-        const script = document.createElement('script');
-        script.src = `https://www.google.com/recaptcha/api.js?render=${recaptchaSiteKey}`;
-        script.async = true;
-        script.dataset.recaptchaLoader = 'true';
-        script.onload = () => resolve();
-        script.onerror = () => reject('Failed to load reCAPTCHA script');
-        document.head.appendChild(script);
-    });
-
-    return recaptchaScriptPromise;
-};
-
 onMounted(() => {
-    loadRecaptchaScript().catch((err) => console.error(err));
+    const script = document.createElement('script');
+    script.src = `https://www.google.com/recaptcha/api.js?render=${recaptchaSiteKey}`;
+    script.async = true;
+    document.head.appendChild(script);
 });
 
 // ----------------------
 // GET TOKEN
 // ----------------------
-const getRecaptchaToken = (): Promise<string> => {
+const getRecaptchaToken = () => {
     return new Promise((resolve, reject) => {
-        loadRecaptchaScript()
-            .then(() => {
-                window.grecaptcha.ready(() => {
-                    window.grecaptcha.execute(recaptchaSiteKey, { action: 'login' })
-                        .then((token: string) => resolve(token))
-                        .catch((err: unknown) => reject(err))
-                });
-            })
-            .catch((err) => reject(err));
+        if (!window.grecaptcha) {
+            reject('reCAPTCHA not loaded')
+            return
+        }
+
+        window.grecaptcha.ready(() => {
+            window.grecaptcha.execute(recaptchaSiteKey, { action: 'login' })
+                .then((token) => resolve(token))
+                .catch((err) => reject(err))
+        });
     });
 };
 
 // ----------------------
 // SUBMIT
 // ----------------------
-const recaptchaError = ref('');
-
-const handleSubmit = async () => {
-    recaptchaError.value = '';
-
-    try {
-        form.recaptcha_token = await getRecaptchaToken();
-    } catch (err) {
-        recaptchaError.value = 'reCAPTCHA failed to load. Please refresh and try again.';
-        console.error('reCAPTCHA error:', err);
-        return;
-    }
-
-    form.submit(loginRoute.method, loginRoute.action, {
-        preserveScroll: true,
-        onFinish: () => {
-            form.reset('password');
-        },
-    });
+const handleSubmit = async (submit: Function) => {
+    const token = await getRecaptchaToken();
+    form.recaptcha_token = token;
+    submit();
 };
 </script>
 
@@ -161,6 +101,7 @@ const handleSubmit = async () => {
                         <span class="block text-green-800">Concepcion Tarlac</span>
                     </h1>
 
+                    <!-- 🔥 HOME LINK ADDED HERE -->
                     <div class="mt-2">
                         <Link href="/" class="text-xs md:text-sm text-gray-600 font-bold hover:text-green-900 transition">
                             ← Back to Home
@@ -168,7 +109,13 @@ const handleSubmit = async () => {
                     </div>
                 </div>
 
-                <form @submit.prevent="handleSubmit" class="flex flex-col gap-4 md:gap-5 text-left">
+                <Form
+                    v-bind="store.form()"
+                    :reset-on-success="['password']"
+                    v-slot="{ errors, processing, submit }"
+                    @submit.prevent="handleSubmit(submit)"
+                    class="flex flex-col gap-4 md:gap-5 text-left"
+                >
 
                     <!-- Email -->
                     <div class="space-y-1">
@@ -179,7 +126,6 @@ const handleSubmit = async () => {
                         <div class="relative group">
                             <Mail class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-700 group-focus-within:text-green-800 transition-colors" />
                             <Input
-                                v-model="form.email"
                                 type="email"
                                 name="email"
                                 required
@@ -192,7 +138,7 @@ const handleSubmit = async () => {
                             />
                         </div>
 
-                        <InputError :message="form.errors.email" />
+                        <InputError :message="errors.email" />
                     </div>
 
                     <!-- Password -->
@@ -205,7 +151,6 @@ const handleSubmit = async () => {
                             <Lock class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-700 group-focus-within:text-green-800 transition-colors" />
 
                             <Input
-                                v-model="form.password"
                                 :type="passwordType"
                                 name="password"
                                 required
@@ -224,13 +169,13 @@ const handleSubmit = async () => {
                             </button>
                         </div>
 
-                        <InputError :message="form.errors.password" />
+                        <InputError :message="errors.password" />
                     </div>
 
                     <!-- Remember -->
                     <div class="flex justify-between items-center">
                         <label class="flex items-center gap-2 text-xs md:text-sm text-gray-700 font-semibold cursor-pointer">
-                            <Checkbox v-model:checked="form.remember" name="remember" />
+                            <Checkbox name="remember" />
                             Remember Me
                         </label>
 
@@ -241,17 +186,14 @@ const handleSubmit = async () => {
                         </TextLink>
                     </div>
 
-                    <InputError v-if="recaptchaError" :message="recaptchaError" />
-                    <InputError v-else :message="form.errors.recaptcha_token" />
-
                     <!-- Submit -->
                     <Button type="submit"
                         class="w-full h-12 md:h-14 mt-2 text-sm md:text-base font-black tracking-widest
                         bg-green-900 text-white hover:bg-[#FFCA52] hover:text-green-950 
                         rounded-xl transition-all duration-300 shadow-xl"
-                        :disabled="form.processing">
+                        :disabled="processing">
 
-                        <Spinner v-if="form.processing" />
+                        <Spinner v-if="processing" />
                         <span v-else class="uppercase">Login Securely</span>
                     </Button>
 
@@ -263,7 +205,7 @@ const handleSubmit = async () => {
                         </TextLink>
                     </div>
 
-                </form>
+                </Form>
             </div>
              <!-- Footer -->
             <div class="bg-gray-50/50 py-3 md:py-4 px-6 md:px-8 border-t border-white/30 text-center">

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
-import { Form, Head, Link } from '@inertiajs/vue3';
+import { Head, Link, useForm } from '@inertiajs/vue3';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
@@ -9,7 +9,7 @@ import InputError from '@/components/InputError.vue';
 import TextLink from '@/components/TextLink.vue';
 import { store } from '@/routes/register';
 import { login } from '@/routes';
-import { Eye, EyeOff, User, Mail, Phone, Calendar, MapPin, Lock, ChevronLeft } from 'lucide-vue-next'; 
+import { Eye, EyeOff, User, Mail, Phone, Calendar, MapPin, Lock, ChevronLeft } from 'lucide-vue-next';
 
 // ----------------------
 // PROPS (For reCAPTCHA)
@@ -25,7 +25,22 @@ const passwordType = ref('password');
 const confirmPasswordType = ref('password');
 const agreedToTerms = ref(false);
 
-const form = store.form();
+// ----------------------
+// FORM STATE (we own submission end-to-end, no <Form> component)
+// ----------------------
+const form = useForm({
+    name: '',
+    email: '',
+    contact_number: '',
+    birthdate: '',
+    address: '',
+    password: '',
+    password_confirmation: '',
+    recaptcha_token: '',
+});
+
+// store.form() gives us the { action, method } pair the route needs
+const registerRoute = store.form();
 
 const togglePasswordVisibility = () => {
     passwordType.value = passwordType.value === 'password' ? 'text' : 'password';
@@ -38,35 +53,84 @@ const toggleConfirmPasswordVisibility = () => {
 // ----------------------
 // RECAPTCHA LOGIC
 // ----------------------
-onMounted(() => {
-    const script = document.createElement('script');
-    script.src = `https://www.google.com/recaptcha/api.js?render=${recaptchaSiteKey}`;
-    script.async = true;
-    document.head.appendChild(script);
-});
+// Loaded at most once, even if this component mounts again (e.g. after an
+// Inertia SPA navigation back to /register). Sharing the same promise avoids
+// injecting the <script> tag twice and racing multiple grecaptcha clients.
+let recaptchaScriptPromise: Promise<void> | null = null;
 
-const getRecaptchaToken = () => {
-    return new Promise((resolve, reject) => {
-        if (!window.grecaptcha) {
-            reject('reCAPTCHA not loaded');
+const loadRecaptchaScript = (): Promise<void> => {
+    if (!recaptchaSiteKey) {
+        return Promise.reject('Missing reCAPTCHA site key — check recaptchaSiteKey is being passed from the backend and RECAPTCHA_SITE_KEY is set in .env');
+    }
+
+    if (window.grecaptcha) {
+        return Promise.resolve();
+    }
+
+    if (recaptchaScriptPromise) {
+        return recaptchaScriptPromise;
+    }
+
+    recaptchaScriptPromise = new Promise((resolve, reject) => {
+        const existing = document.querySelector<HTMLScriptElement>('script[data-recaptcha-loader]');
+        if (existing) {
+            existing.addEventListener('load', () => resolve());
+            existing.addEventListener('error', () => reject('Failed to load reCAPTCHA script'));
             return;
         }
-        window.grecaptcha.ready(() => {
-            window.grecaptcha.execute(recaptchaSiteKey, { action: 'register' })
-                .then((token: string) => resolve(token))
-                .catch((err: any) => reject(err));
-        });
+
+        const script = document.createElement('script');
+        script.src = `https://www.google.com/recaptcha/api.js?render=${recaptchaSiteKey}`;
+        script.async = true;
+        script.dataset.recaptchaLoader = 'true';
+        script.onload = () => resolve();
+        script.onerror = () => reject('Failed to load reCAPTCHA script');
+        document.head.appendChild(script);
+    });
+
+    return recaptchaScriptPromise;
+};
+
+onMounted(() => {
+    loadRecaptchaScript().catch((err) => console.error(err));
+});
+
+const getRecaptchaToken = (): Promise<string> => {
+    return new Promise((resolve, reject) => {
+        loadRecaptchaScript()
+            .then(() => {
+                window.grecaptcha.ready(() => {
+                    window.grecaptcha.execute(recaptchaSiteKey, { action: 'register' })
+                        .then((token: string) => resolve(token))
+                        .catch((err: unknown) => reject(err));
+                });
+            })
+            .catch((err) => reject(err));
     });
 };
 
-const handleSubmit = async (submit: Function) => {
+// ----------------------
+// SUBMIT
+// ----------------------
+const recaptchaError = ref('');
+
+const handleSubmit = async () => {
+    recaptchaError.value = '';
+
     try {
-        const token = await getRecaptchaToken();
-        form.recaptcha_token = token;
-        submit();
-    } catch (error) {
-        console.error("reCAPTCHA Error:", error);
+        form.recaptcha_token = await getRecaptchaToken();
+    } catch (err) {
+        recaptchaError.value = 'reCAPTCHA failed to load. Please refresh and try again.';
+        console.error('reCAPTCHA error:', err);
+        return;
     }
+
+    form.submit(registerRoute.method, registerRoute.action, {
+        preserveScroll: true,
+        onFinish: () => {
+            form.reset('password', 'password_confirmation');
+        },
+    });
 };
 </script>
 
@@ -91,7 +155,6 @@ const handleSubmit = async (submit: Function) => {
                     <h1 class="text-xl md:text-2xl font-black text-gray-900">
                         Create Your <span class="text-green-800">Account</span>
                     </h1>
-                     <!-- 🔥 HOME LINK ADDED HERE -->
                     <div class="mt-2">
                         <Link href="/" class="text-xs md:text-sm text-gray-600 font-bold hover:text-green-900 transition">
                             ← Back to Home
@@ -99,13 +162,7 @@ const handleSubmit = async (submit: Function) => {
                     </div>
                 </div>
 
-                <Form 
-                    v-bind="store.form()" 
-                    :reset-on-success="['password', 'password_confirmation']" 
-                    v-slot="{ errors, processing, submit }" 
-                    @submit.prevent="handleSubmit(submit)"
-                    class="flex flex-col gap-4"
-                >
+                <form @submit.prevent="handleSubmit" class="flex flex-col gap-4">
                     
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-3">
                         
@@ -113,57 +170,57 @@ const handleSubmit = async (submit: Function) => {
                             <Label class="text-[11px] md:text-xs text-gray-700 font-bold ml-1">Full Name</Label>
                             <div class="relative group">
                                 <User class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-700" />
-                                <Input type="text" name="name" required placeholder="Juan Dela Cruz"
+                                <Input v-model="form.name" type="text" name="name" required placeholder="Juan Dela Cruz"
                                     class="bg-white/60 text-black border-gray-200 h-10 pl-9 rounded-lg text-sm focus:ring-1 focus:ring-green-800 focus:bg-white placeholder:text-gray-450 placeholder:opacity-100"  />
                             </div>
-                            <InputError :message="errors.name" class="text-[10px]" />
+                            <InputError :message="form.errors.name" class="text-[10px]" />
                         </div>
 
                         <div class="space-y-1">
                             <Label class="text-[11px] md:text-xs text-gray-700 font-bold ml-1">Email Address</Label>
                             <div class="relative group">
                                 <Mail class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-700" />
-                                <Input type="email" name="email" required placeholder="example@email.com"
+                                <Input v-model="form.email" type="email" name="email" required placeholder="example@email.com"
                                     class="bg-white/60 text-black border-gray-200 h-10 pl-9 rounded-lg text-sm focus:ring-1 focus:ring-green-800 focus:bg-white placeholder:text-gray-450 placeholder:opacity-100" />
                             </div>
-                            <InputError :message="errors.email" class="text-[10px]" />
+                            <InputError :message="form.errors.email" class="text-[10px]" />
                         </div>
 
                         <div class="space-y-1">
                             <Label class="text-[11px] md:text-xs text-gray-700 font-bold ml-1">Contact Number</Label>
                             <div class="relative group">
                                 <Phone class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-700" />
-                                <Input type="text" name="contact_number" required placeholder="09123456789" maxlength="11"
+                                <Input v-model="form.contact_number" type="text" name="contact_number" required placeholder="09123456789" maxlength="11"
                                     class="bg-white/60 text-black border-gray-200 h-10 pl-9 rounded-lg text-sm focus:ring-1 focus:ring-green-800 focus:bg-white placeholder:text-gray-450 placeholder:opacity-100" />
                             </div>
-                            <InputError :message="errors.contact_number" class="text-[10px]" />
+                            <InputError :message="form.errors.contact_number" class="text-[10px]" />
                         </div>
 
                         <div class="space-y-1">
                             <Label class="text-[11px] md:text-xs text-gray-700 font-bold ml-1">Birthdate</Label>
                             <div class="relative group">
                                 <Calendar class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-700" />
-                                <Input type="date" name="birthdate" required
+                                <Input v-model="form.birthdate" type="date" name="birthdate" required
                                     class="bg-white/60 text-black border-gray-200 h-10 pl-9 rounded-lg text-sm focus:ring-1 focus:ring-green-800 focus:bg-white placeholder:text-gray-450 placeholder:opacity-100" />
                             </div>
-                            <InputError :message="errors.birthdate" class="text-[10px]" />
+                            <InputError :message="form.errors.birthdate" class="text-[10px]" />
                         </div>
 
                         <div class="col-span-full space-y-1">
                             <Label class="text-[11px] md:text-xs text-gray-700 font-bold ml-1">Current Address</Label>
                             <div class="relative group">
                                 <MapPin class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-700" />
-                                <Input type="text" name="address" required placeholder="Street, Barangay, Concepcion"
+                                <Input v-model="form.address" type="text" name="address" required placeholder="Street, Barangay, Concepcion"
                                     class="bg-white/60 text-black border-gray-200 h-10 pl-9 rounded-lg text-sm focus:ring-1 focus:ring-green-800 focus:bg-white placeholder:text-gray-450 placeholder:opacity-100" />
                             </div>
-                            <InputError :message="errors.address" class="text-[10px]" />
+                            <InputError :message="form.errors.address" class="text-[10px]" />
                         </div>
 
                         <div class="space-y-1">
                             <Label class="text-[11px] md:text-xs text-gray-700 font-bold ml-1">Password</Label>
                             <div class="relative group">
                                 <Lock class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-700" />
-                                <Input :type="passwordType" name="password" required placeholder="••••••••"
+                                <Input v-model="form.password" :type="passwordType" name="password" required placeholder="••••••••"
                                     class="bg-white/60 text-black border-gray-200 h-10 pl-9 pr-9 rounded-lg text-sm focus:ring-1 focus:ring-green-800 focus:bg-white placeholder:text-gray-450 placeholder:opacity-100" />
                                 <button type="button" @click="togglePasswordVisibility"
                                     class="absolute right-0 top-0 h-full w-9 flex items-center justify-center text-gray-700">
@@ -177,7 +234,7 @@ const handleSubmit = async (submit: Function) => {
                             <Label class="text-[11px] md:text-xs text-gray-700 font-bold ml-1">Confirm Password</Label>
                             <div class="relative group">
                                 <Lock class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-700" />
-                                <Input :type="confirmPasswordType" name="password_confirmation" required placeholder="••••••••"
+                                <Input v-model="form.password_confirmation" :type="confirmPasswordType" name="password_confirmation" required placeholder="••••••••"
                                     class="bg-white/60 text-black border-gray-200 h-10 pl-9 pr-9 rounded-lg text-sm focus:ring-1 focus:ring-green-800 focus:bg-white placeholder:text-gray-450 placeholder:opacity-100" />
                                 <button type="button" @click="toggleConfirmPasswordVisibility"
                                     class="absolute right-0 top-0 h-full w-9 flex items-center justify-center text-gray-700">
@@ -188,7 +245,10 @@ const handleSubmit = async (submit: Function) => {
                         </div>
                     </div>
                     
-                    <InputError :message="errors.password" class="text-[10px]" />
+                    <InputError :message="form.errors.password" class="text-[10px]" />
+
+                    <InputError v-if="recaptchaError" :message="recaptchaError" class="text-[10px]" />
+                    <InputError v-else :message="form.errors.recaptcha_token" class="text-[10px]" />
 
                     <div class="flex items-center gap-2">
                         <input id="terms" type="checkbox" v-model="agreedToTerms" required
@@ -203,8 +263,8 @@ const handleSubmit = async (submit: Function) => {
 
                     <Button type="submit"
                         class="w-full h-11 text-sm font-black tracking-widest bg-green-900 text-white hover:bg-[#FFCA52] hover:text-green-950 rounded-lg transition-all"
-                        :disabled="processing || !agreedToTerms">
-                        <Spinner v-if="processing" />
+                        :disabled="form.processing || !agreedToTerms">
+                        <Spinner v-if="form.processing" />
                         <span v-else>REGISTER SECURELY</span>
                     </Button>
 
@@ -215,7 +275,7 @@ const handleSubmit = async (submit: Function) => {
                         </TextLink>
                     </div>
 
-                </Form>
+                </form>
             </div>
 
             <div class="bg-gray-50/50 py-2 border-t border-white/30 text-center shrink-0">

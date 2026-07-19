@@ -14,7 +14,6 @@ use Laravel\Fortify\Features;
 use Laravel\Fortify\Fortify;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\ValidationException;
 use App\Models\User;
 
 class FortifyServiceProvider extends ServiceProvider
@@ -32,45 +31,10 @@ class FortifyServiceProvider extends ServiceProvider
 
         /*
         |--------------------------------------------------------------------------
-        | 🔐 CUSTOM AUTH LOGIC (WITH RECAPTCHA + EMAIL VERIFICATION SUPPORT)
+        | 🔐 CUSTOM AUTH LOGIC (WITH EMAIL VERIFICATION SUPPORT)
         |--------------------------------------------------------------------------
         */
         Fortify::authenticateUsing(function (Request $request) {
-
-            // ❗ RECAPTCHA VERIFICATION
-            $request->validate([
-                'recaptcha_token' => ['required', 'string'],
-            ]);
-
-            $token = $request->input('recaptcha_token');
-
-            // Fortify's login pipeline validates credentials twice per request
-            // (once in RedirectIfTwoFactorAuthenticatable, once in
-            // AttemptToAuthenticate), even without 2FA enabled — and both
-            // calls run through this closure. reCAPTCHA v3 tokens are
-            // single-use, so the second verification of the same token would
-            // otherwise fail with "timeout-or-duplicate". Cache the result
-            // briefly, keyed by the token, so the second call reuses the
-            // first outcome instead of re-submitting to Google.
-            $recaptcha = \Illuminate\Support\Facades\Cache::remember(
-                'recaptcha_verify_' . sha1($token),
-                10,
-                function () use ($request, $token) {
-                    return Http::asForm()->post('https://www.google.com/recaptcha/api/siteverify', [
-                        'secret'   => config('services.recaptcha.secret_key'),
-                        'response' => $token,
-                        'remoteip' => $request->ip(),
-                    ])->json();
-                }
-            );
-
-            // v3 keys return a "score" between 0 and 1 — tune the threshold
-            // as needed based on observed false positive/negative rates.
-            if (! ($recaptcha['success'] ?? false) || ($recaptcha['score'] ?? 0) < 0.5) {
-                throw ValidationException::withMessages([
-                    'email' => 'reCAPTCHA verification failed. Please try again.',
-                ]);
-            }
 
             $user = User::where('email', $request->email)->first();
 
@@ -116,11 +80,11 @@ class FortifyServiceProvider extends ServiceProvider
             'canResetPassword' => Features::enabled(Features::resetPasswords()),
             'canRegister' => Features::enabled(Features::registration()),
             'status' => $request->session()->get('status'),
-            'recaptchaSiteKey' => config('services.recaptcha.site_key'),
+            'recaptchaSiteKey' => env('RECAPTCHA_SITE_KEY'),
         ]));
 
         Fortify::registerView(fn() => Inertia::render('auth/Register', [
-            'recaptchaSiteKey' => config('services.recaptcha.site_key'),
+            'recaptchaSiteKey' => env('RECAPTCHA_SITE_KEY'),
         ]));
 
         Fortify::resetPasswordView(fn(Request $request) => Inertia::render('auth/ResetPassword', [

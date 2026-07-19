@@ -1,35 +1,35 @@
 <template>
-    <div class="min-h-screen bg-white">
+    <div class="min-h-screen bg-white overflow-x-hidden">
         <Navbar />
 
-        <section class="relative overflow-hidden bg-gray-50 px-4 pt-20 pb-16 md:pt-28 md:pb-20">
+        <section class="relative overflow-hidden bg-gray-50 px-4 pt-16 pb-12 sm:pt-20 sm:pb-16 md:pt-28 md:pb-20">
             <div
-                class="absolute top-0 right-0 h-[300px] w-[300px] md:h-[500px] md:w-[500px] rounded-full bg-gradient-to-br from-yellow-400 to-transparent opacity-20 blur-3xl"
+                class="absolute top-0 right-0 h-[200px] w-[200px] sm:h-[300px] sm:w-[300px] md:h-[500px] md:w-[500px] rounded-full bg-gradient-to-br from-yellow-400 to-transparent opacity-20 blur-3xl"
             ></div>
             <div
-                class="absolute bottom-0 left-0 h-[250px] w-[250px] md:h-[400px] md:w-[400px] rounded-full bg-gradient-to-tr from-green-900 to-transparent opacity-10 blur-3xl"
+                class="absolute bottom-0 left-0 h-[180px] w-[180px] sm:h-[250px] sm:w-[250px] md:h-[400px] md:w-[400px] rounded-full bg-gradient-to-tr from-green-900 to-transparent opacity-10 blur-3xl"
             ></div>
 
             <div
-                class="relative z-10 mx-auto grid max-w-7xl grid-cols-1 items-center gap-12 lg:grid-cols-2"
+                class="relative z-10 mx-auto grid max-w-7xl grid-cols-1 items-center gap-8 sm:gap-10 lg:grid-cols-2 lg:gap-12"
             >
-                <div class="space-y-6 text-center lg:text-left">
+                <div class="space-y-4 text-center sm:space-y-6 lg:text-left">
                     <span
                         class="inline-block rounded-full bg-green-100 px-4 py-2 text-[10px] md:text-xs font-bold tracking-widest text-green-900 uppercase shadow-sm"
                     >
                         Official Website
                     </span>
 
-                    <h1 class="text-4xl sm:text-5xl md:text-6xl leading-tight font-black text-gray-900">
+                    <h1 class="text-3xl xs:text-4xl sm:text-5xl md:text-6xl leading-tight font-black text-gray-900">
                         Sangguniang Bayan
                         <span class="text-green-800">Concepcion, Tarlac</span>
                     </h1>
 
-                    <p class="text-lg md:text-xl font-medium text-gray-600">
+                    <p class="text-base sm:text-lg md:text-xl font-medium text-gray-600">
                         Transparency • Integrity • Public Service
                     </p>
 
-                    <div class="flex flex-col gap-4 pt-6 sm:flex-row sm:justify-center lg:justify-start">
+                    <div class="flex flex-col gap-3 pt-4 sm:gap-4 sm:pt-6 sm:flex-row sm:justify-center lg:justify-start">
                         <a
                             href="/citizens-charter/ordinances"
                             class="rounded-lg bg-green-800 px-8 py-3 text-center font-bold text-white shadow-lg transition hover:bg-green-900"
@@ -47,7 +47,7 @@
 
                 <div class="block lg:block">
                     <div
-                        class="relative h-64 sm:h-80 md:h-96 w-full overflow-hidden rounded-2xl shadow-2xl"
+                        class="relative h-56 xs:h-64 sm:h-80 md:h-96 w-full overflow-hidden rounded-2xl shadow-2xl"
                     >
                         <img
                             v-if="pageContent?.welcome_image"
@@ -56,7 +56,7 @@
                             class="h-full w-full object-cover"
                         />
                        <div
-                            class="absolute right-4 bottom-4 rounded-lg bg-white px-4 py-2 text-xs md:text-sm font-semibold text-gray-900"
+                            class="absolute right-3 bottom-3 sm:right-4 sm:bottom-4 rounded-lg bg-white px-3 py-1.5 sm:px-4 sm:py-2 text-xs md:text-sm font-semibold text-gray-900"
                         >
                             Concepcion, Tarlac
                         </div>
@@ -67,18 +67,18 @@
 
         <section
             id="leadership"
-            class="relative overflow-hidden bg-white px-4 py-16 md:py-24"
+            class="relative overflow-hidden bg-white px-4 py-12 sm:py-16 md:py-24"
         >
             <div class="mx-auto max-w-7xl">
                 <div
-                    class="relative overflow-hidden rounded-3xl md:rounded-[2.5rem] bg-gradient-to-br from-green-900 via-green-800 to-green-900 shadow-2xl"
+                    class="relative overflow-hidden rounded-2xl sm:rounded-3xl md:rounded-[2.5rem] bg-gradient-to-br from-green-900 via-green-800 to-green-900 shadow-2xl"
                 >
                     <div
                         class="absolute top-0 right-0 h-64 w-64 translate-x-1/2 -translate-y-1/2 rounded-full bg-yellow-400/10 blur-3xl"
                     ></div>
 
                     <div class="grid items-stretch gap-0 lg:grid-cols-5">
-                        <div class="relative min-h-[350px] sm:min-h-[450px] lg:col-span-2">
+                        <div class="relative min-h-[260px] sm:min-h-[350px] md:min-h-[450px] lg:col-span-2">
                             <img
                                 v-if="
                                     pageContent?.vice_mayor_image ||
@@ -101,9 +101,9 @@
                         </div>
 
                         <div
-                            class="relative flex flex-col justify-center p-6 sm:p-10 md:p-16 lg:col-span-3"
+                            class="relative flex flex-col justify-center p-5 xs:p-6 sm:p-10 md:p-16 lg:col-span-3"
                         >
-                            <div class="mb-4 md:mb-6">
+                            <div class="mb-3 sm:mb-4 md:mb-6">
                                 <span
                                     class="inline-block rounded-full bg-yellow-400 px-4 py-1 text-[10px] md:text-xs font-bold tracking-widest text-green-950 uppercase"
                                 >
@@ -112,7 +112,7 @@
                             </div>
 
                             <h2
-                                class="mb-6 md:mb-8 text-3xl sm:text-4xl leading-tight font-black text-white md:text-5xl"
+                                class="mb-4 sm:mb-6 md:mb-8 text-2xl xs:text-3xl sm:text-4xl leading-tight font-black text-white md:text-5xl"
                             >
                                 Message to the <br class="hidden sm:block" />
                                 <span class="text-yellow-400"
@@ -120,7 +120,7 @@
                                 >
                             </h2>
 
-                            <div class="relative mb-8 md:mb-10">
+                            <div class="relative mb-6 sm:mb-8 md:mb-10">
                                 <svg
                                     class="absolute -top-6 -left-4 md:-left-8 h-10 w-10 md:h-16 md:w-16 text-yellow-400/20"
                                     fill="currentColor"
@@ -132,17 +132,17 @@
                                 </svg>
 
                                 <p
-                                    class="relative z-10 line-clamp-6 text-lg md:text-xl leading-relaxed text-green-50/90 italic"
+                                    class="relative z-10 line-clamp-6 text-base sm:text-lg md:text-xl leading-relaxed text-green-50/90 italic"
                                     v-html="pageContent?.vice_mayor_message?.replace(/\n/g, '<br>')"
                                 >
                                 </p>
                             </div>
 
                             <div
-                                class="flex flex-col items-start justify-between gap-6 border-t border-white/10 pt-8 sm:flex-row sm:items-center"
+                                class="flex flex-col items-start justify-between gap-4 border-t border-white/10 pt-6 sm:gap-6 sm:pt-8 sm:flex-row sm:items-center"
                             >
                                 <div>
-                                    <p class="text-xl md:text-2xl font-bold text-white">
+                                    <p class="text-lg sm:text-xl md:text-2xl font-bold text-white">
                                         {{ viceMayor?.name }}
                                     </p>
                                     <p
@@ -154,7 +154,7 @@
 
                                 <button
                                     @click="isModalOpen = true"
-                                    class="group relative flex w-full sm:w-auto items-center justify-center gap-3 overflow-hidden rounded-xl bg-yellow-400 px-8 py-4 font-bold text-green-950 transition-all hover:bg-white"
+                                    class="group relative flex w-full sm:w-auto items-center justify-center gap-3 overflow-hidden rounded-xl bg-yellow-400 px-6 py-3 sm:px-8 sm:py-4 font-bold text-green-950 transition-all hover:bg-white"
                                 >
                                     Read Full Address
                                     <span
@@ -169,15 +169,15 @@
             </div>
         </section>
 
-        <section id="about" class="bg-gray-50 px-4 py-16 md:py-24">
+        <section id="about" class="bg-gray-50 px-4 py-12 sm:py-16 md:py-24">
             <div class="mx-auto max-w-7xl">
-                <div class="grid grid-cols-1 gap-8 lg:grid-cols-12">
+                <div class="grid grid-cols-1 gap-6 sm:gap-8 lg:grid-cols-12">
                     <div class="lg:col-span-7">
                         <div
-                            class="flex h-full flex-col justify-between rounded-3xl border border-gray-100 bg-white p-6 md:p-12 shadow-sm"
+                            class="flex h-full flex-col justify-between rounded-2xl sm:rounded-3xl border border-gray-100 bg-white p-5 xs:p-6 sm:p-8 md:p-12 shadow-sm"
                         >
                             <div>
-                                <div class="mb-4 flex items-center gap-3">
+                                <div class="mb-3 sm:mb-4 flex items-center gap-3">
                                     <div class="h-1 w-12 bg-green-800"></div>
                                     <span
                                         class="text-[10px] md:text-xs font-bold tracking-[0.2em] text-green-800 uppercase"
@@ -185,7 +185,7 @@
                                     >
                                 </div>
                                 <h3
-                                    class="mb-6 text-3xl md:text-4xl leading-tight font-black text-gray-900"
+                                    class="mb-4 sm:mb-6 text-2xl xs:text-3xl sm:text-3xl md:text-4xl leading-tight font-black text-gray-900"
                                 >
                                     The Sangguniang Bayan <br />
                                     <span class="text-green-700"
@@ -193,14 +193,14 @@
                                     >
                                 </h3>
                                 <p
-                                    class="mb-8 text-base md:text-lg leading-relaxed text-gray-600"
+                                    class="mb-6 sm:mb-8 text-sm sm:text-base md:text-lg leading-relaxed text-gray-600"
                                 >
                                     {{ pageContent?.about_us }}
                                 </p>
                             </div>
 
                             <div
-                                class="relative h-48 sm:h-64 w-full overflow-hidden rounded-2xl shadow-lg"
+                                class="relative h-40 xs:h-48 sm:h-64 w-full overflow-hidden rounded-2xl shadow-lg"
                             >
                                 <img
                                     v-if="pageContent?.about_us_image"
@@ -214,46 +214,46 @@
                         </div>
                     </div>
 
-                    <div class="flex flex-col gap-8 lg:col-span-5">
+                    <div class="grid grid-cols-1 gap-4 xs:grid-cols-2 sm:gap-6 lg:flex lg:flex-col lg:gap-8 lg:col-span-5">
                         <div
-                            class="group relative flex-1 overflow-hidden rounded-3xl border border-gray-100 bg-white p-8 md:p-10 shadow-sm transition-all hover:-translate-y-1 hover:shadow-xl"
+                            class="group relative flex-1 overflow-hidden rounded-2xl sm:rounded-3xl border border-gray-100 bg-white p-5 xs:p-6 sm:p-8 md:p-10 shadow-sm transition-all hover:-translate-y-1 hover:shadow-xl"
                         >
                             <div
                                 class="absolute top-0 right-0 h-32 w-32 translate-x-16 -translate-y-16 rounded-full bg-green-50 transition-transform group-hover:scale-110"
                             ></div>
                             <div class="relative z-10">
                                 <div
-                                    class="mb-6 flex h-14 w-14 md:h-16 md:w-16 items-center justify-center rounded-2xl bg-green-800 text-2xl md:text-3xl shadow-lg shadow-green-900/20"
+                                    class="mb-3 sm:mb-6 flex h-11 w-11 xs:h-12 xs:w-12 sm:h-14 sm:w-14 md:h-16 md:w-16 items-center justify-center rounded-2xl bg-green-800 text-lg xs:text-xl sm:text-2xl md:text-3xl shadow-lg shadow-green-900/20"
                                 >
                                     🎯
                                 </div>
                                 <h4
-                                    class="mb-4 text-xl md:text-2xl font-bold text-gray-900"
+                                    class="mb-2 sm:mb-4 text-base xs:text-lg sm:text-xl md:text-2xl font-bold text-gray-900"
                                 >
                                     Our Mission
                                 </h4>
-                                <p class="text-sm md:text-base leading-relaxed text-gray-600">
+                                <p class="text-xs xs:text-sm md:text-base leading-relaxed text-gray-600">
                                     {{ pageContent?.mission }}
                                 </p>
                             </div>
                         </div>
 
                         <div
-                            class="group relative flex-1 overflow-hidden rounded-3xl bg-green-900 p-8 md:p-10 shadow-xl transition-all hover:-translate-y-1 hover:shadow-2xl"
+                            class="group relative flex-1 overflow-hidden rounded-2xl sm:rounded-3xl bg-green-900 p-5 xs:p-6 sm:p-8 md:p-10 shadow-xl transition-all hover:-translate-y-1 hover:shadow-2xl"
                         >
                             <div
                                 class="absolute top-0 right-0 h-32 w-32 translate-x-16 -translate-y-16 rounded-full bg-white/5"
                             ></div>
                             <div class="relative z-10">
                                 <div
-                                    class="mb-6 flex h-14 w-14 md:h-16 md:w-16 items-center justify-center rounded-2xl bg-yellow-400 text-2xl md:text-3xl shadow-lg shadow-yellow-400/20"
+                                    class="mb-3 sm:mb-6 flex h-11 w-11 xs:h-12 xs:w-12 sm:h-14 sm:w-14 md:h-16 md:w-16 items-center justify-center rounded-2xl bg-yellow-400 text-lg xs:text-xl sm:text-2xl md:text-3xl shadow-lg shadow-yellow-400/20"
                                 >
                                     👁️
                                 </div>
-                                <h4 class="mb-4 text-xl md:text-2xl font-bold text-white">
+                                <h4 class="mb-2 sm:mb-4 text-base xs:text-lg sm:text-xl md:text-2xl font-bold text-white">
                                     Our Vision
                                 </h4>
-                                <p class="text-sm md:text-base leading-relaxed text-green-50/80">
+                                <p class="text-xs xs:text-sm md:text-base leading-relaxed text-green-50/80">
                                     {{ pageContent?.vision }}
                                 </p>
                             </div>
@@ -263,29 +263,29 @@
             </div>
         </section>
 
-        <section class="bg-gray-50 px-4 py-16 md:py-20">
+        <section class="bg-gray-50 px-4 py-12 sm:py-16 md:py-20">
             <div class="mx-auto max-w-7xl">
-                <div class="mb-12 md:mb-16 space-y-4 text-center">
+                <div class="mb-10 sm:mb-12 md:mb-16 space-y-3 sm:space-y-4 text-center">
                     <span
                         class="text-xs font-bold tracking-widest text-green-900 uppercase"
                         >Browse</span
                     >
-                    <h2 class="text-2xl md:text-3xl font-bold text-green-900">Key Sections</h2>
+                    <h2 class="text-xl sm:text-2xl md:text-3xl font-bold text-green-900">Key Sections</h2>
                     <div class="mx-auto h-1 w-20 md:w-24 bg-yellow-400"></div>
                 </div>
 
-                <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3">
                     <a
                         v-for="feature in features"
                         :key="feature.title"
                         :href="feature.href"
-                        class="group flex flex-col rounded-xl border-t-4 border-yellow-400 bg-white p-6 md:p-8 shadow-lg transition hover:shadow-xl"
+                        class="group flex flex-col rounded-xl border-t-4 border-yellow-400 bg-white p-5 sm:p-6 md:p-8 shadow-lg transition hover:shadow-xl"
                     >
-                        <div class="text-4xl md:text-5xl text-green-900 transition-transform group-hover:scale-110">
+                        <div class="text-3xl xs:text-4xl md:text-5xl text-green-900 transition-transform group-hover:scale-110">
                             {{ feature.icon }}
                         </div>
                         
-                        <h3 class="mt-4 text-lg md:text-xl font-extrabold text-gray-900">
+                        <h3 class="mt-4 text-base xs:text-lg sm:text-xl font-extrabold text-gray-900">
                             {{ feature.title }}
                         </h3>
                         
@@ -301,19 +301,19 @@
             </div>
         </section>
 
-        <section class="bg-gray-50 px-4 py-16 md:py-20">
+        <section class="bg-gray-50 px-4 py-12 sm:py-16 md:py-20">
             <div class="mx-auto max-w-7xl">
-                <div class="mb-12 md:mb-16 text-center">
+                <div class="mb-10 sm:mb-12 md:mb-16 text-center">
                     <span
                         class="text-xs font-bold tracking-widest text-green-900 uppercase"
                         >Gallery</span
                     >
-                    <h2 class="text-2xl md:text-3xl font-bold text-green-900">Community & Events</h2>
+                    <h2 class="text-xl sm:text-2xl md:text-3xl font-bold text-green-900">Community & Events</h2>
                     <div class="mx-auto mt-2 h-1 w-20 md:w-24 bg-yellow-400"></div>
                 </div>
 
                 <div
-                    class="columns-1 gap-4 space-y-4 sm:columns-2 lg:columns-3 xl:columns-4"
+                    class="columns-1 gap-4 space-y-4 xs:columns-2 lg:columns-3 xl:columns-4"
                 >
                     <div
                         v-for="(img, i) in pageContent?.gallery_images"
@@ -334,24 +334,24 @@
             </div>
         </section>
 
-        <section class="px-4 py-16 md:py-20">
+        <section class="px-4 py-12 sm:py-16 md:py-20">
             <div
-                class="mx-auto grid max-w-7xl grid-cols-1 items-center gap-12 lg:grid-cols-2"
+                class="mx-auto grid max-w-7xl grid-cols-1 items-center gap-8 sm:gap-10 lg:grid-cols-2 lg:gap-12"
             >
-                <div class="space-y-8 md:space-y-10">
+                <div class="space-y-6 sm:space-y-8 md:space-y-10">
                     <div>
                         <span
                             class="text-xs font-bold tracking-widest text-green-900 uppercase"
                             >Contact</span
                         >
-                       <h2 class="text-2xl md:text-3xl font-bold text-green-900">Get In Touch</h2>
+                       <h2 class="text-xl sm:text-2xl md:text-3xl font-bold text-green-900">Get In Touch</h2>
                         <p class="mt-2 text-sm md:text-base text-gray-600">
                             We are here to serve. Reach out for inquiries and
                             assistance.
                         </p>
                     </div>
 
-                    <div class="space-y-6">
+                    <div class="space-y-5 sm:space-y-6">
                         <div
                             v-for="contact in contactDetails"
                             :key="contact.title"
@@ -377,7 +377,7 @@
                 </div>
 
                 <div
-                    class="flex h-96 items-center justify-center overflow-hidden rounded-2xl border-4 border-gray-200 bg-gray-100 shadow-xl"
+                    class="flex h-64 xs:h-80 sm:h-96 items-center justify-center overflow-hidden rounded-2xl border-4 border-gray-200 bg-gray-100 shadow-xl"
                 >
                     <iframe
                         class="h-full w-full"
@@ -391,28 +391,28 @@
             </div>
         </section>
 
-       <section id="feedback" class="relative overflow-hidden bg-white px-4 py-16 md:py-24">
+       <section id="feedback" class="relative overflow-hidden bg-white px-4 py-12 sm:py-16 md:py-24">
             <div class="mx-auto max-w-7xl">
-                <div class="grid grid-cols-1 gap-12 lg:grid-cols-2">
+                <div class="grid grid-cols-1 gap-8 sm:gap-10 lg:grid-cols-2 lg:gap-12">
                     
-                   <div class="rounded-3xl border border-gray-100 bg-white p-8 shadow-xl md:p-12 text-gray-900">
-                    <div class="mb-8">
+                   <div class="rounded-2xl sm:rounded-3xl border border-gray-100 bg-white p-5 xs:p-6 sm:p-8 shadow-xl md:p-12 text-gray-900">
+                    <div class="mb-6 sm:mb-8">
                         <span class="inline-block rounded-full bg-green-100 px-4 py-2 text-[10px] font-bold tracking-widest text-green-900 uppercase">
                             Public Consultation
                         </span>
-                        <h2 class="mt-4 text-3xl font-black md:text-4xl">Submit Feedback</h2>
-                        <p class="mt-2 text-gray-600">
+                        <h2 class="mt-4 text-2xl xs:text-3xl font-black md:text-4xl">Submit Feedback</h2>
+                        <p class="mt-2 text-sm sm:text-base text-gray-600">
                             Share your suggestions, concerns, or commendations regarding municipal services.
                         </p>
                     </div>
 
-                    <form @submit.prevent="submitFeedback" class="space-y-6">
+                    <form @submit.prevent="submitFeedback" class="space-y-5 sm:space-y-6">
                         <div>
                             <label class="block text-xs font-bold uppercase text-gray-500 mb-2 ml-1">
                                 Feedback Category
                             </label>
                             <select v-model="feedbackForm.category" required
-                                class="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-4 text-sm focus:border-green-800 focus:bg-white focus:ring-0">
+                                class="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 sm:py-4 text-sm focus:border-green-800 focus:bg-white focus:ring-0">
                                 <option value="" disabled>Select a category</option>
                                 <option value="suggestion">Legislative Suggestion</option>
                                 <option value="concern">Community Concern</option>
@@ -426,44 +426,44 @@
                                 Your Message
                             </label>
                             <textarea v-model="feedbackForm.message" rows="6" required
-                                class="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-4 text-sm focus:border-green-800 focus:bg-white focus:ring-0"
+                                class="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 sm:py-4 text-sm focus:border-green-800 focus:bg-white focus:ring-0"
                                 placeholder="Please provide as much detail as possible to help us take action..."></textarea>
                         </div>
 
                         <button type="submit"
-                            class="group flex w-full items-center justify-center gap-3 rounded-xl bg-green-800 py-4 font-bold text-white shadow-lg transition-all hover:bg-green-900 active:scale-95">
+                            class="group flex w-full items-center justify-center gap-3 rounded-xl bg-green-800 py-3 sm:py-4 font-bold text-white shadow-lg transition-all hover:bg-green-900 active:scale-95">
                             Submit Feedback
                             <span class="transition-transform group-hover:translate-x-1">📩</span>
                         </button>
                     </form>
                 </div>
 
-                    <div class="flex flex-col justify-center space-y-8">
-                        <div class="relative overflow-hidden rounded-3xl bg-green-900 p-8 text-white md:p-12">
+                    <div class="flex flex-col justify-center space-y-6 sm:space-y-8">
+                        <div class="relative overflow-hidden rounded-2xl sm:rounded-3xl bg-green-900 p-6 xs:p-8 text-white md:p-12">
                             <div class="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-yellow-400/10 blur-3xl"></div>
                             
-                            <h3 class="relative z-10 text-2xl font-bold md:text-3xl">Participatory Governance.</h3>
-                            <p class="relative z-10 mt-4 text-green-50/70 leading-relaxed">
+                            <h3 class="relative z-10 text-xl xs:text-2xl font-bold md:text-3xl">Participatory Governance.</h3>
+                            <p class="relative z-10 mt-3 sm:mt-4 text-sm sm:text-base text-green-50/70 leading-relaxed">
                                 The Sangguniang Bayan is dedicated to ensuring that the needs of Concepcion are met through active collaboration with its citizens. Your input helps us refine our policies and improve local legislation.
                             </p>
 
-                            <div class="mt-8 space-y-4">
+                            <div class="mt-6 sm:mt-8 space-y-3 sm:space-y-4">
                                 <div class="flex items-center gap-4">
-                                    <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-yellow-400 font-bold text-green-900">✓</div>
-                                    <p class="text-sm font-medium">Categorized for legislative action</p>
+                                    <div class="flex h-9 w-9 sm:h-10 sm:w-10 shrink-0 items-center justify-center rounded-full bg-yellow-400 font-bold text-green-900">✓</div>
+                                    <p class="text-xs sm:text-sm font-medium">Categorized for legislative action</p>
                                 </div>
                                 <div class="flex items-center gap-4">
-                                    <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-yellow-400 font-bold text-green-900">✓</div>
-                                    <p class="text-sm font-medium">Reviewed by the Office of the Secretary</p>
+                                    <div class="flex h-9 w-9 sm:h-10 sm:w-10 shrink-0 items-center justify-center rounded-full bg-yellow-400 font-bold text-green-900">✓</div>
+                                    <p class="text-xs sm:text-sm font-medium">Reviewed by the Office of the Secretary</p>
                                 </div>
                                 <div class="flex items-center gap-4">
-                                    <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-yellow-400 font-bold text-green-900">✓</div>
-                                    <p class="text-sm font-medium">Direct impact on community development</p>
+                                    <div class="flex h-9 w-9 sm:h-10 sm:w-10 shrink-0 items-center justify-center rounded-full bg-yellow-400 font-bold text-green-900">✓</div>
+                                    <p class="text-xs sm:text-sm font-medium">Direct impact on community development</p>
                                 </div>
                             </div>
                         </div>
 
-                        <div class="rounded-3xl border-2 border-dashed border-gray-200 p-8 text-center transition hover:border-green-800/30">
+                        <div class="rounded-2xl sm:rounded-3xl border-2 border-dashed border-gray-200 p-6 sm:p-8 text-center transition hover:border-green-800/30">
                             <p class="text-sm italic text-gray-500">
                                 "Public service is a public trust."
                             </p>
@@ -486,13 +486,13 @@
                 <div v-if="showSuccessModal" class="fixed inset-0 z-[9999] flex items-center justify-center p-4">
                     <div class="fixed inset-0 bg-gray-900/60 backdrop-blur-sm" @click="showSuccessModal = false"></div>
 
-                    <div class="relative w-full max-w-sm transform rounded-3xl bg-white p-8 text-center shadow-2xl transition-all">
-                        <div class="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-green-100">
-                            <span class="text-4xl">✅</span>
+                    <div class="relative w-full max-w-sm transform rounded-3xl bg-white p-6 sm:p-8 text-center shadow-2xl transition-all">
+                        <div class="mx-auto mb-5 sm:mb-6 flex h-16 w-16 sm:h-20 sm:w-20 items-center justify-center rounded-full bg-green-100">
+                            <span class="text-3xl sm:text-4xl">✅</span>
                         </div>
-                        <h3 class="text-2xl font-black text-gray-900">Message Sent!</h3>
+                        <h3 class="text-xl sm:text-2xl font-black text-gray-900">Message Sent!</h3>
                         <p class="mt-3 text-sm text-gray-600">Your feedback has been successfully submitted.</p>
-                        <button @click="showSuccessModal = false" class="mt-8 w-full rounded-xl bg-green-800 py-3 font-bold text-white hover:bg-green-900">
+                        <button @click="showSuccessModal = false" class="mt-6 sm:mt-8 w-full rounded-xl bg-green-800 py-3 font-bold text-white hover:bg-green-900">
                             Close
                         </button>
                     </div>
@@ -517,7 +517,7 @@
                 class="relative z-10 my-auto flex w-full max-w-5xl flex-col overflow-hidden rounded-2xl bg-white shadow-2xl lg:flex-row max-h-[90vh]"
             >
                 <div
-                    class="relative h-48 sm:h-64 lg:h-auto lg:w-2/5 shrink-0"
+                    class="relative h-40 xs:h-48 sm:h-64 lg:h-auto lg:w-2/5 shrink-0"
                 >
                     <img
                         v-if="viceMayor?.image"
@@ -546,15 +546,15 @@
                         ✕
                     </button>
 
-                    <div class="flex-grow p-6 md:p-12">
-                        <div class="mb-6 md:mb-8">
+                    <div class="flex-grow p-5 xs:p-6 sm:p-8 md:p-12">
+                        <div class="mb-5 sm:mb-6 md:mb-8">
                             <p
                                 class="mb-1 text-[10px] font-bold tracking-[0.3em] text-green-800 uppercase"
                             >
                                 Office of the Vice Mayor
                             </p>
                             <h2
-                                class="text-2xl md:text-3xl leading-tight font-black text-gray-900"
+                                class="text-xl xs:text-2xl sm:text-3xl leading-tight font-black text-gray-900"
                             >
                                 Official Message to the People
                             </h2>
@@ -562,15 +562,15 @@
                         </div>
 
                         <div
-                            class="prose prose-green max-w-none space-y-4 md:space-y-6 font-serif text-base md:text-lg leading-relaxed text-gray-700 italic"
+                            class="prose prose-green max-w-none space-y-4 md:space-y-6 font-serif text-sm xs:text-base sm:text-lg leading-relaxed text-gray-700 italic"
                             v-html="pageContent?.vice_mayor_message?.replace(/\n/g, '<br>')"
                         ></div>
 
                         <div
                             v-if="props.viceMayor"
-                            class="mt-8 md:mt-10 border-t border-gray-100 pt-6"
+                            class="mt-6 sm:mt-8 md:mt-10 border-t border-gray-100 pt-6"
                         >
-                            <p class="text-lg md:text-xl font-bold text-gray-900">
+                            <p class="text-base sm:text-lg md:text-xl font-bold text-gray-900">
                                 {{ props.viceMayor.name }}
                             </p>
                             <p class="text-xs md:text-sm font-medium text-green-800">

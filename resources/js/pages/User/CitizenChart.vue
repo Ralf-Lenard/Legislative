@@ -316,7 +316,8 @@ import {
   DocumentTextIcon, 
   HeartIcon, 
   AcademicCapIcon,
-  ScaleIcon 
+  ScaleIcon,
+  BuildingOfficeIcon
 } from '@heroicons/vue/24/outline'; 
 
 // Props connected to Controller

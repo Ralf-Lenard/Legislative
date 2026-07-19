@@ -466,28 +466,39 @@ class OrdinancesController extends Controller
     {
         // 1. CAPTCHA CHECK
         if ($request->recaptcha_token !== 'local-bypass') {
-            $response = Http::asForm()->post('https://www.google.com/recaptcha/api/siteverify', [
-                'secret'   => env('RECAPTCHA_SECRET_KEY'),
-                'response' => $request->recaptcha_token,
-                'remoteip' => $request->ip(),
+
+            $request->validate([
+                'recaptcha_token' => ['required', 'string'],
             ]);
 
-            $result = $response->json();
+            try {
+                $response = Http::asForm()->post('https://www.google.com/recaptcha/api/siteverify', [
+                    'secret'   => config('services.recaptcha.secret_key'),
+                    'response' => $request->recaptcha_token,
+                    'remoteip' => $request->ip(),
+                ]);
 
-            if (!$result['success'] || $result['score'] < 0.5) {
+                $result = $response->json();
+            } catch (\Illuminate\Http\Client\ConnectionException $e) {
                 return back()->withErrors([
-                    'captcha' => 'reCAPTCHA verification failed. Suspicious activity detected.'
+                    'captcha' => 'Could not reach reCAPTCHA verification service. Please try again.',
+                ]);
+            }
+
+            if (! ($result['success'] ?? false) || ($result['score'] ?? 0) < 0.5) {
+                return back()->withErrors([
+                    'captcha' => 'reCAPTCHA verification failed. Suspicious activity detected.',
                 ]);
             }
         }
-        
+
         // 2. VALIDATION
         $validIdTypes = [
             'PhilSys National ID',
             'Passport',
-            'Driver’s License',
+            "Driver's License",
             'UMID',
-            'Voter’s ID',
+            "Voter's ID",
             'Postal ID',
             'PRC ID',
             'Senior Citizen ID',
@@ -508,9 +519,8 @@ class OrdinancesController extends Controller
                 'max:5120' // 5MB Limit (5120 KB)
             ],
         ], [
-            // Custom error messages
-            'valid_id.max' => 'The valid ID image may not be larger than 5MB.',
-            'valid_id.mimes' => 'The valid ID must be a file of type: jpg, jpeg, png, pdf.',
+            'valid_id.max'    => 'The valid ID image may not be larger than 5MB.',
+            'valid_id.mimes'  => 'The valid ID must be a file of type: jpg, jpeg, png, pdf.',
         ]);
 
         $ordinance = Ordinance::findOrFail($id);

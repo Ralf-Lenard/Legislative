@@ -28,7 +28,7 @@ class AppServiceProvider extends ServiceProvider
     {
         // ✅ Force correct domain + HTTPS
         // URL::forceRootUrl(config('app.url'));
-        URL::forceScheme('https');
+        // URL::forceScheme('https');
     
         // ✅ Your existing Inertia share
         Inertia::share([

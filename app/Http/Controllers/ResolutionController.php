@@ -395,20 +395,32 @@ class ResolutionController extends Controller
 {
       // 1. CAPTCHA CHECK
         if ($request->recaptcha_token !== 'local-bypass') {
-            $response = Http::asForm()->post('https://www.google.com/recaptcha/api/siteverify', [
-                'secret'   => env('RECAPTCHA_SECRET_KEY'),
-                'response' => $request->recaptcha_token,
-                'remoteip' => $request->ip(),
+
+            $request->validate([
+                'recaptcha_token' => ['required', 'string'],
             ]);
 
-            $result = $response->json();
+            try {
+                $response = Http::asForm()->post('https://www.google.com/recaptcha/api/siteverify', [
+                    'secret'   => config('services.recaptcha.secret_key'),
+                    'response' => $request->recaptcha_token,
+                    'remoteip' => $request->ip(),
+                ]);
 
-            if (!$result['success'] || $result['score'] < 0.5) {
+                $result = $response->json();
+            } catch (\Illuminate\Http\Client\ConnectionException $e) {
                 return back()->withErrors([
-                    'captcha' => 'reCAPTCHA verification failed. Suspicious activity detected.'
+                    'captcha' => 'Could not reach reCAPTCHA verification service. Please try again.',
+                ]);
+            }
+
+            if (! ($result['success'] ?? false) || ($result['score'] ?? 0) < 0.5) {
+                return back()->withErrors([
+                    'captcha' => 'reCAPTCHA verification failed. Suspicious activity detected.',
                 ]);
             }
         }
+
 
     $validIdTypes = [
         'PhilSys National ID', 'Passport', 'Driver’s License', 'UMID',
