@@ -229,15 +229,26 @@ class OrdinancesController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'ordinance_number' => 'required|unique:ordinances',
-            'title_ordinances' => 'required|string',
-            'description_ordinances' => 'nullable',
+            'ordinance_number' => 'required|string|max:50|unique:ordinances,ordinance_number',
+            'title_ordinances' => 'required|string|max:5000',
+            'description_ordinances' => 'nullable|string',
             'date_approved_ordinances' => 'nullable|date',
 
-            'file_path_ordinances' => 'nullable|file|mimes:pdf',
+            'file_path_ordinances' => 'nullable|file|mimes:pdf|max:20480',
             'image_ordinances' => 'nullable|image|mimes:jpg,png,jpeg,webp|max:51200',
 
-            'author_ordinances' => 'nullable',
+            'author_ordinances' => 'nullable|string|max:255',
+        ], [
+            'ordinance_number.required' => 'Please enter the ordinance number.',
+            'ordinance_number.unique' => 'This ordinance number already exists.',
+            'title_ordinances.required' => 'Please enter a title.',
+            'title_ordinances.max' => 'The title is too long (max :max characters).',
+            'date_approved_ordinances.date' => 'Please enter a valid date.',
+            'file_path_ordinances.mimes' => 'The file must be a PDF.',
+            'file_path_ordinances.max' => 'The PDF must not exceed 20MB.',
+            'image_ordinances.image' => 'The upload must be an image.',
+            'image_ordinances.mimes' => 'The image must be a jpg, png, jpeg, or webp file.',
+            'image_ordinances.max' => 'The image must not exceed 50MB.',
         ]);
 
         // Upload PDF
@@ -267,15 +278,26 @@ class OrdinancesController extends Controller
         $ordinance = Ordinance::findOrFail($id);
 
         $validated = $request->validate([
-            'ordinance_number' => 'required|unique:ordinances,ordinance_number,' . $id,
-            'title_ordinances' => 'required|string',
-            'description_ordinances' => 'nullable',
+            'ordinance_number' => 'required|string|max:50|unique:ordinances,ordinance_number,' . $id,
+            'title_ordinances' => 'required|string|max:5000',
+            'description_ordinances' => 'nullable|string',
             'date_approved_ordinances' => 'nullable|date',
 
-            'file_path_ordinances' => 'nullable|file|mimes:pdf',
+            'file_path_ordinances' => 'nullable|file|mimes:pdf|max:20480',
             'image_ordinances' => 'nullable|image|mimes:jpg,png,jpeg,webp|max:51200',
 
-            'author_ordinances' => 'nullable',
+            'author_ordinances' => 'nullable|string|max:255',
+        ], [
+            'ordinance_number.required' => 'Please enter the ordinance number.',
+            'ordinance_number.unique' => 'This ordinance number already exists.',
+            'title_ordinances.required' => 'Please enter a title.',
+            'title_ordinances.max' => 'The title is too long (max :max characters).',
+            'date_approved_ordinances.date' => 'Please enter a valid date.',
+            'file_path_ordinances.mimes' => 'The file must be a PDF.',
+            'file_path_ordinances.max' => 'The PDF must not exceed 20MB.',
+            'image_ordinances.image' => 'The upload must be an image.',
+            'image_ordinances.mimes' => 'The image must be a jpg, png, jpeg, or webp file.',
+            'image_ordinances.max' => 'The image must not exceed 50MB.',
         ]);
 
         // Replace PDF
@@ -287,7 +309,7 @@ class OrdinancesController extends Controller
                 ->store('ordinances/pdf', 'public');
         }
 
-        // Replace image
+        // Replace Image
         if ($request->hasFile('image_ordinances')) {
             if ($ordinance->image_ordinances) {
                 Storage::disk('public')->delete($ordinance->image_ordinances);

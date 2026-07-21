@@ -180,15 +180,26 @@ class ResolutionController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'resolutions_number' => 'required|unique:resolutions',
-            'title_resolutions' => 'required|string',
-            'description_resolutions' => 'nullable',
+            'resolutions_number' => 'required|string|max:50|unique:resolutions,resolutions_number',
+            'title_resolutions' => 'required|string|max:5000',
+            'description_resolutions' => 'nullable|string',
             'date_approved_resolutions' => 'nullable|date',
 
-            'file_path_resolutions' => 'nullable|file|mimes:pdf',
+            'file_path_resolutions' => 'nullable|file|mimes:pdf|max:20480',
             'image_resolutions' => 'nullable|image|mimes:jpg,png,jpeg,webp|max:51200',
 
-            'author_resolutions' => 'nullable',
+            'author_resolutions' => 'nullable|string|max:255',
+        ], [
+            'resolutions_number.required' => 'Please enter the resolution number.',
+            'resolutions_number.unique' => 'This resolution number already exists.',
+            'title_resolutions.required' => 'Please enter a title.',
+            'title_resolutions.max' => 'The title is too long (max :max characters).',
+            'date_approved_resolutions.date' => 'Please enter a valid date.',
+            'file_path_resolutions.mimes' => 'The file must be a PDF.',
+            'file_path_resolutions.max' => 'The PDF must not exceed 20MB.',
+            'image_resolutions.image' => 'The upload must be an image.',
+            'image_resolutions.mimes' => 'The image must be a jpg, png, jpeg, or webp file.',
+            'image_resolutions.max' => 'The image must not exceed 50MB.',
         ]);
 
         // Upload PDF
@@ -218,15 +229,26 @@ class ResolutionController extends Controller
         $resolution = Resolution::findOrFail($id);
 
         $validated = $request->validate([
-            'resolutions_number' => 'required|unique:resolutions,resolutions_number,' . $id,
-            'title_resolutions' => 'required|string',
-            'description_resolutions' => 'nullable',
+            'resolutions_number' => 'required|string|max:50|unique:resolutions,resolutions_number,' . $id,
+            'title_resolutions' => 'required|string|max:5000',
+            'description_resolutions' => 'nullable|string',
             'date_approved_resolutions' => 'nullable|date',
 
-            'file_path_resolutions' => 'nullable|file|mimes:pdf',
+            'file_path_resolutions' => 'nullable|file|mimes:pdf|max:20480',
             'image_resolutions' => 'nullable|image|mimes:jpg,png,jpeg,webp|max:51200',
 
-            'author_resolutions' => 'nullable',
+            'author_resolutions' => 'nullable|string|max:255',
+        ], [
+            'resolutions_number.required' => 'Please enter the resolution number.',
+            'resolutions_number.unique' => 'This resolution number already exists.',
+            'title_resolutions.required' => 'Please enter a title.',
+            'title_resolutions.max' => 'The title is too long (max :max characters).',
+            'date_approved_resolutions.date' => 'Please enter a valid date.',
+            'file_path_resolutions.mimes' => 'The file must be a PDF.',
+            'file_path_resolutions.max' => 'The PDF must not exceed 20MB.',
+            'image_resolutions.image' => 'The upload must be an image.',
+            'image_resolutions.mimes' => 'The image must be a jpg, png, jpeg, or webp file.',
+            'image_resolutions.max' => 'The image must not exceed 50MB.',
         ]);
 
         // Replace PDF
@@ -253,7 +275,6 @@ class ResolutionController extends Controller
             ->route('resolutions.index')
             ->with('success', 'Resolution updated successfully.');
     }
-
     // ==========================
     // DELETE - Remove resolution
     // ==========================
@@ -391,9 +412,9 @@ class ResolutionController extends Controller
 
 
 
-   public function submitResolutionRequest(Request $request, $id)
-{
-      // 1. CAPTCHA CHECK
+    public function submitResolutionRequest(Request $request, $id)
+    {
+        // 1. CAPTCHA CHECK
         if ($request->recaptcha_token !== 'local-bypass') {
 
             $request->validate([
@@ -422,57 +443,67 @@ class ResolutionController extends Controller
         }
 
 
-    $validIdTypes = [
-        'PhilSys National ID', 'Passport', 'Driver’s License', 'UMID',
-        'Voter’s ID', 'Postal ID', 'PRC ID', 'Senior Citizen ID',
-        'PWD ID', 'SSS ID', 'GSIS ID', 'TIN ID', 'PhilHealth ID',
-    ];
+        $validIdTypes = [
+            'PhilSys National ID',
+            'Passport',
+            'Driver’s License',
+            'UMID',
+            'Voter’s ID',
+            'Postal ID',
+            'PRC ID',
+            'Senior Citizen ID',
+            'PWD ID',
+            'SSS ID',
+            'GSIS ID',
+            'TIN ID',
+            'PhilHealth ID',
+        ];
 
-    // ---------------------------------------------------------
-    // UPDATED VALIDATION (Max 5120 KB = 5MB)
-    // ---------------------------------------------------------
-    $request->validate([
-        'purpose' => 'required|string|max:500',
-        'valid_id_type' => ['required', \Illuminate\Validation\Rule::in($validIdTypes)],
-        'valid_id' => [
-            'required', 
-            'file', 
-            'mimes:jpg,jpeg,png,pdf', 
-            'max:5120' // 5MB Limit
-        ],
-    ], [
-        // Custom error message for the size limit
-        'valid_id.max' => 'The valid ID image may not be larger than 5MB.',
-        'valid_id.mimes' => 'The valid ID must be a file of type: jpg, jpeg, png, pdf.',
-    ]);
+        // ---------------------------------------------------------
+        // UPDATED VALIDATION (Max 5120 KB = 5MB)
+        // ---------------------------------------------------------
+        $request->validate([
+            'purpose' => 'required|string|max:500',
+            'valid_id_type' => ['required', \Illuminate\Validation\Rule::in($validIdTypes)],
+            'valid_id' => [
+                'required',
+                'file',
+                'mimes:jpg,jpeg,png,pdf',
+                'max:5120' // 5MB Limit
+            ],
+        ], [
+            // Custom error message for the size limit
+            'valid_id.max' => 'The valid ID image may not be larger than 5MB.',
+            'valid_id.mimes' => 'The valid ID must be a file of type: jpg, jpeg, png, pdf.',
+        ]);
 
-    // Fetch resolution
-    $resolution = Resolution::findOrFail($id);
+        // Fetch resolution
+        $resolution = Resolution::findOrFail($id);
 
-    // 📁 Store Valid ID
-    $validIdPath = $request->file('valid_id')
-        ->store('valid_ids/resolution_requests', 'public');
+        // 📁 Store Valid ID
+        $validIdPath = $request->file('valid_id')
+            ->store('valid_ids/resolution_requests', 'public');
 
-    // Create request
-    $downloadRequest = ResolutionDownloadRequest::create([
-        'user_id' => auth()->id(),
-        'resolution_id' => $id,
-        'purpose' => $request->purpose,
-        'valid_id_type' => $request->valid_id_type,
-        'valid_id_path' => $validIdPath,
-        'status' => 'pending',
-    ]);
+        // Create request
+        $downloadRequest = ResolutionDownloadRequest::create([
+            'user_id' => auth()->id(),
+            'resolution_id' => $id,
+            'purpose' => $request->purpose,
+            'valid_id_type' => $request->valid_id_type,
+            'valid_id_path' => $validIdPath,
+            'status' => 'pending',
+        ]);
 
-    // 🔔 Notify admins
-    event(new ResolutionDownloadRequestSubmitted($downloadRequest));
+        // 🔔 Notify admins
+        event(new ResolutionDownloadRequestSubmitted($downloadRequest));
 
-    return redirect()
-        ->back()
-        ->with(
-            'success',
-            'Request for Resolution No. ' . $resolution->resolutions_number . ' submitted successfully.'
-        );
-}
+        return redirect()
+            ->back()
+            ->with(
+                'success',
+                'Request for Resolution No. ' . $resolution->resolutions_number . ' submitted successfully.'
+            );
+    }
 
 
     /**
