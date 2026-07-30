@@ -201,6 +201,7 @@
                             {{ errors.file_path_ordinances }}
                         </p>
                     </div>
+
                 </div>
 
                 <!-- Buttons -->
@@ -254,7 +255,7 @@
 
 <script setup lang="ts">
 import { router, usePage } from '@inertiajs/vue3';
-import { FileText, UploadCloud } from 'lucide-vue-next';
+import { FileText, Image, UploadCloud } from 'lucide-vue-next';
 import { computed, reactive, ref, watchEffect } from 'vue';
 
 // Safely access URL API for createObjectURL
@@ -268,6 +269,7 @@ interface Ordinance {
     date_approved_ordinances?: string;
     author_ordinances?: string;
     file_path_ordinances?: string | null;
+    image_ordinances?: string | null;
 }
 
 const props = defineProps<{
@@ -283,6 +285,7 @@ const page = usePage();
 
 const isLoading = ref(false);
 const isPdfDragging = ref(false);
+const isImageDragging = ref(false);
 
 // Inertia's field-level validation errors (e.g. from $request->validate())
 const errors = computed(() => (page.props.errors || {}) as Record<string, string>);
@@ -297,11 +300,14 @@ const form = reactive({
     date_approved_ordinances: '',
     author_ordinances: '',
     file_path_ordinances: null as File | null,
+    image_ordinances: null as File | null,
 });
 
 const oldPdf = ref<string | null>(null);
+const oldImage = ref<string | null>(null);
 
 // Build proper URLs
+const getImageUrl = (path: string | null) => (path ? `/storage/${path}` : null);
 const getPdfUrl = (path: string | null) => (path ? `/storage/${path}` : null);
 
 // Reset form on open
@@ -315,8 +321,10 @@ watchEffect(() => {
         form.date_approved_ordinances = props.ordinance.date_approved_ordinances?.split('T')[0] || '';
         form.author_ordinances = props.ordinance.author_ordinances || '';
         form.file_path_ordinances = null;
+        form.image_ordinances = null;
 
         oldPdf.value = getPdfUrl(props.ordinance.file_path_ordinances);
+        oldImage.value = getImageUrl(props.ordinance.image_ordinances);
     } else {
         form.ordinance_number = '';
         form.title_ordinances = '';
@@ -324,13 +332,15 @@ watchEffect(() => {
         form.date_approved_ordinances = '';
         form.author_ordinances = '';
         form.file_path_ordinances = null;
+        form.image_ordinances = null;
         oldPdf.value = null;
+        oldImage.value = null;
     }
 });
 
 const closeModal = () => emit('close');
 
-const handleFileDrop = (e: DragEvent, type: 'pdf') => {
+const handleFileDrop = (e: DragEvent, type: 'pdf' | 'image') => {
     e.preventDefault();
     const file = e.dataTransfer?.files?.[0];
     if (!file) return;
@@ -341,9 +351,16 @@ const handleFileDrop = (e: DragEvent, type: 'pdf') => {
         oldPdf.value = null;
         isPdfDragging.value = false;
     }
+
+    if (type === 'image') {
+        if (!file.type.startsWith('image/')) return alert('Please drop a valid image file.');
+        form.image_ordinances = file;
+        oldImage.value = null;
+        isImageDragging.value = false;
+    }
 };
 
-const handleFileChange = (e: Event, type: 'pdf') => {
+const handleFileChange = (e: Event, type: 'pdf' | 'image') => {
     const file = (e.target as HTMLInputElement).files?.[0];
     if (!file) return;
 
@@ -351,7 +368,13 @@ const handleFileChange = (e: Event, type: 'pdf') => {
         form.file_path_ordinances = file;
         oldPdf.value = null;
     }
+
+    if (type === 'image') {
+        form.image_ordinances = file;
+        oldImage.value = null;
+    }
 };
+
 
 const submit = async () => {
     isLoading.value = true;
@@ -367,6 +390,10 @@ const submit = async () => {
 
     if (!form.file_path_ordinances && oldPdf.value) {
         data.append('keep_pdf', '1');
+    }
+
+    if (!form.image_ordinances && oldImage.value) {
+        data.append('keep_image', '1');
     }
 
     const url = props.ordinance?.id
@@ -400,6 +427,13 @@ const submit = async () => {
         },
     });
 };
+
+// Helper for image preview
+const getImagePreview = () => {
+    if (form.image_ordinances && browserURL) return browserURL.createObjectURL(form.image_ordinances);
+    if (oldImage.value) return oldImage.value;
+    return '';
+};
 </script>
 
 <style scoped>
@@ -413,4 +447,4 @@ const submit = async () => {
         -ms-overflow-style: none;  /* IE and Edge */
         scrollbar-width: none;  /* Firefox */
     }
-</style>
+    </style>

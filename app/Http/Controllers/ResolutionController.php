@@ -177,104 +177,110 @@ class ResolutionController extends Controller
     // ==========================
     // STORE - Create resolution
     // ==========================
-    public function store(Request $request)
-    {
-        $validated = $request->validate([
-            'resolutions_number' => 'required|string|max:50|unique:resolutions,resolutions_number',
-            'title_resolutions' => 'required|string|max:5000',
-            'description_resolutions' => 'nullable|string',
-            'date_approved_resolutions' => 'nullable|date',
+   public function store(Request $request)
+{
+    $validated = $request->validate([
+        'resolutions_number' => 'required|string|max:50|unique:resolutions,resolutions_number',
+        'title_resolutions' => 'required|string|max:5000',
+        'description_resolutions' => 'nullable|string',
+        'date_approved_resolutions' => 'nullable|date',
 
-            'file_path_resolutions' => 'nullable|file|mimes:pdf|max:20480',
-            'image_resolutions' => 'nullable|image|mimes:jpg,png,jpeg,webp|max:51200',
+        'file_path_resolutions' => 'nullable|file|mimes:pdf|max:51200',
+       
 
-            'author_resolutions' => 'nullable|string|max:255',
-        ], [
-            'resolutions_number.required' => 'Please enter the resolution number.',
-            'resolutions_number.unique' => 'This resolution number already exists.',
-            'title_resolutions.required' => 'Please enter a title.',
-            'title_resolutions.max' => 'The title is too long (max :max characters).',
-            'date_approved_resolutions.date' => 'Please enter a valid date.',
-            'file_path_resolutions.mimes' => 'The file must be a PDF.',
-            'file_path_resolutions.max' => 'The PDF must not exceed 20MB.',
-            'image_resolutions.image' => 'The upload must be an image.',
-            'image_resolutions.mimes' => 'The image must be a jpg, png, jpeg, or webp file.',
-            'image_resolutions.max' => 'The image must not exceed 50MB.',
-        ]);
+        'author_resolutions' => 'nullable|string|max:255',
+    ], [
+        'resolutions_number.required' => 'Please enter the resolution number.',
+        'resolutions_number.unique' => 'This resolution number already exists.',
+        'title_resolutions.required' => 'Please enter a title.',
+        'title_resolutions.max' => 'The title is too long (max :max characters).',
+        'date_approved_resolutions.date' => 'Please enter a valid date.',
+        'file_path_resolutions.mimes' => 'The file must be a PDF.',
+        'file_path_resolutions.max' => 'The PDF must not exceed 50MB.',
+       
+    ]);
 
-        // Upload PDF
-        if ($request->hasFile('file_path_resolutions')) {
-            $validated['file_path_resolutions'] = $request->file('file_path_resolutions')
-                ->store('resolutions/pdf', 'public');
+    // Filename validation — reject names with characters that can trigger WAF false positives
+    if ($request->hasFile('file_path_resolutions')) {
+        $originalName = $request->file('file_path_resolutions')->getClientOriginalName();
+
+        if (!preg_match('/^[a-zA-Z0-9\-_ ]+\.pdf$/i', $originalName)) {
+            throw \Illuminate\Validation\ValidationException::withMessages([
+                'file_path_resolutions' => 'The PDF filename contains characters that are not allowed (e.g. periods, apostrophes, or special symbols). Please rename the file using only letters, numbers, spaces, and hyphens, then try again.',
+            ]);
         }
-
-        // Upload Image
-        if ($request->hasFile('image_resolutions')) {
-            $validated['image_resolutions'] = $request->file('image_resolutions')
-                ->store('resolutions/images', 'public');
-        }
-
-        Resolution::create($validated);
-
-        return redirect()
-            ->route('resolutions.index')
-            ->with('success', 'Resolution created successfully.');
     }
+
+    // Upload PDF
+    if ($request->hasFile('file_path_resolutions')) {
+        $validated['file_path_resolutions'] = $request->file('file_path_resolutions')
+            ->store('resolutions/pdf', 'public');
+    }
+
+
+    Resolution::create($validated);
+
+    return redirect()
+        ->route('resolutions.index')
+        ->with('success', 'Resolution created successfully.');
+}
 
     // ==========================
     // UPDATE - Update resolution
     // ==========================
-    public function update(Request $request, $id)
-    {
-        $resolution = Resolution::findOrFail($id);
+public function update(Request $request, $id)
+{
+    $resolution = Resolution::findOrFail($id);
 
-        $validated = $request->validate([
-            'resolutions_number' => 'required|string|max:50|unique:resolutions,resolutions_number,' . $id,
-            'title_resolutions' => 'required|string|max:5000',
-            'description_resolutions' => 'nullable|string',
-            'date_approved_resolutions' => 'nullable|date',
+    $validated = $request->validate([
+        'resolutions_number' => 'required|string|max:50|unique:resolutions,resolutions_number,' . $id,
+        'title_resolutions' => 'required|string|max:5000',
+        'description_resolutions' => 'nullable|string',
+        'date_approved_resolutions' => 'nullable|date',
 
-            'file_path_resolutions' => 'nullable|file|mimes:pdf|max:20480',
-            'image_resolutions' => 'nullable|image|mimes:jpg,png,jpeg,webp|max:51200',
+        'file_path_resolutions' => 'nullable|file|mimes:pdf|max:51200',
 
-            'author_resolutions' => 'nullable|string|max:255',
-        ], [
-            'resolutions_number.required' => 'Please enter the resolution number.',
-            'resolutions_number.unique' => 'This resolution number already exists.',
-            'title_resolutions.required' => 'Please enter a title.',
-            'title_resolutions.max' => 'The title is too long (max :max characters).',
-            'date_approved_resolutions.date' => 'Please enter a valid date.',
-            'file_path_resolutions.mimes' => 'The file must be a PDF.',
-            'file_path_resolutions.max' => 'The PDF must not exceed 20MB.',
-            'image_resolutions.image' => 'The upload must be an image.',
-            'image_resolutions.mimes' => 'The image must be a jpg, png, jpeg, or webp file.',
-            'image_resolutions.max' => 'The image must not exceed 50MB.',
-        ]);
+        'author_resolutions' => 'nullable|string|max:255',
+    ], [
+        'resolutions_number.required' => 'Please enter the resolution number.',
+        'resolutions_number.unique' => 'This resolution number already exists.',
+        'title_resolutions.required' => 'Please enter a title.',
+        'title_resolutions.max' => 'The title is too long (max :max characters).',
+        'date_approved_resolutions.date' => 'Please enter a valid date.',
+        'file_path_resolutions.mimes' => 'The file must be a PDF.',
+        'file_path_resolutions.max' => 'The PDF must not exceed 50MB.',
+    ]);
 
-        // Replace PDF
-        if ($request->hasFile('file_path_resolutions')) {
-            if ($resolution->file_path_resolutions) {
-                Storage::disk('public')->delete($resolution->file_path_resolutions);
-            }
-            $validated['file_path_resolutions'] = $request->file('file_path_resolutions')
-                ->store('resolutions/pdf', 'public');
+    // Filename validation — reject names with characters that can trigger WAF false positives
+    if ($request->hasFile('file_path_resolutions')) {
+        $originalName = $request->file('file_path_resolutions')->getClientOriginalName();
+
+        if (!preg_match('/^[a-zA-Z0-9\-_ ]+\.pdf$/i', $originalName)) {
+            throw \Illuminate\Validation\ValidationException::withMessages([
+                'file_path_resolutions' => 'The PDF filename contains characters that are not allowed (e.g. periods, apostrophes, or special symbols). Please rename the file using only letters, numbers, spaces, and hyphens, then try again.',
+            ]);
         }
-
-        // Replace image
-        if ($request->hasFile('image_resolutions')) {
-            if ($resolution->image_resolutions) {
-                Storage::disk('public')->delete($resolution->image_resolutions);
-            }
-            $validated['image_resolutions'] = $request->file('image_resolutions')
-                ->store('resolutions/images', 'public');
-        }
-
-        $resolution->update($validated);
-
-        return redirect()
-            ->route('resolutions.index')
-            ->with('success', 'Resolution updated successfully.');
     }
+
+    // Replace PDF
+    if ($request->hasFile('file_path_resolutions')) {
+
+        // Delete old PDF
+        if ($resolution->file_path_resolutions) {
+            Storage::disk('public')->delete($resolution->file_path_resolutions);
+        }
+
+        // Store new PDF
+        $validated['file_path_resolutions'] = $request->file('file_path_resolutions')
+            ->store('resolutions/pdf', 'public');
+    }
+
+    $resolution->update($validated);
+
+    return redirect()
+        ->route('resolutions.index')
+        ->with('success', 'Resolution updated successfully.');
+}
     // ==========================
     // DELETE - Remove resolution
     // ==========================

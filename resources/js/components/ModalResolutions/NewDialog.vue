@@ -40,6 +40,17 @@
                 </button>
             </div>
 
+            <!-- General/top-level error banner (e.g. filename validation, server errors) -->
+            <div
+                v-if="generalError"
+                class="mb-4 flex items-start gap-2 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
+            >
+                <svg class="mt-0.5 h-4 w-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+                <span>{{ generalError }}</span>
+            </div>
+
             <!-- Form -->
             <form @submit.prevent="submit" class="space-y-5">
                 <!-- Resolution Number -->
@@ -53,8 +64,12 @@
                         v-model="form.resolutions_number"
                         type="text"
                         required
-                        class="w-full rounded-xl border border-slate-300 px-4 py-2.5 shadow-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+                        class="w-full rounded-xl border px-4 py-2.5 shadow-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+                        :class="errors.resolutions_number ? 'border-red-400' : 'border-slate-300'"
                     />
+                    <p v-if="errors.resolutions_number" class="mt-1 text-xs text-red-600">
+                        {{ errors.resolutions_number }}
+                    </p>
                 </div>
 
                 <!-- Title -->
@@ -67,8 +82,12 @@
                         v-model="form.title_resolutions"
                         type="text"
                         required
-                        class="w-full rounded-xl border border-slate-300 px-4 py-2.5 shadow-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+                        class="w-full rounded-xl border px-4 py-2.5 shadow-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+                        :class="errors.title_resolutions ? 'border-red-400' : 'border-slate-300'"
                     />
+                    <p v-if="errors.title_resolutions" class="mt-1 text-xs text-red-600">
+                        {{ errors.title_resolutions }}
+                    </p>
                 </div>
 
                 <!-- Description -->
@@ -128,8 +147,9 @@
                             :class="{
                                 'border-emerald-500 bg-emerald-50':
                                     isPdfDragging,
+                                'border-red-400': errors.file_path_resolutions && !isPdfDragging,
                                 'border-slate-300 hover:border-emerald-400':
-                                    !isPdfDragging,
+                                    !isPdfDragging && !errors.file_path_resolutions,
                             }"
                         >
                             <input
@@ -176,8 +196,11 @@
                                     : oldPdf.split('/').pop()
                             }}
                         </div>
-                    </div>
 
+                        <p v-if="errors.file_path_resolutions" class="mt-2 text-xs text-red-600">
+                            {{ errors.file_path_resolutions }}
+                        </p>
+                    </div>
                 </div>
 
                 <!-- Buttons -->
@@ -230,12 +253,9 @@
 </template>
 
 <script setup lang="ts">
-import { router } from '@inertiajs/vue3';
-import { FileText, Image, UploadCloud } from 'lucide-vue-next';
-import { reactive, ref, watchEffect } from 'vue';
-
-// Safely access URL API for createObjectURL
-const browserURL = typeof window !== 'undefined' ? window.URL : null;
+import { router, usePage } from '@inertiajs/vue3';
+import { FileText, UploadCloud } from 'lucide-vue-next';
+import { computed, reactive, ref, watchEffect } from 'vue';
 
 interface Resolution {
     id?: number;
@@ -245,7 +265,6 @@ interface Resolution {
     date_approved_resolutions?: string;
     author_resolutions?: string;
     file_path_resolutions?: string | null;
-    image_resolutions?: string | null;
 }
 
 const props = defineProps<{
@@ -257,9 +276,16 @@ const emit = defineEmits<{
     (e: 'submitted'): void;
 }>();
 
+const page = usePage();
+
 const isLoading = ref(false);
 const isPdfDragging = ref(false);
-const isImageDragging = ref(false);
+
+// Inertia's field-level validation errors
+const errors = computed(() => (page.props.errors || {}) as Record<string, string>);
+
+// Flash-based general error
+const generalError = computed(() => (page.props.flash as any)?.error || null);
 
 const form = reactive({
     resolutions_number: '',
@@ -268,14 +294,11 @@ const form = reactive({
     date_approved_resolutions: '',
     author_resolutions: '',
     file_path_resolutions: null as File | null,
-    image_resolutions: null as File | null,
 });
 
 const oldPdf = ref<string | null>(null);
-const oldImage = ref<string | null>(null);
 
 // Build proper URLs
-const getImageUrl = (path: string | null) => (path ? `/storage/${path}` : null);
 const getPdfUrl = (path: string | null) => (path ? `/storage/${path}` : null);
 
 // Reset form on open
@@ -289,10 +312,8 @@ watchEffect(() => {
         form.date_approved_resolutions = props.resolution.date_approved_resolutions?.split('T')[0] || '';
         form.author_resolutions = props.resolution.author_resolutions || '';
         form.file_path_resolutions = null;
-        form.image_resolutions = null;
 
         oldPdf.value = getPdfUrl(props.resolution.file_path_resolutions);
-        oldImage.value = getImageUrl(props.resolution.image_resolutions);
     } else {
         form.resolutions_number = '';
         form.title_resolutions = '';
@@ -300,15 +321,13 @@ watchEffect(() => {
         form.date_approved_resolutions = '';
         form.author_resolutions = '';
         form.file_path_resolutions = null;
-        form.image_resolutions = null;
         oldPdf.value = null;
-        oldImage.value = null;
     }
 });
 
 const closeModal = () => emit('close');
 
-const handleFileDrop = (e: DragEvent, type: 'pdf' | 'image') => {
+const handleFileDrop = (e: DragEvent, type: 'pdf') => {
     e.preventDefault();
     const file = e.dataTransfer?.files?.[0];
     if (!file) return;
@@ -319,27 +338,15 @@ const handleFileDrop = (e: DragEvent, type: 'pdf' | 'image') => {
         oldPdf.value = null;
         isPdfDragging.value = false;
     }
-
-    if (type === 'image') {
-        if (!file.type.startsWith('image/')) return alert('Please drop a valid image file.');
-        form.image_resolutions = file;
-        oldImage.value = null;
-        isImageDragging.value = false;
-    }
 };
 
-const handleFileChange = (e: Event, type: 'pdf' | 'image') => {
+const handleFileChange = (e: Event, type: 'pdf') => {
     const file = (e.target as HTMLInputElement).files?.[0];
     if (!file) return;
 
     if (type === 'pdf') {
         form.file_path_resolutions = file;
         oldPdf.value = null;
-    }
-
-    if (type === 'image') {
-        form.image_resolutions = file;
-        oldImage.value = null;
     }
 };
 
@@ -359,37 +366,36 @@ const submit = async () => {
         data.append('keep_pdf', '1');
     }
 
-    if (!form.image_resolutions && oldImage.value) {
-        data.append('keep_image', '1');
-    }
-
     const url = props.resolution?.id
-        ? `/admin-resolutions/${props.resolution.id}` // update
-        : `/admin-resolutions`;                      // create
+        ? `/admin-resolutions/${props.resolution.id}`
+        : `/admin-resolutions`;
 
     // ✅ METHOD SPOOFING FOR UPDATE
     if (props.resolution?.id) {
         data.append('_method', 'PUT');
     }
 
-    // ✅ POST request with Inertia, full reload
-    await router.visit(url, {
-        method: 'post',          // ALWAYS POST
+    // ✅ ALWAYS POST (NEVER PUT)
+    router.visit(url, {
+        method: 'post',
         data,
         forceFormData: true,
-        preserveState: false,    // FORCE REFRESH
+        preserveState: true,
+        preserveScroll: true,
+        onSuccess: () => {
+            // Only close the modal when the save actually succeeded
+            closeModal();
+            emit('submitted');
+        },
+        onError: () => {
+            // Validation/server errors — keep the modal open so the user
+            // can see the message(s) and fix the problem.
+            isLoading.value = false;
+        },
         onFinish: () => {
             isLoading.value = false;
-            closeModal();
         },
     });
-};
-
-// Helper for image preview
-const getImagePreview = () => {
-    if (form.image_resolutions && browserURL) return browserURL.createObjectURL(form.image_resolutions);
-    if (oldImage.value) return oldImage.value;
-    return '';
 };
 </script>
 
@@ -404,4 +410,4 @@ const getImagePreview = () => {
         -ms-overflow-style: none;  /* IE and Edge */
         scrollbar-width: none;  /* Firefox */
     }
-    </style>
+</style>
