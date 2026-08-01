@@ -40,7 +40,7 @@
                 </button>
             </div>
 
-            <!-- General/top-level error banner (e.g. filename validation, server errors) -->
+            <!-- General/top-level error banner (e.g. server errors) -->
             <div
                 v-if="generalError"
                 class="mb-4 flex items-start gap-2 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
@@ -147,9 +147,9 @@
                             :class="{
                                 'border-emerald-500 bg-emerald-50':
                                     isPdfDragging,
-                                'border-red-400': errors.file_path_resolutions && !isPdfDragging,
+                                'border-red-400': (errors.file_path_resolutions || fileNameError) && !isPdfDragging,
                                 'border-slate-300 hover:border-emerald-400':
-                                    !isPdfDragging && !errors.file_path_resolutions,
+                                    !isPdfDragging && !errors.file_path_resolutions && !fileNameError,
                             }"
                         >
                             <input
@@ -165,7 +165,8 @@
                                 <UploadCloud
                                     :class="{
                                         'text-emerald-600': isPdfDragging,
-                                        'text-slate-400': !isPdfDragging,
+                                        'text-red-400': fileNameError && !isPdfDragging,
+                                        'text-slate-400': !isPdfDragging && !fileNameError,
                                     }"
                                     class="mb-2 h-8 w-8"
                                 />
@@ -179,7 +180,7 @@
                                     <strong>PDF file</strong> here.
                                 </p>
                                 <p class="mt-1 text-xs text-slate-500">
-                                    Accepted format: .PDF
+                                    Accepted format: .PDF — letters, numbers, spaces, hyphens and underscores only in the filename.
                                 </p>
                             </div>
                         </div>
@@ -197,7 +198,16 @@
                             }}
                         </div>
 
-                        <p v-if="errors.file_path_resolutions" class="mt-2 text-xs text-red-600">
+                        <!-- Instant client-side filename validation error -->
+                        <p v-if="fileNameError" class="mt-2 flex items-start gap-1.5 text-xs font-medium text-red-600">
+                            <svg class="mt-0.5 h-3.5 w-3.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                            </svg>
+                            <span>{{ fileNameError }}</span>
+                        </p>
+
+                        <!-- Server-side validation error (from Laravel), only shown if no client error -->
+                        <p v-else-if="errors.file_path_resolutions" class="mt-2 text-xs text-red-600">
                             {{ errors.file_path_resolutions }}
                         </p>
                     </div>
@@ -216,8 +226,8 @@
                     </button>
                     <button
                         type="submit"
-                        :disabled="isLoading"
-                        class="rounded-xl bg-emerald-600 px-6 py-2.5 font-semibold text-white shadow-md shadow-emerald-500/20 hover:bg-emerald-700 disabled:opacity-50"
+                        :disabled="isLoading || !!fileNameError"
+                        class="rounded-xl bg-emerald-600 px-6 py-2.5 font-semibold text-white shadow-md shadow-emerald-500/20 hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-50"
                     >
                         <span v-if="isLoading" class="flex items-center gap-2">
                             <svg
@@ -281,10 +291,13 @@ const page = usePage();
 const isLoading = ref(false);
 const isPdfDragging = ref(false);
 
-// Inertia's field-level validation errors
+// Client-side filename validation error — blocks submit while set
+const fileNameError = ref<string | null>(null);
+
+// Inertia's field-level validation errors (e.g. from $request->validate())
 const errors = computed(() => (page.props.errors || {}) as Record<string, string>);
 
-// Flash-based general error
+// Flash-based general error (e.g. from ->with('error', '...') in the controller)
 const generalError = computed(() => (page.props.flash as any)?.error || null);
 
 const form = reactive({
@@ -301,9 +314,51 @@ const oldPdf = ref<string | null>(null);
 // Build proper URLs
 const getPdfUrl = (path: string | null) => (path ? `/storage/${path}` : null);
 
+// Only letters, numbers, spaces, hyphens and underscores allowed in the
+// filename (before the extension). This mirrors whatever the hosting
+// provider's WAF/mod_security rule is rejecting, so we can catch it
+// client-side before it ever reaches the server.
+const SAFE_FILENAME_PATTERN = /^[a-zA-Z0-9\- _]+$/;
+
+/**
+ * Validates a filename. Returns an error message if invalid, or null if valid.
+ * Does NOT modify the file in any way — validation only.
+ */
+const validateFilename = (file: File): string | null => {
+    if (file.type !== 'application/pdf') {
+        return 'Only PDF files are accepted.';
+    }
+
+    const originalName = file.name;
+    const lastDot = originalName.lastIndexOf('.');
+
+    if (lastDot === -1) {
+        return 'The file must have a .pdf extension.';
+    }
+
+    const namePart = originalName.slice(0, lastDot);
+    const extPart = originalName.slice(lastDot + 1).toLowerCase();
+
+    if (extPart !== 'pdf') {
+        return 'The file must have a .pdf extension.';
+    }
+
+    if (!namePart.trim()) {
+        return 'The filename cannot be empty.';
+    }
+
+    if (!SAFE_FILENAME_PATTERN.test(namePart)) {
+        return `"${originalName}" contains characters that aren't allowed. Please rename the file using only letters, numbers, spaces, hyphens and underscores, then re-upload.`;
+    }
+
+    return null;
+};
+
 // Reset form on open
 watchEffect(() => {
     if (!props.isOpen) return;
+
+    fileNameError.value = null;
 
     if (props.resolution) {
         form.resolutions_number = props.resolution.resolutions_number || '';
@@ -327,30 +382,56 @@ watchEffect(() => {
 
 const closeModal = () => emit('close');
 
+/**
+ * Runs validation on a freshly-picked file. If invalid, sets the error
+ * message and refuses to attach the file to the form (so it can never be
+ * submitted). If valid, clears any previous error and attaches it.
+ */
+const processFile = (file: File) => {
+    const error = validateFilename(file);
+
+    if (error) {
+        fileNameError.value = error;
+        form.file_path_resolutions = null; // never let an invalid file into the form
+        return;
+    }
+
+    fileNameError.value = null;
+    form.file_path_resolutions = file;
+    oldPdf.value = null;
+};
+
 const handleFileDrop = (e: DragEvent, type: 'pdf') => {
     e.preventDefault();
+    isPdfDragging.value = false;
+
     const file = e.dataTransfer?.files?.[0];
     if (!file) return;
 
     if (type === 'pdf') {
-        if (file.type !== 'application/pdf') return alert('Please drop a valid PDF file.');
-        form.file_path_resolutions = file;
-        oldPdf.value = null;
-        isPdfDragging.value = false;
+        processFile(file);
     }
 };
 
 const handleFileChange = (e: Event, type: 'pdf') => {
-    const file = (e.target as HTMLInputElement).files?.[0];
+    const input = e.target as HTMLInputElement;
+    const file = input.files?.[0];
     if (!file) return;
 
     if (type === 'pdf') {
-        form.file_path_resolutions = file;
-        oldPdf.value = null;
+        processFile(file);
     }
+
+    // Reset the native input so picking the exact same (invalid) file again
+    // still fires a change event and re-validates.
+    input.value = '';
 };
 
 const submit = async () => {
+    // Hard stop — should already be blocked by the disabled button, but this
+    // protects against programmatic form submission too.
+    if (fileNameError.value) return;
+
     isLoading.value = true;
     const data = new FormData();
 

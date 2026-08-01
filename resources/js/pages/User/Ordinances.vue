@@ -311,14 +311,26 @@
                 @change="handleValidIdUpload"
                 accept=".jpg,.jpeg,.png,.pdf"
                 required
-                class="w-full px-3 py-2 border border-gray-300 rounded-lg file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-green-800 file:text-white hover:file:bg-green-900 transition"
+                class="w-full px-3 py-2 border rounded-lg file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-green-800 file:text-white hover:file:bg-green-900 transition"
+                :class="validIdError ? 'border-red-400' : 'border-gray-300'"
               />
-              <p class="text-sm text-gray-500 mt-1">Accepted formats: JPG, PNG, PDF (Max 5MB)</p>
+              <p class="text-sm text-gray-500 mt-1">Accepted formats: JPG, PNG, PDF (Max 5MB) — letters, numbers, spaces, hyphens and underscores only in the filename.</p>
+
+              <p v-if="validIdError" class="mt-1 flex items-start gap-1.5 text-xs font-medium text-red-600">
+                <svg class="mt-0.5 h-3.5 w-3.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+                <span>{{ validIdError }}</span>
+              </p>
+
+              <div v-if="requestForm.valid_id" class="mt-2 text-sm text-gray-600">
+                Selected: <span class="font-medium">{{ requestForm.valid_id.name }}</span>
+              </div>
             </div>
 
             <button
               type="submit"
-              :disabled="isSubmitting"
+              :disabled="isSubmitting || !!validIdError"
               class="w-full bg-green-800 text-white py-3 rounded-lg font-bold hover:bg-green-900 transition disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <span v-if="isSubmitting">Submitting...</span>
@@ -391,11 +403,13 @@ const openRequestModal = (ordinance) => {
     selectedOrdinance.value = ordinance;
     showRequestModal.value = true;
     formError.value = null;
+    validIdError.value = null;
 };
 
 const closeRequestModal = () => {
     showRequestModal.value = false;
     formError.value = null;
+    validIdError.value = null;
 };
 
 // -------------------------
@@ -403,11 +417,66 @@ const closeRequestModal = () => {
 // -------------------------
 const requestForm = reactive({ purpose: '', valid_id_type: '', valid_id: null });
 const formError = ref(null);
+const validIdError = ref(null);
 const isSubmitting = ref(false);
 
+// Same character rule used on the ordinance/resolution upload forms — only
+// letters, numbers, spaces, hyphens and underscores survive, to avoid
+// tripping a hosting-provider WAF/mod_security rule on the filename.
+const SAFE_FILENAME_PATTERN = /^[a-zA-Z0-9\- _]+$/;
+const ALLOWED_EXTENSIONS = ['jpg', 'jpeg', 'png', 'pdf'];
+const MAX_SIZE_BYTES = 5 * 1024 * 1024; // 5MB
+
+/**
+ * Validates the Valid ID file's name/type/size. Returns an error message
+ * if invalid, or null if valid. Never modifies the file.
+ */
+const validateValidIdFilename = (file) => {
+    const originalName = file.name;
+    const lastDot = originalName.lastIndexOf('.');
+
+    if (lastDot === -1) {
+        return 'The file must have a valid extension (.jpg, .jpeg, .png, .pdf).';
+    }
+
+    const namePart = originalName.slice(0, lastDot);
+    const extPart = originalName.slice(lastDot + 1).toLowerCase();
+
+    if (!ALLOWED_EXTENSIONS.includes(extPart)) {
+        return 'Only JPG, PNG, or PDF files are accepted.';
+    }
+
+    if (!namePart.trim()) {
+        return 'The filename cannot be empty.';
+    }
+
+    if (!SAFE_FILENAME_PATTERN.test(namePart)) {
+        return `"${originalName}" contains characters that aren't allowed. Please rename the file using only letters, numbers, spaces, hyphens and underscores, then re-upload.`;
+    }
+
+    if (file.size > MAX_SIZE_BYTES) {
+        return 'File is too large. Maximum size is 5MB.';
+    }
+
+    return null;
+};
+
 const handleValidIdUpload = (e) => {
-    const file = e.target.files[0];
-    if (file) requestForm.valid_id = file;
+    const input = e.target;
+    const file = input.files?.[0];
+    if (!file) return;
+
+    const error = validateValidIdFilename(file);
+
+    if (error) {
+        validIdError.value = error;
+        requestForm.valid_id = null; // never let an invalid file into the form
+        input.value = ''; // reset so re-picking the same bad file re-triggers validation
+        return;
+    }
+
+    validIdError.value = null;
+    requestForm.valid_id = file;
 };
 
 // -------------------------
@@ -470,6 +539,10 @@ onUnmounted(() => {
 const submitRequestForm = async () => {
     if (!selectedOrdinance.value) return;
 
+    // Hard stop — mirrors the disabled submit button, protects against
+    // programmatic submission too.
+    if (validIdError.value) return;
+
     isSubmitting.value = true;
     formError.value = null;
 
@@ -477,14 +550,14 @@ const submitRequestForm = async () => {
 
     try {
         let token = 'local-bypass';
-        
+
         if (recaptchaEnabled.value) {
             await ensureRecaptchaReady();
             token = await window.grecaptcha.execute(siteKey.value, { action: 'ordinance_request' });
             if (!token) throw new Error('Could not generate reCAPTCHA token.');
         }
 
-        // Use router.post with the data object directly. 
+        // Use router.post with the data object directly.
         // Inertia automatically converts this to FormData if it detects a File object.
         router.post(`/ordinances/${currentOrdinanceId}/request-access`, {
             purpose: requestForm.purpose,
@@ -499,6 +572,7 @@ const submitRequestForm = async () => {
                 requestForm.purpose = '';
                 requestForm.valid_id_type = '';
                 requestForm.valid_id = null;
+                validIdError.value = null;
                 showRequestModal.value = false;
             },
             onError: (errors) => {
