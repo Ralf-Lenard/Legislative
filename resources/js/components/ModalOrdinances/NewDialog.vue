@@ -131,18 +131,17 @@
 
                 <hr class="border-slate-200" />
 
-                <!-- File Uploads -->
+                <!-- File Upload (PDF or Image) -->
                 <div class="space-y-6">
-                    <!-- PDF -->
                     <div>
                         <label
                             class="mb-2 block text-sm font-semibold text-slate-900"
-                            >Upload PDF (Official Document)</label
+                            >Upload Document (PDF or Image)</label
                         >
                         <div
                             @dragover.prevent="isPdfDragging = true"
                             @dragleave.prevent="isPdfDragging = false"
-                            @drop.prevent="handleFileDrop($event, 'pdf')"
+                            @drop.prevent="handleFileDrop($event, 'file')"
                             class="relative rounded-xl border-2 border-dashed p-6 transition-colors duration-200"
                             :class="{
                                 'border-emerald-500 bg-emerald-50':
@@ -153,10 +152,10 @@
                             }"
                         >
                             <input
-                                id="pdf-upload"
+                                id="file-upload"
                                 type="file"
-                                accept="application/pdf"
-                                @change="handleFileChange($event, 'pdf')"
+                                accept=".pdf,.jpg,.jpeg,.png,.webp,application/pdf,image/jpeg,image/png,image/webp"
+                                @change="handleFileChange($event, 'file')"
                                 class="absolute inset-0 h-full w-full cursor-pointer opacity-0"
                             />
                             <div
@@ -172,30 +171,44 @@
                                 />
                                 <p class="text-sm font-medium text-slate-700">
                                     <label
-                                        for="pdf-upload"
+                                        for="file-upload"
                                         class="cursor-pointer font-bold text-emerald-600 hover:underline"
                                         >Click to browse</label
                                     >
                                     or drag and drop your
-                                    <strong>PDF file</strong> here.
+                                    <strong>PDF or image file</strong> here.
                                 </p>
                                 <p class="mt-1 text-xs text-slate-500">
-                                    Accepted format: .PDF — letters, numbers, spaces, hyphens and underscores only in the filename.
+                                    Accepted formats: .PDF, .JPG, .JPEG, .PNG, .WEBP — letters, numbers, spaces, hyphens and underscores only in the filename.
                                 </p>
                             </div>
                         </div>
 
+                        <!-- Selected file preview -->
                         <div
-                            v-if="form.file_path_ordinances || oldPdf"
-                            class="mt-3 flex items-center gap-2 text-sm text-slate-700"
+                            v-if="form.file_path_ordinances || oldFile"
+                            class="mt-3 flex items-center gap-3 text-sm text-slate-700"
                         >
-                            <FileText class="h-4 w-4 text-emerald-600" />
-                            <span class="font-medium">Selected:</span>
-                            {{
-                                form.file_path_ordinances
-                                    ? form.file_path_ordinances.name
-                                    : oldPdf.split('/').pop()
-                            }}
+                            <img
+                                v-if="selectedFileIsImage && previewUrl"
+                                :src="previewUrl"
+                                alt="Preview"
+                                class="h-12 w-12 rounded-lg border border-slate-200 object-cover"
+                            />
+                            <ImageIcon
+                                v-else-if="selectedFileIsImage"
+                                class="h-4 w-4 text-emerald-600"
+                            />
+                            <FileText v-else class="h-4 w-4 text-emerald-600" />
+
+                            <span>
+                                <span class="font-medium">Selected:</span>
+                                {{
+                                    form.file_path_ordinances
+                                        ? form.file_path_ordinances.name
+                                        : oldFile?.split('/').pop()
+                                }}
+                            </span>
                         </div>
 
                         <!-- Instant client-side filename validation error -->
@@ -264,8 +277,8 @@
 
 <script setup lang="ts">
 import { router, usePage } from '@inertiajs/vue3';
-import { FileText, UploadCloud } from 'lucide-vue-next';
-import { computed, reactive, ref, watchEffect } from 'vue';
+import { FileText, Image as ImageIcon, UploadCloud } from 'lucide-vue-next';
+import { computed, reactive, ref, watch } from 'vue';
 
 interface Ordinance {
     id?: number;
@@ -309,10 +322,28 @@ const form = reactive({
     file_path_ordinances: null as File | null,
 });
 
-const oldPdf = ref<string | null>(null);
+const oldFile = ref<string | null>(null);
+
+// Object URL for previewing a freshly-selected image before upload
+const previewUrl = ref<string | null>(null);
 
 // Build proper URLs
-const getPdfUrl = (path: string | null) => (path ? `/storage/${path}` : null);
+const getFileUrl = (path: string | null) => (path ? `/storage/${path}` : null);
+
+const IMAGE_EXTENSIONS = ['jpg', 'jpeg', 'png', 'webp'];
+const ALL_EXTENSIONS = ['pdf', ...IMAGE_EXTENSIONS];
+
+const getExtension = (name: string) => {
+    const lastDot = name.lastIndexOf('.');
+    return lastDot === -1 ? '' : name.slice(lastDot + 1).toLowerCase();
+};
+
+// Whether the currently selected/existing file is an image (for preview + icon)
+const selectedFileIsImage = computed(() => {
+    const name = form.file_path_ordinances?.name || oldFile.value;
+    if (!name) return false;
+    return IMAGE_EXTENSIONS.includes(getExtension(name));
+});
 
 // Only letters, numbers, spaces, hyphens and underscores allowed in the
 // filename (before the extension). This mirrors whatever the hosting
@@ -320,27 +351,34 @@ const getPdfUrl = (path: string | null) => (path ? `/storage/${path}` : null);
 // client-side before it ever reaches the server.
 const SAFE_FILENAME_PATTERN = /^[a-zA-Z0-9\- _]+$/;
 
+const ACCEPTED_MIME_TYPES = [
+    'application/pdf',
+    'image/jpeg',
+    'image/png',
+    'image/webp',
+];
+
 /**
- * Validates a filename. Returns an error message if invalid, or null if valid.
+ * Validates a filename/file. Returns an error message if invalid, or null if valid.
  * Does NOT modify the file in any way — validation only.
  */
 const validateFilename = (file: File): string | null => {
-    if (file.type !== 'application/pdf') {
-        return 'Only PDF files are accepted.';
+    if (!ACCEPTED_MIME_TYPES.includes(file.type)) {
+        return 'Only PDF or image files (JPG, JPEG, PNG, WEBP) are accepted.';
     }
 
     const originalName = file.name;
     const lastDot = originalName.lastIndexOf('.');
 
     if (lastDot === -1) {
-        return 'The file must have a .pdf extension.';
+        return 'The file must have a valid extension (.pdf, .jpg, .jpeg, .png, .webp).';
     }
 
     const namePart = originalName.slice(0, lastDot);
     const extPart = originalName.slice(lastDot + 1).toLowerCase();
 
-    if (extPart !== 'pdf') {
-        return 'The file must have a .pdf extension.';
+    if (!ALL_EXTENSIONS.includes(extPart)) {
+        return 'The file must be a .pdf, .jpg, .jpeg, .png, or .webp file.';
     }
 
     if (!namePart.trim()) {
@@ -354,31 +392,55 @@ const validateFilename = (file: File): string | null => {
     return null;
 };
 
-// Reset form on open
-watchEffect(() => {
-    if (!props.isOpen) return;
+/**
+ * Resets the form. Runs ONLY when the modal opens or the target ordinance
+ * changes — NOT on every internal state change (previewUrl, oldFile, etc).
+ *
+ * IMPORTANT: this used to be a `watchEffect`, which auto-tracks every ref it
+ * reads — including `previewUrl.value` and `oldFile.value`. Since
+ * `processFile()` writes to those same refs when you pick a file, the
+ * watchEffect would immediately re-run and wipe out the file you just
+ * selected (and any typed input) by resetting everything back to the
+ * original `ordinance` prop. Using a scoped `watch` on just `isOpen` /
+ * `ordinance` fixes that.
+ */
+watch(
+    () => [props.isOpen, props.ordinance?.id],
+    () => {
+        if (!props.isOpen) return;
 
-    fileNameError.value = null;
+        fileNameError.value = null;
 
-    if (props.ordinance) {
-        form.ordinance_number = props.ordinance.ordinance_number || '';
-        form.title_ordinances = props.ordinance.title_ordinances || '';
-        form.description_ordinances = props.ordinance.description_ordinances || '';
-        form.date_approved_ordinances = props.ordinance.date_approved_ordinances?.split('T')[0] || '';
-        form.author_ordinances = props.ordinance.author_ordinances || '';
-        form.file_path_ordinances = null;
+        if (previewUrl.value && previewUrl.value.startsWith('blob:')) {
+            URL.revokeObjectURL(previewUrl.value);
+        }
+        previewUrl.value = null;
 
-        oldPdf.value = getPdfUrl(props.ordinance.file_path_ordinances);
-    } else {
-        form.ordinance_number = '';
-        form.title_ordinances = '';
-        form.description_ordinances = '';
-        form.date_approved_ordinances = '';
-        form.author_ordinances = '';
-        form.file_path_ordinances = null;
-        oldPdf.value = null;
-    }
-});
+        if (props.ordinance) {
+            form.ordinance_number = props.ordinance.ordinance_number || '';
+            form.title_ordinances = props.ordinance.title_ordinances || '';
+            form.description_ordinances = props.ordinance.description_ordinances || '';
+            form.date_approved_ordinances = props.ordinance.date_approved_ordinances?.split('T')[0] || '';
+            form.author_ordinances = props.ordinance.author_ordinances || '';
+            form.file_path_ordinances = null;
+
+            oldFile.value = getFileUrl(props.ordinance.file_path_ordinances);
+
+            if (oldFile.value && IMAGE_EXTENSIONS.includes(getExtension(oldFile.value))) {
+                previewUrl.value = oldFile.value;
+            }
+        } else {
+            form.ordinance_number = '';
+            form.title_ordinances = '';
+            form.description_ordinances = '';
+            form.date_approved_ordinances = '';
+            form.author_ordinances = '';
+            form.file_path_ordinances = null;
+            oldFile.value = null;
+        }
+    },
+    { immediate: true }
+);
 
 const closeModal = () => emit('close');
 
@@ -390,6 +452,11 @@ const closeModal = () => emit('close');
 const processFile = (file: File) => {
     const error = validateFilename(file);
 
+    if (previewUrl.value && previewUrl.value.startsWith('blob:')) {
+        URL.revokeObjectURL(previewUrl.value);
+    }
+    previewUrl.value = null;
+
     if (error) {
         fileNameError.value = error;
         form.file_path_ordinances = null; // never let an invalid file into the form
@@ -398,27 +465,31 @@ const processFile = (file: File) => {
 
     fileNameError.value = null;
     form.file_path_ordinances = file;
-    oldPdf.value = null;
+    oldFile.value = null;
+
+    if (IMAGE_EXTENSIONS.includes(getExtension(file.name))) {
+        previewUrl.value = URL.createObjectURL(file);
+    }
 };
 
-const handleFileDrop = (e: DragEvent, type: 'pdf') => {
+const handleFileDrop = (e: DragEvent, type: 'file') => {
     e.preventDefault();
     isPdfDragging.value = false;
 
     const file = e.dataTransfer?.files?.[0];
     if (!file) return;
 
-    if (type === 'pdf') {
+    if (type === 'file') {
         processFile(file);
     }
 };
 
-const handleFileChange = (e: Event, type: 'pdf') => {
+const handleFileChange = (e: Event, type: 'file') => {
     const input = e.target as HTMLInputElement;
     const file = input.files?.[0];
     if (!file) return;
 
-    if (type === 'pdf') {
+    if (type === 'file') {
         processFile(file);
     }
 
@@ -443,8 +514,8 @@ const submit = async () => {
         }
     });
 
-    if (!form.file_path_ordinances && oldPdf.value) {
-        data.append('keep_pdf', '1');
+    if (!form.file_path_ordinances && oldFile.value) {
+        data.append('keep_file', '1');
     }
 
     const url = props.ordinance?.id
@@ -485,7 +556,7 @@ const submit = async () => {
     .overflow-y-auto::-webkit-scrollbar {
         display: none;
     }
-    
+
     /* Hide scrollbar for IE, Edge and Firefox */
     .overflow-y-auto {
         -ms-overflow-style: none;  /* IE and Edge */

@@ -184,10 +184,7 @@ class ResolutionController extends Controller
             'title_resolutions' => 'required|string|max:5000',
             'description_resolutions' => 'nullable|string',
             'date_approved_resolutions' => 'nullable|date',
-
-            'file_path_resolutions' => 'nullable|file|mimes:pdf|max:51200',
-
-
+            'file_path_resolutions' => 'nullable|file|mimes:pdf,jpg,jpeg,png,webp|max:51200',
             'author_resolutions' => 'nullable|string|max:255',
         ], [
             'resolutions_number.required' => 'Please enter the resolution number.',
@@ -195,28 +192,32 @@ class ResolutionController extends Controller
             'title_resolutions.required' => 'Please enter a title.',
             'title_resolutions.max' => 'The title is too long (max :max characters).',
             'date_approved_resolutions.date' => 'Please enter a valid date.',
-            'file_path_resolutions.mimes' => 'The file must be a PDF.',
-            'file_path_resolutions.max' => 'The PDF must not exceed 50MB.',
-
+            'file_path_resolutions.mimes' => 'The file must be a PDF or an image (jpg, jpeg, png, webp).',
+            'file_path_resolutions.max' => 'The file must not exceed 50MB.',
         ]);
 
         // Filename validation — reject names with characters that can trigger WAF false positives
         if ($request->hasFile('file_path_resolutions')) {
             $originalName = $request->file('file_path_resolutions')->getClientOriginalName();
 
-            if (!preg_match('/^[a-zA-Z0-9\-_ ]+\.pdf$/i', $originalName)) {
+            if (!preg_match('/^[a-zA-Z0-9\-_ ]+\.(pdf|jpg|jpeg|png|webp)$/i', $originalName)) {
                 throw \Illuminate\Validation\ValidationException::withMessages([
-                    'file_path_resolutions' => 'The PDF filename contains characters that are not allowed (e.g. periods, apostrophes, or special symbols). Please rename the file using only letters, numbers, spaces, and hyphens, then try again.',
+                    'file_path_resolutions' => 'The filename contains characters that are not allowed (e.g. periods, apostrophes, or special symbols). Please rename the file using only letters, numbers, spaces, and hyphens, then try again.',
                 ]);
             }
         }
 
-        // Upload PDF
+        // Upload file (PDF or image)
         if ($request->hasFile('file_path_resolutions')) {
-            $validated['file_path_resolutions'] = $request->file('file_path_resolutions')
-                ->store('resolutions/pdf', 'public');
-        }
+            $file = $request->file('file_path_resolutions');
+            $extension = strtolower($file->getClientOriginalExtension());
 
+            // Store PDFs and images in separate folders for organization
+            $folder = $extension === 'pdf' ? 'resolutions/pdf' : 'resolutions/images';
+
+            $validated['file_path_resolutions'] = $file->store($folder, 'public');
+            $validated['file_type_resolutions'] = $extension === 'pdf' ? 'pdf' : 'image';
+        }
 
         Resolution::create($validated);
 
@@ -226,8 +227,8 @@ class ResolutionController extends Controller
     }
 
     // ==========================
-    // UPDATE - Update resolution
-    // ==========================
+// UPDATE - Update resolution
+// ==========================
     public function update(Request $request, $id)
     {
         $resolution = Resolution::findOrFail($id);
@@ -237,9 +238,7 @@ class ResolutionController extends Controller
             'title_resolutions' => 'required|string|max:5000',
             'description_resolutions' => 'nullable|string',
             'date_approved_resolutions' => 'nullable|date',
-
-            'file_path_resolutions' => 'nullable|file|mimes:pdf|max:51200',
-
+            'file_path_resolutions' => 'nullable|file|mimes:pdf,jpg,jpeg,png,webp|max:51200',
             'author_resolutions' => 'nullable|string|max:255',
         ], [
             'resolutions_number.required' => 'Please enter the resolution number.',
@@ -247,32 +246,37 @@ class ResolutionController extends Controller
             'title_resolutions.required' => 'Please enter a title.',
             'title_resolutions.max' => 'The title is too long (max :max characters).',
             'date_approved_resolutions.date' => 'Please enter a valid date.',
-            'file_path_resolutions.mimes' => 'The file must be a PDF.',
-            'file_path_resolutions.max' => 'The PDF must not exceed 50MB.',
+            'file_path_resolutions.mimes' => 'The file must be a PDF or an image (jpg, jpeg, png, webp).',
+            'file_path_resolutions.max' => 'The file must not exceed 50MB.',
         ]);
 
         // Filename validation — reject names with characters that can trigger WAF false positives
         if ($request->hasFile('file_path_resolutions')) {
             $originalName = $request->file('file_path_resolutions')->getClientOriginalName();
 
-            if (!preg_match('/^[a-zA-Z0-9\-_ ]+\.pdf$/i', $originalName)) {
+            if (!preg_match('/^[a-zA-Z0-9\-_ ]+\.(pdf|jpg|jpeg|png|webp)$/i', $originalName)) {
                 throw \Illuminate\Validation\ValidationException::withMessages([
-                    'file_path_resolutions' => 'The PDF filename contains characters that are not allowed (e.g. periods, apostrophes, or special symbols). Please rename the file using only letters, numbers, spaces, and hyphens, then try again.',
+                    'file_path_resolutions' => 'The filename contains characters that are not allowed (e.g. periods, apostrophes, or special symbols). Please rename the file using only letters, numbers, spaces, and hyphens, then try again.',
                 ]);
             }
         }
 
-        // Replace PDF
+        // Replace file (PDF or image)
         if ($request->hasFile('file_path_resolutions')) {
 
-            // Delete old PDF
+            // Delete old file
             if ($resolution->file_path_resolutions) {
                 Storage::disk('public')->delete($resolution->file_path_resolutions);
             }
 
-            // Store new PDF
-            $validated['file_path_resolutions'] = $request->file('file_path_resolutions')
-                ->store('resolutions/pdf', 'public');
+            $file = $request->file('file_path_resolutions');
+            $extension = strtolower($file->getClientOriginalExtension());
+
+            // Store PDFs and images in separate folders for organization
+            $folder = $extension === 'pdf' ? 'resolutions/pdf' : 'resolutions/images';
+
+            $validated['file_path_resolutions'] = $file->store($folder, 'public');
+            $validated['file_type_resolutions'] = $extension === 'pdf' ? 'pdf' : 'image';
         }
 
         $resolution->update($validated);
@@ -429,7 +433,7 @@ class ResolutionController extends Controller
 
             try {
                 $response = Http::asForm()->post('https://www.google.com/recaptcha/api/siteverify', [
-                    'secret'   => config('services.recaptcha.secret_key'),
+                    'secret' => config('services.recaptcha.secret_key'),
                     'response' => $request->recaptcha_token,
                     'remoteip' => $request->ip(),
                 ]);
@@ -441,7 +445,7 @@ class ResolutionController extends Controller
                 ]);
             }
 
-            if (! ($result['success'] ?? false) || ($result['score'] ?? 0) < 0.5) {
+            if (!($result['success'] ?? false) || ($result['score'] ?? 0) < 0.5) {
                 return back()->withErrors([
                     'captcha' => 'reCAPTCHA verification failed. Suspicious activity detected.',
                 ]);
@@ -489,7 +493,7 @@ class ResolutionController extends Controller
                         return;
                     }
 
-                    if (! preg_match('/^[a-zA-Z0-9\- _]+$/', $nameWithoutExtension)) {
+                    if (!preg_match('/^[a-zA-Z0-9\- _]+$/', $nameWithoutExtension)) {
                         $fail('The valid ID filename contains characters that aren\'t allowed. Please rename the file using only letters, numbers, spaces, hyphens and underscores, then re-upload.');
                     }
                 },

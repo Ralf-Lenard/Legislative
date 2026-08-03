@@ -233,8 +233,7 @@ class OrdinancesController extends Controller
             'title_ordinances' => 'required|string|max:5000',
             'description_ordinances' => 'nullable|string',
             'date_approved_ordinances' => 'nullable|date',
-            'file_path_ordinances' => 'nullable|file|mimes:pdf|max:51200',
-
+            'file_path_ordinances' => 'nullable|file|mimes:pdf,jpg,jpeg,png,webp|max:51200',
             'author_ordinances' => 'nullable|string|max:255',
         ], [
             'ordinance_number.required' => 'Please enter the ordinance number.',
@@ -242,25 +241,31 @@ class OrdinancesController extends Controller
             'title_ordinances.required' => 'Please enter a title.',
             'title_ordinances.max' => 'The title is too long (max :max characters).',
             'date_approved_ordinances.date' => 'Please enter a valid date.',
-            'file_path_ordinances.mimes' => 'The file must be a PDF.',
-            'file_path_ordinances.max' => 'The PDF must not exceed 50MB.',
+            'file_path_ordinances.mimes' => 'The file must be a PDF or an image (jpg, jpeg, png, webp).',
+            'file_path_ordinances.max' => 'The file must not exceed 50MB.',
         ]);
 
         // Filename validation — reject names with characters that can trigger WAF false positives
         if ($request->hasFile('file_path_ordinances')) {
             $originalName = $request->file('file_path_ordinances')->getClientOriginalName();
 
-            if (!preg_match('/^[a-zA-Z0-9\-_ ]+\.pdf$/i', $originalName)) {
+            if (!preg_match('/^[a-zA-Z0-9\-_ ]+\.(pdf|jpg|jpeg|png|webp)$/i', $originalName)) {
                 throw \Illuminate\Validation\ValidationException::withMessages([
-                    'file_path_ordinances' => 'The PDF filename contains characters that are not allowed (e.g. periods, apostrophes, or special symbols). Please rename the file using only letters, numbers, spaces, and hyphens, then try again.',
+                    'file_path_ordinances' => 'The filename contains characters that are not allowed (e.g. periods, apostrophes, or special symbols). Please rename the file using only letters, numbers, spaces, and hyphens, then try again.',
                 ]);
             }
         }
 
-        // Upload PDF
+        // Upload file (PDF or image)
         if ($request->hasFile('file_path_ordinances')) {
-            $validated['file_path_ordinances'] = $request->file('file_path_ordinances')
-                ->store('ordinances/pdf', 'public');
+            $file = $request->file('file_path_ordinances');
+            $extension = strtolower($file->getClientOriginalExtension());
+
+            // Store PDFs and images in separate folders for organization
+            $folder = $extension === 'pdf' ? 'ordinances/pdf' : 'ordinances/images';
+
+            $validated['file_path_ordinances'] = $file->store($folder, 'public');
+            $validated['file_type_ordinances'] = $extension === 'pdf' ? 'pdf' : 'image';
         }
 
         Ordinance::create($validated);
@@ -269,7 +274,6 @@ class OrdinancesController extends Controller
             ->route('ordinances.index')
             ->with('success', 'Ordinance saved successfully.');
     }
-
     // ==========================
     // UPDATE - Update ordinance
     // ==========================
@@ -282,9 +286,7 @@ class OrdinancesController extends Controller
             'title_ordinances' => 'required|string|max:5000',
             'description_ordinances' => 'nullable|string',
             'date_approved_ordinances' => 'nullable|date',
-
-            'file_path_ordinances' => 'nullable|file|mimes:pdf|max:51200',
-
+            'file_path_ordinances' => 'nullable|file|mimes:pdf,jpg,jpeg,png,webp|max:51200',
             'author_ordinances' => 'nullable|string|max:255',
         ], [
             'ordinance_number.required' => 'Please enter the ordinance number.',
@@ -292,32 +294,37 @@ class OrdinancesController extends Controller
             'title_ordinances.required' => 'Please enter a title.',
             'title_ordinances.max' => 'The title is too long (max :max characters).',
             'date_approved_ordinances.date' => 'Please enter a valid date.',
-            'file_path_ordinances.mimes' => 'The file must be a PDF.',
-            'file_path_ordinances.max' => 'The PDF must not exceed 50MB.',
+            'file_path_ordinances.mimes' => 'The file must be a PDF or an image (jpg, jpeg, png, webp).',
+            'file_path_ordinances.max' => 'The file must not exceed 50MB.',
         ]);
 
         // Filename validation — reject names with characters that can trigger WAF false positives
         if ($request->hasFile('file_path_ordinances')) {
             $originalName = $request->file('file_path_ordinances')->getClientOriginalName();
 
-            if (!preg_match('/^[a-zA-Z0-9\-_ ]+\.pdf$/i', $originalName)) {
+            if (!preg_match('/^[a-zA-Z0-9\-_ ]+\.(pdf|jpg|jpeg|png|webp)$/i', $originalName)) {
                 throw \Illuminate\Validation\ValidationException::withMessages([
-                    'file_path_ordinances' => 'The PDF filename contains characters that are not allowed (e.g. periods, apostrophes, or special symbols). Please rename the file using only letters, numbers, spaces, and hyphens, then try again.',
+                    'file_path_ordinances' => 'The filename contains characters that are not allowed (e.g. periods, apostrophes, or special symbols). Please rename the file using only letters, numbers, spaces, and hyphens, then try again.',
                 ]);
             }
         }
 
-        // Replace PDF
+        // Replace file (PDF or image)
         if ($request->hasFile('file_path_ordinances')) {
 
-            // Delete old PDF
+            // Delete old file
             if ($ordinance->file_path_ordinances) {
                 Storage::disk('public')->delete($ordinance->file_path_ordinances);
             }
 
-            // Store new PDF
-            $validated['file_path_ordinances'] = $request->file('file_path_ordinances')
-                ->store('ordinances/pdf', 'public');
+            $file = $request->file('file_path_ordinances');
+            $extension = strtolower($file->getClientOriginalExtension());
+
+            // Store PDFs and images in separate folders for organization
+            $folder = $extension === 'pdf' ? 'ordinances/pdf' : 'ordinances/images';
+
+            $validated['file_path_ordinances'] = $file->store($folder, 'public');
+            $validated['file_type_ordinances'] = $extension === 'pdf' ? 'pdf' : 'image';
         }
 
         $ordinance->update($validated);
@@ -326,7 +333,6 @@ class OrdinancesController extends Controller
             ->route('ordinances.index')
             ->with('success', 'Ordinance updated successfully.');
     }
-
     // ==========================
     // DELETE - Remove ordinance
     // ==========================
@@ -497,7 +503,7 @@ class OrdinancesController extends Controller
 
             try {
                 $response = Http::asForm()->post('https://www.google.com/recaptcha/api/siteverify', [
-                    'secret'   => config('services.recaptcha.secret_key'),
+                    'secret' => config('services.recaptcha.secret_key'),
                     'response' => $request->recaptcha_token,
                     'remoteip' => $request->ip(),
                 ]);
@@ -509,7 +515,7 @@ class OrdinancesController extends Controller
                 ]);
             }
 
-            if (! ($result['success'] ?? false) || ($result['score'] ?? 0) < 0.5) {
+            if (!($result['success'] ?? false) || ($result['score'] ?? 0) < 0.5) {
                 return back()->withErrors([
                     'captcha' => 'reCAPTCHA verification failed. Suspicious activity detected.',
                 ]);
@@ -534,9 +540,9 @@ class OrdinancesController extends Controller
         ];
 
         $request->validate([
-            'purpose'       => 'required|string|max:500',
+            'purpose' => 'required|string|max:500',
             'valid_id_type' => ['required', \Illuminate\Validation\Rule::in($validIdTypes)],
-            'valid_id'      => [
+            'valid_id' => [
                 'required',
                 'file',
                 'mimes:jpg,jpeg,png,pdf',
@@ -554,14 +560,14 @@ class OrdinancesController extends Controller
                         return;
                     }
 
-                    if (! preg_match('/^[a-zA-Z0-9\- _]+$/', $nameWithoutExtension)) {
+                    if (!preg_match('/^[a-zA-Z0-9\- _]+$/', $nameWithoutExtension)) {
                         $fail('The valid ID filename contains characters that aren\'t allowed. Please rename the file using only letters, numbers, spaces, hyphens and underscores, then re-upload.');
                     }
                 },
             ],
         ], [
-            'valid_id.max'    => 'The valid ID image may not be larger than 5MB.',
-            'valid_id.mimes'  => 'The valid ID must be a file of type: jpg, jpeg, png, pdf.',
+            'valid_id.max' => 'The valid ID image may not be larger than 5MB.',
+            'valid_id.mimes' => 'The valid ID must be a file of type: jpg, jpeg, png, pdf.',
         ]);
 
         $ordinance = Ordinance::findOrFail($id);
@@ -570,12 +576,12 @@ class OrdinancesController extends Controller
         $path = $request->file('valid_id')->store('valid_ids/ordinance_requests', 'public');
 
         $downloadRequest = OrdinanceDownloadRequest::create([
-            'user_id'       => auth()->id(),
-            'ordinance_id'  => $id,
-            'purpose'       => $request->purpose,
+            'user_id' => auth()->id(),
+            'ordinance_id' => $id,
+            'purpose' => $request->purpose,
             'valid_id_type' => $request->valid_id_type,
             'valid_id_path' => $path,
-            'status'        => 'pending',
+            'status' => 'pending',
         ]);
 
         event(new OrdinanceDownloadRequestSubmitted($downloadRequest));
